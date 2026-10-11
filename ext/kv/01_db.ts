@@ -8,6 +8,7 @@ const {
 const {
   op_kv_atomic_write,
   op_kv_database_open,
+  op_kv_database_open_native,
   op_kv_dequeue_next_message,
   op_kv_encode_cursor,
   op_kv_finish_dequeued_message,
@@ -61,6 +62,11 @@ const encodeCursor: (
 
 async function openKv(path: string) {
   const rid = await op_kv_database_open(path);
+  return new Kv(rid, kvSymbol);
+}
+
+async function openNativeKv(path: string) {
+  const rid = await op_kv_database_open_native(path);
   return new Kv(rid, kvSymbol);
 }
 
@@ -991,5 +997,5 @@ async function doAtomicWriteInPlace(
   );
 }
 
-return { AtomicOperation, Kv, KvListIterator, KvU64, openKv };
+return { AtomicOperation, Kv, KvListIterator, KvU64, openKv, openNativeKv };
 })();

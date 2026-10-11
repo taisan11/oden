@@ -3,7 +3,9 @@
 pub mod config;
 pub mod dynamic;
 mod interface;
+pub mod native;
 pub mod remote;
+#[cfg(feature = "sqlite")]
 pub mod sqlite;
 
 use std::borrow::Cow;
@@ -68,6 +70,7 @@ deno_core::extension!(deno_kv,
   deps = [ deno_web ],
   ops = [
     op_kv_database_open,
+    op_kv_database_open_native,
     op_kv_snapshot_read,
     op_kv_atomic_write,
     op_kv_encode_cursor,
@@ -79,13 +82,17 @@ deno_core::extension!(deno_kv,
   lazy_loaded_js = [ "01_db.ts" ],
   options = {
     handler: Box<dyn DynamicDbHandler>,
+    native_handler: Box<dyn DynamicDbHandler>,
     config: KvConfig,
   },
   state = |state, options| {
     state.put(Rc::new(options.config));
     state.put::<Rc<dyn DynamicDbHandler>>(Rc::from(options.handler));
+    state.put(NativeDatabaseHandler(Rc::from(options.native_handler)));
   }
 );
+
+struct NativeDatabaseHandler(Rc<dyn DynamicDbHandler>);
 
 struct DatabaseResource {
   db: RcDynamicDb,
@@ -216,12 +223,34 @@ async fn op_kv_database_open(
   state: Rc<RefCell<OpState>>,
   #[string] path: Option<String>,
 ) -> Result<ResourceId, KvError> {
+  open_database(state, path, false).await
+}
+
+#[op2(stack_trace)]
+#[smi]
+async fn op_kv_database_open_native(
+  state: Rc<RefCell<OpState>>,
+  #[string] path: Option<String>,
+) -> Result<ResourceId, KvError> {
+  open_database(state, path, true).await
+}
+
+async fn open_database(
+  state: Rc<RefCell<OpState>>,
+  path: Option<String>,
+  native: bool,
+) -> Result<ResourceId, KvError> {
   let handler = {
     let state = state.borrow();
-    state
-      .borrow::<Arc<FeatureChecker>>()
-      .check_or_exit(UNSTABLE_FEATURE_NAME, "Deno.openKv");
-    state.borrow::<Rc<dyn DynamicDbHandler>>().clone()
+    state.borrow::<Arc<FeatureChecker>>().check_or_exit(
+      UNSTABLE_FEATURE_NAME,
+      if native { "Oden.openKv" } else { "Deno.openKv" },
+    );
+    if native {
+      state.borrow::<NativeDatabaseHandler>().0.clone()
+    } else {
+      state.borrow::<Rc<dyn DynamicDbHandler>>().clone()
+    }
   };
   let db = handler
     .dyn_open(state.clone(), path)

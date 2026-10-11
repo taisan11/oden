@@ -1,0 +1,48 @@
+{
+  "recorded_at_utc": "2026-10-11T05:51:56.387679+00:00",
+  "kernel": "6.18.44",
+  "architecture": "x86_64",
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "visible_cpus": 3,
+  "filesystem": "overlay (/tmp and /workspace)",
+  "rustc": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "git_head": "ef051560e2dea559c153c0a5b0ae8a2156491ab5",
+  "worktree_dirty": true,
+  "cargo_profile": "release-lite",
+  "native_rust_opt_level": "z",
+  "sqlite_rust_opt_level": "z",
+  "lto": "thin",
+  "features": [
+    "sqlite",
+    "deno_core/v8"
+  ],
+  "sqlite_backend_version": "0.14.0",
+  "sqlite_durability": "Unchanged Deno handler; WAL, SQLite default synchronous",
+  "native_durability": "OS file lock and sync_all for each changed transaction",
+  "source_sha256": {
+    "ext/kv/native.rs": "efc5d1a3fb57c625ed0199f15d74092198b77e6f88095e603167f5bddd43e7bf",
+    "ext/kv/native_sum.rs": "e2d7860afe9627ea18c03bbeeb01e497f08295df2ddb4f600551b06f0dcf37b1",
+    "ext/kv/sqlite.rs": "f13ca15a01777f3a272ecb8a710a701cfab1d869f68c2339b5537f4ee3b64647",
+    "ext/kv/examples/kv_bench.rs": "bd2f4d887b40bb4c1cf80234a70b8d31a06fb295e185e5ef303d1fe5fb9f1b86",
+    "ext/kv/Cargo.toml": "256ee87a6eaf60b8162a440e903ba468fc7b331341fe37ca36af255354101b6f",
+    "Cargo.lock": "9cc9e6ce921b03c49d309ad081a4c905cd1826d1391edd120a872453dcbd5dcb",
+    "benchmarks/kv-native/api_bench.ts": "397dc234e0da9828e8d940ce3f98773307a28a54ed0859ad50cc9afa271da8fb"
+  },
+  "binary_sha256": {
+    "backend": "d41ac7dfc84a332a037a2a7a509d79c764ef1cd57adf35703bed4f779e21b595",
+    "api_debug_cli": "ed35b9c63a2cae38a95c2d652d7bd0f1af6c15b083488992e6430bf6b7fc46d0"
+  },
+  "result_scope": "Native raw timings only. SQLite-relative ratios from paired measurements are in summary.json; SQLite absolute timings are excluded from published results.",
+  "checks": {
+    "rust_native_tests": 10,
+    "js_tests_passed": 189,
+    "js_remote_tests_ignored": 5,
+    "clippy": "passed -D warnings",
+    "no_sqlite_cargo_check": "passed",
+    "api_benchmark_type_check": "passed (native TypeScript compiler)"
+  },
+  "publication_changes": [
+    "Benchmark artifacts relocated to tests/bench/kv-native for repository layout rules.",
+    "Formatting, license headers, and CLI example paths updated after measurement; recorded source and binary hashes identify the measured build."
+  ]
+}

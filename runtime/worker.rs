@@ -655,6 +655,10 @@ impl MainWorker {
               proxy: None,
             },
           )),
+          Box::new(deno_kv::native::NativeDbHandler::new(
+            options.origin_storage_dir.clone(),
+            options.seed,
+          )),
           deno_kv::KvConfig::builder().build(),
         ),
         deno_napi::deno_napi::args(

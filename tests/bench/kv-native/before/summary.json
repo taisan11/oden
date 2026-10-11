@@ -1,0 +1,266 @@
+{
+  "metadata": {
+    "kind": "metadata",
+    "debug_assertions": true,
+    "profile": "debug",
+    "os": "linux",
+    "arch": "x86_64",
+    "iterations": 30,
+    "repeats": 3,
+    "value_bytes": 256,
+    "seed_batch": 1000,
+    "io": "OS file locks and fsync, warm OS cache; temporary overlay filesystem"
+  },
+  "workloads": [
+    {
+      "entries": 100,
+      "mode": "memory",
+      "operation": "get",
+      "p50_ms": 0.071578,
+      "p95_ms": 0.09504399999999999,
+      "ops_per_s": 13352.287647442636,
+      "initial_bytes": 0,
+      "final_bytes": 0
+    },
+    {
+      "entries": 100,
+      "mode": "memory",
+      "operation": "overwrite",
+      "p50_ms": 0.072149,
+      "p95_ms": 0.093761,
+      "ops_per_s": 13169.01909244388,
+      "initial_bytes": 0,
+      "final_bytes": 0
+    },
+    {
+      "entries": 100,
+      "mode": "memory",
+      "operation": "cas",
+      "p50_ms": 0.148533,
+      "p95_ms": 0.179891,
+      "ops_per_s": 6496.85195038744,
+      "initial_bytes": 0,
+      "final_bytes": 0
+    },
+    {
+      "entries": 100,
+      "mode": "memory",
+      "operation": "list_100",
+      "p50_ms": 0.105468,
+      "p95_ms": 0.137097,
+      "ops_per_s": 8926.802008887524,
+      "initial_bytes": 0,
+      "final_bytes": 0
+    },
+    {
+      "entries": 100,
+      "mode": "disk",
+      "operation": "get",
+      "p50_ms": 2.0020379999999998,
+      "p95_ms": 2.585938,
+      "ops_per_s": 486.33564619976596,
+      "initial_bytes": 29580,
+      "final_bytes": 29580
+    },
+    {
+      "entries": 100,
+      "mode": "disk",
+      "operation": "overwrite",
+      "p50_ms": 33.861226,
+      "p95_ms": 67.45738499999999,
+      "ops_per_s": 28.06619656448536,
+      "initial_bytes": 29580,
+      "final_bytes": 916740
+    },
+    {
+      "entries": 100,
+      "mode": "disk",
+      "operation": "cas",
+      "p50_ms": 70.435202,
+      "p95_ms": 118.55086800000001,
+      "ops_per_s": 14.740071182142495,
+      "initial_bytes": 29580,
+      "final_bytes": 916740
+    },
+    {
+      "entries": 100,
+      "mode": "disk",
+      "operation": "list_100",
+      "p50_ms": 2.063861,
+      "p95_ms": 3.094495,
+      "ops_per_s": 467.249930601704,
+      "initial_bytes": 29580,
+      "final_bytes": 29580
+    },
+    {
+      "entries": 1000,
+      "mode": "memory",
+      "operation": "get",
+      "p50_ms": 0.414976,
+      "p95_ms": 0.532703,
+      "ops_per_s": 2272.503809852637,
+      "initial_bytes": 0,
+      "final_bytes": 0
+    },
+    {
+      "entries": 1000,
+      "mode": "memory",
+      "operation": "overwrite",
+      "p50_ms": 0.435537,
+      "p95_ms": 0.650074,
+      "ops_per_s": 2095.1128141429613,
+      "initial_bytes": 0,
+      "final_bytes": 0
+    },
+    {
+      "entries": 1000,
+      "mode": "memory",
+      "operation": "cas",
+      "p50_ms": 0.893607,
+      "p95_ms": 1.170634,
+      "ops_per_s": 1072.2526741981694,
+      "initial_bytes": 0,
+      "final_bytes": 0
+    },
+    {
+      "entries": 1000,
+      "mode": "memory",
+      "operation": "list_100",
+      "p50_ms": 0.45089,
+      "p95_ms": 0.7044109999999999,
+      "ops_per_s": 1966.2079634568452,
+      "initial_bytes": 0,
+      "final_bytes": 0
+    },
+    {
+      "entries": 1000,
+      "mode": "disk",
+      "operation": "get",
+      "p50_ms": 18.784242,
+      "p95_ms": 21.355728,
+      "ops_per_s": 52.09846531449419,
+      "initial_bytes": 295080,
+      "final_bytes": 295080
+    },
+    {
+      "entries": 1000,
+      "mode": "disk",
+      "operation": "overwrite",
+      "p50_ms": 316.761483,
+      "p95_ms": 563.420551,
+      "ops_per_s": 3.1182178926490205,
+      "initial_bytes": 295080,
+      "final_bytes": 9147240
+    },
+    {
+      "entries": 1000,
+      "mode": "disk",
+      "operation": "cas",
+      "p50_ms": 606.923172,
+      "p95_ms": 1146.2898969999999,
+      "ops_per_s": 1.592622281755788,
+      "initial_bytes": 295080,
+      "final_bytes": 9147240
+    },
+    {
+      "entries": 1000,
+      "mode": "disk",
+      "operation": "list_100",
+      "p50_ms": 18.480779,
+      "p95_ms": 19.529429,
+      "ops_per_s": 53.850725551827146,
+      "initial_bytes": 295080,
+      "final_bytes": 295080
+    }
+  ],
+  "growth": [
+    {
+      "kind": "growth",
+      "backend": "native",
+      "entries": 1000,
+      "updates": 0,
+      "file_bytes": 295080,
+      "read_latency_ms": [
+        18.338687,
+        18.390264,
+        18.11554,
+        18.604137,
+        18.65954,
+        18.13534,
+        18.266087,
+        18.73254,
+        18.334159,
+        18.970779
+      ],
+      "reopen_ms": 38.206478000000004,
+      "read_p50_ms": 18.338687,
+      "read_p95_ms": 18.970779
+    },
+    {
+      "kind": "growth",
+      "backend": "native",
+      "entries": 1000,
+      "updates": 10,
+      "file_bytes": 3245800,
+      "read_latency_ms": [
+        202.996599,
+        202.984621,
+        204.883162,
+        206.136892,
+        209.622594,
+        204.83622300000002,
+        202.863919,
+        201.713446,
+        203.81305999999998,
+        203.645988
+      ],
+      "reopen_ms": 410.434452,
+      "read_p50_ms": 203.645988,
+      "read_p95_ms": 209.622594
+    },
+    {
+      "kind": "growth",
+      "backend": "native",
+      "entries": 1000,
+      "updates": 50,
+      "file_bytes": 15048680,
+      "read_latency_ms": [
+        919.769617,
+        930.270475,
+        927.744629,
+        931.598017,
+        939.9291840000001,
+        967.933869,
+        971.7095049999999,
+        972.26062,
+        945.665085,
+        951.551094
+      ],
+      "reopen_ms": 1896.238007,
+      "read_p50_ms": 939.9291840000001,
+      "read_p95_ms": 972.26062
+    },
+    {
+      "kind": "growth",
+      "backend": "native",
+      "entries": 1000,
+      "updates": 100,
+      "file_bytes": 29802280,
+      "read_latency_ms": [
+        1893.3286580000001,
+        1949.891038,
+        1845.7588870000002,
+        1854.4287550000001,
+        1879.588126,
+        1847.4105349999998,
+        1829.9448900000002,
+        1856.3172240000001,
+        1971.6045,
+        1893.4536899999998
+      ],
+      "reopen_ms": 4051.5329940000006,
+      "read_p50_ms": 1856.3172240000001,
+      "read_p95_ms": 1971.6045
+    }
+  ]
+}

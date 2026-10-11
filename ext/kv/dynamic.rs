@@ -16,7 +16,7 @@ use crate::DatabaseHandler;
 use crate::QueueMessageHandle;
 use crate::ReadRange;
 use crate::SnapshotReadOptions;
-use crate::sqlite::SqliteDbHandler;
+use crate::native::NativeDbHandler;
 
 pub struct MultiBackendDbHandler {
   backends: Vec<(&'static [&'static str], Box<dyn DynamicDbHandler>)>,
@@ -29,6 +29,7 @@ impl MultiBackendDbHandler {
     Self { backends }
   }
 
+  #[cfg(feature = "sqlite")]
   pub fn remote_or_sqlite(
     default_storage_dir: Option<std::path::PathBuf>,
     versionstamp_rng_seed: Option<u64>,
@@ -41,7 +42,27 @@ impl MultiBackendDbHandler {
       ),
       (
         &[""],
-        Box::new(SqliteDbHandler::new(
+        Box::new(crate::sqlite::SqliteDbHandler::new(
+          default_storage_dir,
+          versionstamp_rng_seed,
+        )),
+      ),
+    ])
+  }
+
+  pub fn remote_or_native(
+    default_storage_dir: Option<std::path::PathBuf>,
+    versionstamp_rng_seed: Option<u64>,
+    http_options: crate::remote::HttpOptions,
+  ) -> Self {
+    Self::new(vec![
+      (
+        &["https://", "http://"],
+        Box::new(crate::remote::RemoteDbHandler::new(http_options)),
+      ),
+      (
+        &[""],
+        Box::new(NativeDbHandler::new(
           default_storage_dir,
           versionstamp_rng_seed,
         )),
@@ -75,7 +96,7 @@ impl DatabaseHandler for MultiBackendDbHandler {
     // Deno Deploy: when an attached (distributed) KV database is required,
     // do not silently fall back to a local/in-memory store. `error` rejects
     // the open with a clear message; `warn` logs once and allows the fallback.
-    // A distributed database is one served over http(s) (see `remote_or_sqlite`).
+    // A distributed database is one served over http(s) (see the remote/local backend constructors).
     if let Ok(mode) = std::env::var("DENO_KV_REQUIRES_DISTRIBUTED_DATABASE") {
       let is_distributed = path
         .as_deref()
