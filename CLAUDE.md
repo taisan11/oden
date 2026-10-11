@@ -1,4 +1,7 @@
-# Deno Development Guide
+# oden Development Guide
+
+oden is an experimental fork of Deno. Preserve the `Deno` namespace and existing
+programmatic names; the project brand is oden.
 
 ## Table of Contents
 

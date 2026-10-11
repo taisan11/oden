@@ -1,7 +1,5 @@
 # Checkin: A Tiny Testing Tool for `deno_core`
 
-<img src="docs/logo.png" align="right" width="100" />
-
 ## Why Checkin?
 
 Dino : _Deno_ :: Chicken : _Checkin_

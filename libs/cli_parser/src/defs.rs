@@ -1940,7 +1940,7 @@ pub static COVERAGE_SUBCOMMAND: CommandDef = CommandDef {
 
 pub static REPL_SUBCOMMAND: CommandDef = CommandDef {
   name: "repl",
-  about: "Start an interactive Read-Eval-Print Loop (REPL) for Deno",
+  about: "Start an interactive Read-Eval-Print Loop (REPL) for oden",
   aliases: &[],
   args: &[
     ArgDef::new("eval")
@@ -2288,7 +2288,7 @@ pub static CREATE_SUBCOMMAND: CommandDef = CommandDef {
 
 pub static JUPYTER_SUBCOMMAND: CommandDef = CommandDef {
   name: "jupyter",
-  about: "Deno kernel for Jupyter notebooks",
+  about: "oden kernel for Jupyter notebooks",
   aliases: &[],
   args: &[
     ArgDef::new("install")
@@ -2302,14 +2302,14 @@ pub static JUPYTER_SUBCOMMAND: CommandDef = CommandDef {
       .action(ArgAction::Set)
       .num_args(NumArgs::Exact(1))
       .conflicts_with(&["kernel"])
-.help("Set a name for the kernel (defaults to 'deno'). Useful when maintaing multiple Deno kernels."),
+.help("Set a name for the kernel (defaults to 'deno'). Useful when maintaing multiple oden kernels."),
     ArgDef::new("display")
       .short('d')
       .long("display")
       .action(ArgAction::Set)
       .num_args(NumArgs::Exact(1))
       .requires(&["install"])
-.help("Set a display name for the kernel (defaults to 'Deno'). Useful when maintaing multiple Deno kernels."),
+.help("Set a display name for the kernel (defaults to 'oden'). Useful when maintaing multiple oden kernels."),
     ArgDef::new("kernel")
       .long("kernel")
       .set_true()
@@ -3459,7 +3459,7 @@ pub static SYNC_TYPES_SUBCOMMAND: CommandDef = CommandDef {
 
 pub static DENO_ROOT: CommandDef = CommandDef {
   name: "deno",
-  about: "A modern JavaScript and TypeScript runtime",
+  about: "oden: an experimental fork of Deno",
   aliases: &[],
   args: GLOBAL_ARGS,
   arg_groups: &[UNSTABLE_DEPRECATED_ARG, UNSTABLE_FEATURE_ARGS],

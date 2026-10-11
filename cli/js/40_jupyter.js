@@ -14,7 +14,7 @@
  * import { display, html, md } from "https://deno.land/x/deno_jupyter/mod.ts";
  *
  * await display(html`<h1>Hello, world!</h1>`);
- * await display(md`# Notebooks in TypeScript via Deno ![Deno logo](https://github.com/denoland.png?size=32)
+ * await display(md`# Notebooks in TypeScript via oden
  *
  * * TypeScript ${Deno.version.typescript}
  * * V8 ${Deno.version.v8}
@@ -346,7 +346,7 @@ function createTaggedTemplateDisplayable(mediatype) {
  * Create a Markdown view.
  *
  * ```typescript
- * md`# Notebooks in TypeScript via Deno ![Deno logo](https://github.com/denoland.png?size=32)
+ * md`# Notebooks in TypeScript via oden
  *
  * * TypeScript ${Deno.version.typescript}
  * * V8 ${Deno.version.v8}
