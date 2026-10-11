@@ -61,13 +61,13 @@ to JavaScript — for instance filesystem operations and networking.
 cargo check
 
 # Build debug binary
-cargo build --bin deno
+cargo build --bin oden
 
 # Build release version (slow, optimized)
 cargo build --release
 
 # Run the dev build
-./target/debug/deno eval 'console.log("Hello from dev build")'
+./target/debug/oden eval 'console.log("Hello from dev build")'
 ```
 
 ## Code Quality
@@ -92,7 +92,7 @@ The formatter (`tools/format.js`) runs `dprint` via `npm:dprint@0.47.2`. It
 formats TypeScript, JavaScript, JSON, Markdown, YAML, and Rust (via `rustfmt`).
 Configuration is in `.dprint.json`.
 
-The linter (`tools/lint.js`) runs `deno lint` for JS/TS and `cargo clippy` for
+The linter (`tools/lint.js`) runs `oden lint` for JS/TS and `cargo clippy` for
 Rust.
 
 ## Testing
@@ -108,7 +108,7 @@ cargo test <nameOfTest>
 cargo test -p deno_core
 
 # Run just the CLI integration tests
-cargo test --bin deno
+cargo test --bin oden
 
 # Run spec tests only
 cargo test specs
@@ -211,16 +211,16 @@ The validation script is at `tools/verify_pr_title.js`.
 
 ```bash
 # Verbose logging
-DENO_LOG=debug ./target/debug/deno run script.ts
+DENO_LOG=debug ./target/debug/oden run script.ts
 
 # Module-specific logging
-DENO_LOG=deno_core=debug ./target/debug/deno run script.ts
+DENO_LOG=deno_core=debug ./target/debug/oden run script.ts
 
 # Full backtrace on panic
-RUST_BACKTRACE=1 ./target/debug/deno run script.ts
+RUST_BACKTRACE=1 ./target/debug/oden run script.ts
 
 # V8 inspector
-./target/debug/deno run --inspect-brk script.ts
+./target/debug/oden run --inspect-brk script.ts
 ```
 
 In Rust code: `eprintln!("Debug: {:?}", var);` or `dbg!(var);`
@@ -253,7 +253,7 @@ Prioritize these (in order):
 Do NOT comment on:
 
 - Style preferences already enforced by the project's formatter (dprint) and
-  linter (clippy + deno lint)
+  linter (clippy + oden lint)
 - Suggesting longer timeouts or shorter delays in tests without evidence of
   flakiness
 - Minor documentation wording unless it is actively misleading
@@ -344,7 +344,7 @@ difference may be intentional.
 
 ## Troubleshooting
 
-- **Slow compile times**: Use `cargo check`, `--bin deno`, or `sccache`
+- **Slow compile times**: Use `cargo check`, `--bin oden`, or `sccache`
 - **Build failures on macOS**: Run `xcode-select --install`
 - **Build failures on Linux**: Install `build-essential`
 - **Spec test failures**: Check output diffs, use `[WILDCARD]` for

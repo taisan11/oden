@@ -44,7 +44,7 @@ pub fn extract_doc_tests(file: File) -> Result<Vec<File>, AnyError> {
 /// wrap extracted code snippets in a `Deno.test` call.
 #[allow(
   dead_code,
-  reason = "re-enabled once `deno check --doc` is supported by the native type checker"
+  reason = "re-enabled once `oden check --doc` is supported by the native type checker"
 )]
 pub fn extract_snippet_files(file: File) -> Result<Vec<File>, AnyError> {
   extract_inner(file, WrapKind::NoWrap)
@@ -539,7 +539,7 @@ enum Shebang {
   Invalid(String),
 }
 
-/// Parses a shebang line like `#!/usr/bin/env -S deno run --allow-read`.
+/// Parses a shebang line like `#!/usr/bin/env -S oden run --allow-read`.
 ///
 /// The flags are parsed using deno's own CLI argument parser and the resulting
 /// permissions are forwarded to `Deno.test`.
@@ -569,11 +569,11 @@ fn parse_shebang(shebang: &str) -> Shebang {
     std::path::Path::new(token)
       .file_stem()
       .and_then(|stem| stem.to_str())
-      == Some("deno")
+      == Some("oden")
   }) else {
-    return invalid("binary basename needs to be 'deno'");
+    return invalid("binary basename needs to be 'oden'");
   };
-  let mut args = vec![OsString::from("deno")];
+  let mut args = vec![OsString::from("oden")];
   args.extend(tokens[deno_index + 1..].iter().cloned().map(OsString::from));
   args.push(OsString::from("./__doctest_shebang__.ts"));
   match flags_from_vec(args) {
@@ -1477,7 +1477,7 @@ Deno.test("file:///main.ts#3-7.ts", async ()=>{
  *
  * @example Usage
  * ```ts
- * #!/usr/bin/env -S deno run --allow-read
+ * #!/usr/bin/env -S oden run --allow-read
  * foo("bar")
  * ```
  */
@@ -1933,7 +1933,7 @@ Deno.test("file:///main.ts#3-8.ts", async ()=>{
           source: r#"
 /**
  * ```ts
- * #!/usr/bin/env -S deno run -A
+ * #!/usr/bin/env -S oden run -A
  * foo();
  * ```
  */
@@ -1959,7 +1959,7 @@ Deno.test("file:///main.ts#3-7.ts", {
           source: r#"
 /**
  * ```ts
- * #!/usr/bin/env -S deno run
+ * #!/usr/bin/env -S oden run
  * foo();
  * ```
  */
@@ -1985,7 +1985,7 @@ Deno.test("file:///main.ts#3-7.ts", {
           source: r#"
 /**
  * ```ts
- * #!/usr/bin/env -S deno run --allow-read
+ * #!/usr/bin/env -S oden run --allow-read
  * foo();
  * ```
  */
@@ -2013,7 +2013,7 @@ Deno.test("file:///main.ts#3-7.ts", {
           source: r#"
 /**
  * ```ts
- * #!/usr/bin/env -S deno run --allow-read=/tmp,/var
+ * #!/usr/bin/env -S oden run --allow-read=/tmp,/var
  * foo();
  * ```
  */
@@ -2055,7 +2055,7 @@ export function foo() {}
         expected: vec![Expected {
           source: r#"import { foo } from "file:///main.ts";
 Deno.test("file:///main.ts#3-7.ts", async ()=>{
-    throw new Error("invalid doc test hashbang: #!/bin/sh (binary basename needs to be 'deno')");
+    throw new Error("invalid doc test hashbang: #!/bin/sh (binary basename needs to be 'oden')");
     foo();
 });
 "#,
@@ -2070,7 +2070,7 @@ Deno.test("file:///main.ts#3-7.ts", async ()=>{
           source: r#"
 /**
  * ```ts
- * #!/usr/bin/env -S deno run --allow-read --deny-read=/etc
+ * #!/usr/bin/env -S oden run --allow-read --deny-read=/etc
  * foo();
  * ```
  */
@@ -2081,7 +2081,7 @@ export function foo() {}
         expected: vec![Expected {
           source: r#"import { foo } from "file:///main.ts";
 Deno.test("file:///main.ts#3-7.ts", async ()=>{
-    throw new Error("invalid doc test hashbang: #!/usr/bin/env -S deno run --allow-read --deny-read=/etc (scoped --deny-* flags aren't supported yet, either remove them or ignore the test)");
+    throw new Error("invalid doc test hashbang: #!/usr/bin/env -S oden run --allow-read --deny-read=/etc (scoped --deny-* flags aren't supported yet, either remove them or ignore the test)");
     foo();
 });
 "#,
@@ -2096,7 +2096,7 @@ Deno.test("file:///main.ts#3-7.ts", async ()=>{
           source: r#"
 /**
  * ```ts
- * #!/usr/bin/env -S deno run --allow-read --deny-env
+ * #!/usr/bin/env -S oden run --allow-read --deny-env
  * foo();
  * ```
  */
@@ -2125,7 +2125,7 @@ Deno.test("file:///main.ts#3-7.ts", {
           source: r#"
 /**
  * ```ts
- * #!/usr/bin/env -S deno run --allow-read="/tmp/with space"
+ * #!/usr/bin/env -S oden run --allow-read="/tmp/with space"
  * foo();
  * ```
  */
@@ -2155,7 +2155,7 @@ Deno.test("file:///main.ts#3-7.ts", {
           source: r#"# Title
 
 ```ts
-#!/usr/bin/env -S deno run --allow-net=example.com
+#!/usr/bin/env -S oden run --allow-net=example.com
 foo();
 ```
 "#,

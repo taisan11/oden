@@ -258,7 +258,7 @@ fn discover_workspace_config_files_for_single_dir<
     // causing strange behavior, so panic if someone does this
     assert!(
       opts.deno_json_cache.is_some() && opts.pkg_json_cache.is_some(),
-      "Using a workspace cache requires setting the deno.json and package.json caches"
+      "Using a workspace cache requires setting the oden.json and package.json caches"
     );
   }
 
@@ -736,8 +736,8 @@ fn resolve_workspace_for_config_folder<
       maybe_config_folder.ok_or_else(|| {
         // it's fine this doesn't use all the possible config file names
         // as this is only used to enhance the error message
-        if member_dir_url.as_str().ends_with("/deno.json/")
-          || member_dir_url.as_str().ends_with("/deno.jsonc/")
+        if member_dir_url.as_str().ends_with("/oden.json/")
+          || member_dir_url.as_str().ends_with("/oden.jsonc/")
           || member_dir_url.as_str().ends_with("/package.json/")
         {
           ResolveWorkspaceMemberErrorKind::NotFoundMaybeSpecifiedFile {
@@ -816,14 +816,14 @@ fn resolve_workspace_for_config_folder<
       .iter()
       .partition(|member| is_glob_pattern(member) || member.starts_with('!'));
 
-    // Deno workspaces can discover wildcard members that use either `deno.json`, `deno.jsonc` or `package.json`.
-    // But it only works for Deno workspaces, npm workspaces don't discover `deno.json(c)` files, otherwise
+    // Deno workspaces can discover wildcard members that use either `oden.json`, `oden.jsonc` or `package.json`.
+    // But it only works for Deno workspaces, npm workspaces don't discover `oden.json(c)` files, otherwise
     // we'd be incompatible with npm workspaces if we discovered more files.
     let deno_json_paths = collect_member_config_folders(
       "Deno",
       pattern_members,
       &deno_json.dir_path(),
-      &["deno.json", "deno.jsonc", "package.json"],
+      &["oden.json", "oden.jsonc", "package.json"],
     )?;
 
     let mut member_dir_urls =
@@ -893,7 +893,7 @@ fn resolve_workspace_for_config_folder<
       .iter()
       .partition(|member| is_glob_pattern(member) || member.starts_with('!'));
 
-    // npm workspaces can discover wildcard members `package.json` files, but not `deno.json(c)` files, otherwise
+    // npm workspaces can discover wildcard members `package.json` files, but not `oden.json(c)` files, otherwise
     // we'd be incompatible with npm workspaces if we discovered more files than just `package.json`.
     let pkg_json_paths = collect_member_config_folders(
       "npm",
@@ -935,7 +935,7 @@ fn resolve_workspace_for_config_folder<
               continue;
             }
             ResolveWorkspaceMemberErrorKind::NotFound { dir_url } => {
-              // dir exists but neither deno.json nor package.json — for
+              // dir exists but neither oden.json nor package.json — for
               // an npm workspace member, surface this as the more specific
               // "package.json not found" error.
               return Err(
@@ -1081,7 +1081,7 @@ fn collect_link_config_folders<TSys: FsRead + FsMetadata + FsReadDir>(
   let pattern_entries = raw_links
     .into_iter()
     .flat_map(|raw_link| {
-      ["deno.json", "deno.jsonc", "package.json"]
+      ["oden.json", "oden.jsonc", "package.json"]
         .into_iter()
         .map(move |config_file_name| (raw_link, config_file_name))
     })
@@ -1296,7 +1296,7 @@ fn resolve_link_config_folders_with_auto<
 }
 
 /// Walks path-style import map entries to a fixpoint and registers the
-/// governing `deno.json` of each external file as an (implicit) link, so its
+/// governing `oden.json` of each external file as an (implicit) link, so its
 /// `imports`/`scopes` become a referrer-scoped entry in the synthetic import
 /// map. This is equivalent to the user manually listing those directories in
 /// the `links` field, but discovered automatically.
@@ -1375,7 +1375,7 @@ fn enqueue_import_path_values<TSys: FsRead>(
     return;
   };
   // Resolve the import map, following an external `importMap` file if present.
-  // Path entries resolve against the import map's own location: the deno.json
+  // Path entries resolve against the import map's own location: the oden.json
   // for inline maps, or the external file's directory otherwise.
   let map_value = match deno_json.to_import_map_value(sys) {
     Ok(Some((specifier, value))) => (url_parent(&specifier), value),
@@ -1447,7 +1447,7 @@ fn import_value_target_url(base_dir: &Url, value: &str) -> Option<Url> {
   }
 }
 
-/// Finds the directory of the nearest `deno.json` that governs `target_url`,
+/// Finds the directory of the nearest `oden.json` that governs `target_url`,
 /// walking up from the target's directory.
 fn find_governing_config_dir(
   target_url: &Url,

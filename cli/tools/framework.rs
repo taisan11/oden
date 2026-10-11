@@ -1,10 +1,10 @@
 // Copyright 2018-2026 the Deno authors. MIT license.
 
-//! Framework detection for `deno compile .`.
+//! Framework detection for `oden compile .`.
 //!
 //! Detects web frameworks (Next.js, Astro, Remix, React Router, SvelteKit,
 //! Nuxt, Fresh, SolidStart, TanStack Start, Vite) and generates the
-//! appropriate entrypoint and include paths so that `deno compile .` just
+//! appropriate entrypoint and include paths so that `oden compile .` just
 //! works.
 
 use std::path::Path;
@@ -31,7 +31,7 @@ pub struct FrameworkDetection {
   pub hmr_command: Option<Vec<String>>,
 }
 
-/// Entrypoint compiled for `deno desktop --hmr` on projects whose dev command
+/// Entrypoint compiled for `oden desktop --hmr` on projects whose dev command
 /// is plain `vite dev`: it boots the project's own Vite dev server through
 /// Vite's JS API *inside* the desktop runtime, so server-side code (SvelteKit
 /// endpoints, Vite SSR handlers) keeps access to `Deno.desktop` — matching the
@@ -57,7 +57,7 @@ server.printUrls();
 
 impl FrameworkDetection {
   /// Entrypoint that boots the framework's dev server *inside* the desktop
-  /// runtime for `deno desktop --hmr`, so server-side code keeps access to
+  /// runtime for `oden desktop --hmr`, so server-side code keeps access to
   /// `Deno.desktop` (#35899). `None` means `--hmr` falls back to spawning
   /// `hmr_command` as a separate plain-Deno process, where desktop APIs are
   /// unavailable to server code.
@@ -119,12 +119,12 @@ pub fn find_framework_favicon(
   None
 }
 
-/// Run the framework's build step (e.g. `deno task build`) with `dir` as the
+/// Run the framework's build step (e.g. `oden task build`) with `dir` as the
 /// working directory, if the detection specifies one. This must run before the
 /// framework's `include_paths` are bundled, since they point at the build
 /// output (`dist`, `.next`, etc.) which doesn't exist until the build runs.
 ///
-/// Shared by `deno compile .` and `deno desktop .` so the two can't drift.
+/// Shared by `oden compile .` and `oden desktop .` so the two can't drift.
 pub fn run_build_command(
   detection: &FrameworkDetection,
   dir: &Path,
@@ -159,7 +159,7 @@ pub fn run_build_command(
 /// Detection priority:
 /// 1. Config-file based detection (highest priority)
 /// 2. Package.json dependency-based detection
-/// 3. deno.json import-based detection
+/// 3. oden.json import-based detection
 pub fn detect_framework(
   dir: &Path,
 ) -> Result<Option<FrameworkDetection>, AnyError> {
@@ -191,7 +191,7 @@ pub fn detect_framework(
   // would otherwise be misdetected as a plain Vite SPA and bundle a
   // non-existent `dist/`). `detect_sveltekit` resolves the adapter's output
   // shape, or errors with an actionable hint when the configured adapter isn't
-  // one `deno desktop` can bundle. A bare `svelte.config.*` is not enough on
+  // one `oden desktop` can bundle. A bare `svelte.config.*` is not enough on
   // its own: the Vite Svelte template ships a `svelte.config.js` with only
   // `vitePreprocess()` and no SvelteKit, and such plain Svelte SPAs must keep
   // falling through to the Vite branch that bundles `dist/`.
@@ -241,7 +241,7 @@ pub fn detect_framework(
     return Ok(Some(detect_vite(dir)));
   }
 
-  // --- deno.json import-based detection ---
+  // --- oden.json import-based detection ---
   if let Some(imports) = read_deno_json_imports(dir)
     && imports
       .iter()
@@ -299,7 +299,7 @@ if (!Deno.env.get("NODE_CHANNEL_FD")) {{
     entrypoint_code: entrypoint,
     include_paths,
     build_command: Some(deno_task_build()),
-    hmr_command: None, // TODO: add command to enable `deno desktop --hmr` for Next.js
+    hmr_command: None, // TODO: add command to enable `oden desktop --hmr` for Next.js
   })
 }
 
@@ -310,13 +310,13 @@ fn detect_astro(_dir: &Path) -> FrameworkDetection {
       .into(),
     include_paths: vec!["dist".into()],
     build_command: Some(deno_task_build()),
-    hmr_command: None, // TODO: add command to enable `deno desktop --hmr` for Astro
+    hmr_command: None, // TODO: add command to enable `oden desktop --hmr` for Astro
   }
 }
 
 fn detect_fresh(dir: &Path) -> FrameworkDetection {
   // Fresh 2.x uses _fresh/server.js (build output) or imports @fresh/core
-  // in deno.json. We intentionally do NOT use `fresh.gen.ts + deno.json`
+  // in oden.json. We intentionally do NOT use `fresh.gen.ts + oden.json`
   // as a heuristic because Fresh 1 projects also have both of those files.
   let is_fresh2 = dir.join("_fresh/server.js").exists()
     || read_deno_json_imports(dir)
@@ -370,7 +370,7 @@ fn detect_remix(dir: &Path) -> FrameworkDetection {
       "// @ts-nocheck\nimport \"./node_modules/.bin/remix-serve\";\n".into(),
     include_paths,
     build_command: Some(deno_task_build()),
-    hmr_command: None, // TODO: add command to enable `deno desktop --hmr` for Remix
+    hmr_command: None, // TODO: add command to enable `oden desktop --hmr` for Remix
   }
 }
 
@@ -613,7 +613,7 @@ fn detect_sveltekit(dir: &Path) -> Result<FrameworkDetection, AnyError> {
     ""
   };
   bail!(
-    "SvelteKit detected, but no adapter that `deno desktop` can bundle is \
+    "SvelteKit detected, but no adapter that `oden desktop` can bundle is \
      configured.\n{auto_hint}Configure a supported adapter in your \
      svelte.config:\n  - `@sveltejs/adapter-node` (runs under Deno via \
      Node.js compatibility)\n  - `@deno/svelte-adapter` (for Deno Deploy)"
@@ -650,7 +650,7 @@ fn detect_nitro_framework(
     build_command: Some(deno_task_build()),
     // Nuxt (`nuxi dev`), SolidStart and TanStack Start (`vinxi dev`) all run a
     // Vite-based dev server that prints the `Local:   http://…` line
-    // `parse_dev_server_url` scans for, so `deno task dev` drives HMR for all
+    // `parse_dev_server_url` scans for, so `oden task dev` drives HMR for all
     // three.
     hmr_command: Some(deno_task_dev()),
   }
@@ -670,7 +670,7 @@ fn detect_vite(dir: &Path) -> FrameworkDetection {
       build_command: Some(deno_task_build()),
       // `vite` (and Vue/React SPA templates built on it) prints the
       // `Local:   http://…` line `parse_dev_server_url` scans for, so
-      // `deno task dev` drives HMR.
+      // `oden task dev` drives HMR.
       hmr_command: Some(deno_task_dev()),
     };
   }
@@ -709,7 +709,7 @@ Deno.serve(async (req) => {
     include_paths: vec!["dist".into()],
     build_command: Some(deno_task_build()),
     // See the SSR branch above: the Vite dev server prints the `Local:` URL
-    // that `parse_dev_server_url` scans for, so `deno task dev` drives HMR.
+    // that `parse_dev_server_url` scans for, so `oden task dev` drives HMR.
     hmr_command: Some(deno_task_dev()),
   }
 }
@@ -789,13 +789,13 @@ fn detect_package_version(dir: &Path, package: &str) -> Option<u32> {
     .ok()
 }
 
-/// Read the `imports` keys from deno.json / deno.jsonc.
+/// Read the `imports` keys from oden.json / oden.jsonc.
 ///
-/// Uses JSONC-aware parsing so that commented deno.jsonc files are
+/// Uses JSONC-aware parsing so that commented oden.jsonc files are
 /// handled correctly instead of silently failing detection.
 fn read_deno_json_imports(dir: &Path) -> Option<Vec<String>> {
-  let content = std::fs::read_to_string(dir.join("deno.json"))
-    .or_else(|_| std::fs::read_to_string(dir.join("deno.jsonc")))
+  let content = std::fs::read_to_string(dir.join("oden.json"))
+    .or_else(|_| std::fs::read_to_string(dir.join("oden.jsonc")))
     .ok()?;
   let config: serde_json::Value =
     jsonc_parser::parse_to_serde_value(&content, &Default::default())
@@ -935,13 +935,13 @@ mod tests {
 
   #[test]
   fn fresh1_with_deno_json_stays_fresh1() {
-    // Regression: fresh.gen.ts + deno.json (without @fresh/core import)
+    // Regression: fresh.gen.ts + oden.json (without @fresh/core import)
     // should be treated as Fresh 1, not Fresh 2.
     let dir = setup_dir();
     fs::write(dir.path().join("fresh.gen.ts"), "").unwrap();
     fs::write(
-      dir.path().join("deno.json"),
-      r#"{"tasks":{"start":"deno run -A main.ts"}}"#,
+      dir.path().join("oden.json"),
+      r#"{"tasks":{"start":"oden run -A main.ts"}}"#,
     )
     .unwrap();
     let det = detect_framework(dir.path()).unwrap().unwrap();
@@ -956,7 +956,7 @@ mod tests {
     let dir = setup_dir();
     fs::write(dir.path().join("fresh.gen.ts"), "").unwrap();
     fs::write(
-      dir.path().join("deno.json"),
+      dir.path().join("oden.json"),
       r#"{"imports":{"@fresh/core":"jsr:@fresh/core@^2"}}"#,
     )
     .unwrap();
@@ -987,7 +987,7 @@ mod tests {
     let det = detect_framework(dir.path()).unwrap().unwrap();
     assert_eq!(det.name, "Nuxt");
     assert_eq!(det.include_paths, vec![".output"]);
-    // Nuxt runs a Vite-based dev server, so `deno desktop --hmr` is
+    // Nuxt runs a Vite-based dev server, so `oden desktop --hmr` is
     // supported — but `nuxi dev` is not plain `vite dev`, so it keeps the
     // external dev-server process rather than the in-runtime dev entrypoint.
     assert!(det.hmr_entrypoint_code().is_none());
@@ -1415,7 +1415,7 @@ mod tests {
     assert_eq!(det.include_paths, vec!["dist"]);
     let cmd = det.build_command.unwrap();
     assert_eq!(cmd[1..], vec!["task", "build"]);
-    // The Vite dev server drives HMR for `deno desktop --hmr`.
+    // The Vite dev server drives HMR for `oden desktop --hmr`.
     let hmr = det.hmr_command.unwrap();
     assert_eq!(hmr[1..], vec!["task", "dev"]);
   }
@@ -1445,7 +1445,7 @@ mod tests {
     // binary is reproducible.
     assert!(det.entrypoint_code.contains("jsr:@std/http@^1/file-server"));
     assert_eq!(det.include_paths, vec!["dist"]);
-    // A plain Vite SPA (e.g. the Vue template) supports `deno desktop --hmr`.
+    // A plain Vite SPA (e.g. the Vue template) supports `oden desktop --hmr`.
     // Vite's dev command is plain `vite dev`, so `--hmr` boots the dev server
     // inside the desktop runtime and server code keeps the desktop APIs
     // (#35899).
@@ -1464,7 +1464,7 @@ mod tests {
   fn vue_vite_spa_supports_hmr() {
     // A Vue SPA scaffolded with `npm create vue@latest` is a plain Vite project
     // (`vue` + `vite` in devDependencies, a `vite.config.ts`). It must resolve
-    // to the Vite path with `deno desktop --hmr` enabled so the dev-server
+    // to the Vite path with `oden desktop --hmr` enabled so the dev-server
     // workflow from issue #35745 works.
     let dir = setup_dir();
     fs::write(dir.path().join("vite.config.ts"), "").unwrap();
@@ -1509,13 +1509,13 @@ mod tests {
     assert!(det.entrypoint_code.contains("server.ts"));
   }
 
-  // --- deno.json import-based detection ---
+  // --- oden.json import-based detection ---
 
   #[test]
   fn detects_fresh_from_deno_json_imports() {
     let dir = setup_dir();
     fs::write(
-      dir.path().join("deno.json"),
+      dir.path().join("oden.json"),
       r#"{"imports":{"fresh":"jsr:@fresh/core"}}"#,
     )
     .unwrap();
@@ -1527,7 +1527,7 @@ mod tests {
   fn detects_fresh_from_deno_json_fresh_core() {
     let dir = setup_dir();
     fs::write(
-      dir.path().join("deno.json"),
+      dir.path().join("oden.json"),
       r#"{"imports":{"@fresh/core":"jsr:@fresh/core@^2"}}"#,
     )
     .unwrap();
@@ -1539,7 +1539,7 @@ mod tests {
   fn detects_fresh_from_deno_jsonc() {
     let dir = setup_dir();
     fs::write(
-      dir.path().join("deno.jsonc"),
+      dir.path().join("oden.jsonc"),
       r#"{"imports":{"fresh":"jsr:@fresh/core"}}"#,
     )
     .unwrap();
@@ -1549,10 +1549,10 @@ mod tests {
 
   #[test]
   fn detects_fresh_from_commented_deno_jsonc() {
-    // Regression: deno.jsonc with comments should still be parsed correctly.
+    // Regression: oden.jsonc with comments should still be parsed correctly.
     let dir = setup_dir();
     fs::write(
-      dir.path().join("deno.jsonc"),
+      dir.path().join("oden.jsonc"),
       "{\n  // This is a comment\n  \"imports\": {\n    \"fresh\": \"jsr:@fresh/core\"\n  }\n}\n",
     )
     .unwrap();
@@ -1595,7 +1595,7 @@ mod tests {
     let dir = setup_dir();
     fs::write(dir.path().join("astro.config.mjs"), "").unwrap();
     fs::write(
-      dir.path().join("deno.json"),
+      dir.path().join("oden.json"),
       r#"{"imports":{"fresh":"jsr:@fresh/core"}}"#,
     )
     .unwrap();
@@ -1678,7 +1678,7 @@ mod tests {
   fn read_deno_json_imports_returns_keys() {
     let dir = setup_dir();
     fs::write(
-      dir.path().join("deno.json"),
+      dir.path().join("oden.json"),
       r#"{"imports":{"foo":"jsr:@foo/bar","baz":"npm:baz"}}"#,
     )
     .unwrap();
@@ -1696,7 +1696,7 @@ mod tests {
   #[test]
   fn read_deno_json_imports_no_imports_key() {
     let dir = setup_dir();
-    fs::write(dir.path().join("deno.json"), r#"{"tasks":{}}"#).unwrap();
+    fs::write(dir.path().join("oden.json"), r#"{"tasks":{}}"#).unwrap();
     assert!(read_deno_json_imports(dir.path()).is_none());
   }
 

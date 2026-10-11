@@ -380,7 +380,7 @@ mod test {
       "scope",
       "package",
       "1.2.3+build.1",
-      Some("/deno.json"),
+      Some("/oden.json"),
     )
     .unwrap();
     assert_eq!(
@@ -389,7 +389,7 @@ mod test {
     );
     assert_eq!(
       version_url.query_pairs().collect::<Vec<_>>(),
-      vec![("config".into(), "/deno.json".into())]
+      vec![("config".into(), "/oden.json".into())]
     );
 
     let provenance_url = get_package_version_provenance_api_url(

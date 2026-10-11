@@ -13,7 +13,7 @@
     "args": ["eval", "console.log(Deno.readTextFileSync('deno.lock').trim())"],
     "output": "remove_lock.out"
   }, {
-    "args": ["eval", "console.log(Deno.readTextFileSync('deno.json').trim())"],
+    "args": ["eval", "console.log(Deno.readTextFileSync('oden.json').trim())"],
     "output": "{\n}\n"
   }]
 }

@@ -18,17 +18,17 @@ pub enum WorkerExecutionMode {
 
   /// Running in a worker.
   Worker,
-  /// `deno run`
+  /// `oden run`
   Run,
-  /// `deno repl`
+  /// `oden repl`
   Repl,
-  /// `deno eval`
+  /// `oden eval`
   Eval,
-  /// `deno test`
+  /// `oden test`
   Test,
-  /// `deno bench`
+  /// `oden bench`
   Bench,
-  /// `deno serve`
+  /// `oden serve`
   ServeMain {
     worker_count: usize,
   },
@@ -104,7 +104,7 @@ pub struct BootstrapOptions {
   pub unstable_features: Vec<i32>,
   pub user_agent: String,
   pub inspect: bool,
-  /// If this is a `deno compile`-ed executable.
+  /// If this is a `oden compile`-ed executable.
   pub is_standalone: bool,
   pub has_node_modules_dir: bool,
   pub argv0: Option<String>,
@@ -114,7 +114,7 @@ pub struct BootstrapOptions {
   pub node_ipc_init: Option<(i64, ChildIpcSerialization)>,
   pub mode: WorkerExecutionMode,
   pub no_legacy_abort: bool,
-  // Used by `deno serve`
+  // Used by `oden serve`
   pub serve_port: Option<u16>,
   pub serve_host: Option<String>,
   pub auto_serve: bool,

@@ -161,7 +161,7 @@ async fn run_subcommand(
     DenoSubcommand::Bundle(bundle_flags) => spawn_subcommand(async {
       log::warn!(
         "⚠️  {} is experimental and subject to changes",
-        colors::cyan("deno bundle")
+        colors::cyan("oden bundle")
       );
       tools::bundle::bundle(Arc::new(flags), bundle_flags).await
     }),
@@ -219,13 +219,17 @@ async fn run_subcommand(
       spawn_subcommand(async move {
         log::warn!(
           "⚠️  {} is experimental and subject to changes",
-          colors::cyan("deno transpile")
+          colors::cyan("oden transpile")
         );
         tools::transpile::transpile(Arc::new(flags), transpile_flags).await
       })
     }
     DenoSubcommand::Init(init_flags) => spawn_subcommand(async {
       tools::init::init_project(flags, init_flags).await
+    }),
+    DenoSubcommand::FromDeno => spawn_subcommand(async move {
+      let cwd = util::env::resolve_cwd(flags.initial_cwd.as_deref())?;
+      tools::from_deno::migrate(&cwd)
     }),
     DenoSubcommand::Info(info_flags) => spawn_subcommand(async {
       tools::info::info(Arc::new(flags), info_flags).await
@@ -267,7 +271,7 @@ async fn run_subcommand(
   how to setup your favorite text editor.
 
   Press Ctrl+C to exit.
-        ", colors::cyan("deno lsp"));
+        ", colors::cyan("oden lsp"));
       }
       lsp::start().await
     }),
@@ -516,13 +520,13 @@ async fn run_subcommand(
       log::warn!(
         "{}",
         colors::yellow(
-          "deno bump-version is experimental and subject to change"
+          "oden bump-version is experimental and subject to change"
         )
       );
       tools::bump_version::bump_version_command(Arc::new(flags), version_flags)
     }),
     DenoSubcommand::Vendor => exit_with_message(
-      "⚠️  `deno vendor` was removed in Deno 2.\n\nSee the Deno 1.x to 2.x Migration Guide for migration instructions: https://docs.deno.com/runtime/manual/advanced/migrate_deprecations",
+      "⚠️  `oden vendor` was removed in Deno 2.\n\nSee the Deno 1.x to 2.x Migration Guide for migration instructions: https://docs.deno.com/runtime/manual/advanced/migrate_deprecations",
       1,
     ),
     DenoSubcommand::Publish(publish_flags) => spawn_subcommand(async {
@@ -556,7 +560,7 @@ async fn run_subcommand(
   handle.await?
 }
 
-/// Determines whether a error encountered during `deno run`
+/// Determines whether a error encountered during `oden run`
 /// should trigger fallback behavior, such as attempting to run a Deno task
 /// with the same name.
 ///
@@ -768,9 +772,9 @@ fn exit_for_error(error: AnyError, initial_cwd: Option<&std::path::Path>) -> ! {
   };
 
   // If this looks like a workspace/npm resolution failure and a
-  // pnpm-workspace.yaml is nearby, convert it into the equivalent deno.json
+  // pnpm-workspace.yaml is nearby, convert it into the equivalent oden.json
   // fields and tell the user to run the command again, rather than leaving them
-  // with the misleading "run deno install" hint baked into the error.
+  // with the misleading "run oden install" hint baked into the error.
   if let Some(hint) = util::pnpm_workspace::maybe_auto_migrate_pnpm_workspace(
     &error_string,
     initial_cwd,
@@ -804,7 +808,7 @@ fn maybe_minimum_dependency_age_hint(error_string: &str) -> Option<String> {
       "which avoids installing recently published versions to reduce supply ",
       "chain risk (the default is 24 hours). To use this version now, pass the ",
       "{} (or {}) flag (for example {} to disable it, or a shorter duration ",
-      "like {} minutes) or set {} in your deno.json, or wait until the version ",
+      "like {} minutes) or set {} in your oden.json, or wait until the version ",
       "is old enough.\n{} {}"
     ),
     colors::yellow("hint:"),

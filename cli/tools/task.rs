@@ -64,7 +64,7 @@ pub async fn execute_script(
   let start_dir = &cli_options.start_dir;
   if !start_dir.has_deno_or_pkg_json() && !task_flags.eval {
     bail!(
-      "deno task couldn't find deno.json(c) or package.json. See https://docs.deno.com/go/config"
+      "oden task couldn't find oden.json(c) or package.json. See https://docs.deno.com/go/config"
     )
   }
   let force_use_pkg_json =
@@ -328,7 +328,7 @@ fn compute_concurrent_task_color_indices(
 }
 
 /// Returns the workspace member's display name for a task's prefix label —
-/// its `name` from deno.json/package.json if set, otherwise the folder's
+/// its `name` from oden.json/package.json if set, otherwise the folder's
 /// directory name as a fallback so unnamed sibling packages stay
 /// distinguishable. Tasks from the workspace root get no fallback (their
 /// root folder name is typically not a meaningful package name).
@@ -855,7 +855,7 @@ impl<'a> TaskRunner<'a> {
 
     // At this point we already checked if the task name exists in package.json.
     // We can therefore check for "pre" and "post" scripts too, since we're only
-    // dealing with package.json here and not deno.json
+    // dealing with package.json here and not oden.json
     let task_names = vec![
       format!("pre{}", task_name),
       task_name.to_string(),
@@ -872,7 +872,7 @@ impl<'a> TaskRunner<'a> {
     // npm sets a number of `npm_*` env vars when running a package.json script.
     // Build them once (the `npm_package_*` vars from the script's package.json
     // plus the process-level `npm_execpath`/`npm_node_execpath`/`npm_command`)
-    // so that `deno task` matches npm's behavior (see #35251, #35306). The
+    // so that `oden task` matches npm's behavior (see #35251, #35306). The
     // per-script `npm_lifecycle_*` vars are overwritten in place each iteration,
     // so this single map is reused across the package's pre/run/post scripts.
     let pkg_json = self
@@ -1149,7 +1149,7 @@ fn matches_package(
   }
 
   // Fall back to matching the workspace member's directory name so that
-  // `deno task --filter <dir>` works when the package name diverges
+  // `oden task --filter <dir>` works when the package name diverges
   // from the directory (#28620). Skip the workspace root so it is never
   // accidentally selected by `--filter *`.
   if !is_workspace_root
@@ -1174,8 +1174,8 @@ fn matches_package(
 ///   `npm-cli.js`; like pnpm/yarn point it at their own binary, we point it at
 ///   the running `deno` executable.
 /// - `npm_node_execpath`: the JS runtime executing the script. npm sets this to
-///   the `node` binary; under `deno task` the runtime is `deno` itself.
-/// - `npm_command`: the npm command being run. `deno task <name>` runs a script
+///   the `node` binary; under `oden task` the runtime is `deno` itself.
+/// - `npm_command`: the npm command being run. `oden task <name>` runs a script
 ///   the same way `npm run <name>` does, which npm reports as `run-script`.
 fn npm_script_env_vars(
   pkg_json: Option<&deno_package_json::PackageJson>,
@@ -1316,7 +1316,7 @@ fn print_available_tasks_workspace(
     log::warn!(
       "{}",
       colors::red(format!(
-        "No package name matched the filter '{}' in available 'deno.json' or 'package.json' files.",
+        "No package name matched the filter '{}' in available 'oden.json' or 'package.json' files.",
         filter
       ))
     );
@@ -1543,7 +1543,7 @@ fn match_tasks(
   let mut matched: IndexSet<String> = IndexSet::new();
   let mut visited: HashSet<String> = HashSet::new();
 
-  // Match tasks in deno.json
+  // Match tasks in oden.json
   for name in tasks_config.task_names() {
     if task_name_filter.matches(name) && !visited.contains(name) {
       matched.insert(name.to_string());

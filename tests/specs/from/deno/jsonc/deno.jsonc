@@ -1,0 +1,4 @@
+// preserved comment
+{
+  "tasks": { "verify": "deno eval \"console.log('migrated')\"" }
+}

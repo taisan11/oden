@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --check --allow-write=. --allow-read=. --lock=./tools/deno.lock.json
+#!/usr/bin/env -S oden run --check --allow-write=. --allow-read=. --lock=./tools/deno.lock.json
 // Copyright 2018-2026 the Deno authors. MIT license.
 import {
   conditions,
@@ -27,7 +27,7 @@ const testJob = job("test", {
     }),
     step({
       name: "Setup Deno",
-      uses: "denoland/setup-deno@v2",
+      uses: "./.github/actions/setup-oden",
       with: { "deno-version": "canary" },
     }),
     step({
@@ -37,7 +37,7 @@ const testJob = job("test", {
     }),
     step({
       name: "Run tests",
-      run: "deno -A tools/ecosystem_compat_tests.ts",
+      run: "oden -A tools/ecosystem_compat_tests.ts",
     }),
     step({
       name: "Upload the report to dl.deno.land",
@@ -74,7 +74,7 @@ const workflow = createWorkflow({
         }),
         step({
           name: "Setup Deno",
-          uses: "denoland/setup-deno@v2",
+          uses: "./.github/actions/setup-oden",
         }),
         step({
           name: "Install Python",
@@ -83,7 +83,7 @@ const workflow = createWorkflow({
         }),
         step({
           name: "Post message to slack channel",
-          run: "deno -A tools/ecosystem_compat_slack.ts",
+          run: "oden -A tools/ecosystem_compat_slack.ts",
           env: {
             SLACK_TOKEN: "${{ secrets.NODE_COMPAT_SLACK_TOKEN }}",
             SLACK_CHANNEL: "${{ secrets.NODE_COMPAT_SLACK_CHANNEL }}",

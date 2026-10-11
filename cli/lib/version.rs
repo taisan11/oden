@@ -8,7 +8,7 @@ use crate::shared::ReleaseChannel;
 
 pub fn otel_runtime_config() -> OtelRuntimeConfig {
   OtelRuntimeConfig {
-    runtime_name: Cow::Borrowed("deno"),
+    runtime_name: Cow::Borrowed("oden"),
     runtime_version: Cow::Borrowed(crate::version::DENO_VERSION_INFO.deno),
   }
 }

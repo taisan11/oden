@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run -A --lock=tools/deno.lock.json
+#!/usr/bin/env -S oden run --config=tools/oden.json -A --lock=tools/deno.lock.json
 // Copyright 2018-2026 the Deno authors. MIT license.
 
 // deno-lint-ignore-file no-console
@@ -16,7 +16,7 @@ const SUPPORTED_TARGETS = [
 ];
 
 const DENO_BINARIES = [
-  "deno",
+  "oden",
   "denort",
 ];
 
@@ -150,7 +150,7 @@ async function runRcodesign(
   try {
     await $`echo $APPLE_CODESIGN_KEY | base64 -d`.stdout(tempFile);
     output =
-      await $`rcodesign sign ./${binaryName} --binary-identifier=deno-${commitHash} --code-signature-flags=runtime --code-signature-flags=runtime --p12-password="$APPLE_CODESIGN_PASSWORD" --p12-file=${tempFile} --entitlements-xml-file=cli/entitlements.plist`;
+      await $`rcodesign sign ./${binaryName} --binary-identifier=oden-${commitHash} --code-signature-flags=runtime --code-signature-flags=runtime --p12-password="$APPLE_CODESIGN_PASSWORD" --p12-file=${tempFile} --entitlements-xml-file=cli/entitlements.plist`;
   } finally {
     try {
       tempFile.removeSync();
@@ -164,7 +164,7 @@ async function runRcodesign(
     );
     Deno.exit(1);
   }
-  await $`codesign -dv --verbose=4 ./deno`;
+  await $`codesign -dv --verbose=4 ./${binaryName}`;
 }
 
 async function removeExistingSignature(target: string, binaryName: string) {
@@ -266,8 +266,8 @@ async function promoteBinariesToRc(commitHash: string) {
 
 async function dumpRcVersion() {
   $.logStep("Compute version");
-  await unzipArchive(getArchiveName("deno", Deno.build.target), "deno");
-  const output = await $`./deno -V`.stdout("piped");
+  await unzipArchive(getArchiveName("oden", Deno.build.target), "oden");
+  const output = await $`./oden -V`.stdout("piped");
   const denoVersion = output.stdout.slice(5).split("+")[0];
   $.logStep("Computed version", denoVersion);
   await Deno.writeTextFile(

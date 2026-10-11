@@ -1,6 +1,6 @@
 // Copyright 2018-2026 the Deno authors. MIT license.
 
-// The native `deno check` path that consumes this module lands on top of this
+// The native `oden check` path that consumes this module lands on top of this
 // PR, so everything here is unused until then.
 #![allow(dead_code, reason = "Will be used in a follow up")]
 
@@ -32,8 +32,8 @@ use crate::tsc::DiagnosticCategory;
 use crate::tsc::Position;
 
 /// Pinned version of the native TypeScript compiler (`typescript@N`, the
-/// Go/`tsgo` line) that `deno check` runs. Bumping this constant is the only
-/// supported way to change the compiler; `deno check` never floats to the
+/// Go/`tsgo` line) that `oden check` runs. Bumping this constant is the only
+/// supported way to change the compiler; `oden check` never floats to the
 /// latest published version so that a given Deno release always type-checks
 /// with a known compiler.
 pub const TYPESCRIPT_VERSION: &str = "7.0.2";
@@ -154,7 +154,7 @@ pub async fn ensure_native_tsc(
 
   // Materialize `lib/` (the native binary plus the default lib `.d.ts` files it
   // resolves relative to itself) atomically: copy into a sibling temp dir and
-  // rename it into place. The rename is atomic, so a concurrent `deno check`
+  // rename it into place. The rename is atomic, so a concurrent `oden check`
   // never observes a half-copied tree through the `exists()` check above.
   let version_dir = install_dir.parent().unwrap();
   std::fs::create_dir_all(version_dir).with_context(|| {
@@ -470,12 +470,12 @@ fn make_diagnostic(
 }
 
 /// Build a reverse map from a mirror-relative path (the part after
-/// `.deno/remote/`, i.e. `<host>__<port>/<path>`) to the original `http(s):`
+/// `.oden/remote/`, i.e. `<host>__<port>/<path>`) to the original `http(s):`
 /// URL, read from the generated tsconfig's `paths`. The mirror layout doesn't
 /// encode the URL scheme, so this recovers the exact specifier (scheme + port)
 /// for diagnostic display. Returns an empty map if the config can't be read.
 fn build_remote_url_map(project_root: &Path) -> HashMap<String, String> {
-  let config = project_root.join(".deno").join("tsconfig.json");
+  let config = project_root.join(".oden").join("tsconfig.json");
   let Ok(text) = std::fs::read_to_string(&config) else {
     return HashMap::new();
   };
@@ -514,7 +514,7 @@ fn build_remote_url_map_from_config(config: &Value) -> HashMap<String, String> {
 }
 
 /// Best-effort remap of a path reported by the native compiler back onto the
-/// original module specifier. `deno check` runs tsc against a generated
+/// original module specifier. `oden check` runs tsc against a generated
 /// tsconfig whose `paths` point jsr:/http(s): dependencies into mirror
 /// directories, so the compiler reports those mirror paths rather than the
 /// specifiers the user wrote.
@@ -525,11 +525,11 @@ fn remap_path(
 ) -> String {
   let normalized = raw.replace('\\', "/");
 
-  // http(s): dependencies mirrored under `.deno/remote/<host>/<path>`. The
+  // http(s): dependencies mirrored under `.oden/remote/<host>/<path>`. The
   // mirror layout drops the URL scheme (and encodes `:port` as `__port`), so
   // recover the exact original URL from the generated tsconfig's `paths`; fall
   // back to a best-effort `https://` reconstruction when it isn't found.
-  if let Some(rest) = normalized.split(".deno/remote/").nth(1) {
+  if let Some(rest) = normalized.split(".oden/remote/").nth(1) {
     if let Some(url) = remote_map.get(rest) {
       return url.clone();
     }
@@ -675,7 +675,7 @@ mod tests {
     let empty = HashMap::new();
     assert_eq!(
       remap_path(
-        ".deno/remote/html.spec.whatwg.org/entities.json",
+        ".oden/remote/html.spec.whatwg.org/entities.json",
         root,
         &empty
       ),
@@ -689,7 +689,7 @@ mod tests {
     );
     assert_eq!(
       remap_path(
-        ".deno/remote/localhost__4545/subdir/type_error.ts",
+        ".oden/remote/localhost__4545/subdir/type_error.ts",
         root,
         &remote_map
       ),

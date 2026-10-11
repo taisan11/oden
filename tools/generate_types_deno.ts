@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run -A
+#!/usr/bin/env -S oden run --config=tools/oden.json -A
 // Copyright 2018-2026 the Deno authors. MIT license.
 
 // This script is used to generate the @types/deno package on DefinitelyTyped.
@@ -17,7 +17,7 @@ if (!definitelyTypedDir.existsSync()) {
 }
 
 const denoExec = rootDir.join(
-  "target/debug/deno" + (Deno.build.os === "windows" ? ".exe" : ""),
+  "target/debug/oden" + (Deno.build.os === "windows" ? ".exe" : ""),
 );
 
 $.logStep("Building Deno executable...");

@@ -21,7 +21,7 @@ fn upgrade_invalid_lockfile() {
   "version": "invalid",
 }"#,
   );
-  let exe_path = temp_dir.path().join("deno");
+  let exe_path = temp_dir.path().join("oden");
   util::deno_exe_path().copy(&exe_path);
   assert!(exe_path.exists());
   exe_path.mark_executable();
@@ -66,9 +66,9 @@ fn upgrade_prompt() {
     //   doesn't occur except when there's a pty.
     // - Version comes from the test server.
     pty.expect_any(&[
-      " 99999.99.99 Run `deno upgrade` to install it.",
+      " 99999.99.99 Run `oden upgrade` to install it.",
       // it builds canary releases on main, so check for this in that case
-      "Run `deno upgrade canary` to install it.",
+      "Run `oden upgrade canary` to install it.",
     ]);
   });
 }

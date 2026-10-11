@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --check --allow-write=. --allow-read=. --lock=./tools/deno.lock.json
+#!/usr/bin/env -S oden run --check --allow-write=. --allow-read=. --lock=./tools/deno.lock.json
 // Copyright 2018-2026 the Deno authors. MIT license.
 import { conditions, createWorkflow, job, step } from "jsr:@david/gagen@0.3.1";
 
@@ -30,7 +30,7 @@ const windowsJob = job("promote-to-release-windows", {
     }),
     step({
       name: "Install deno",
-      uses: "denoland/setup-deno@v2",
+      uses: "./.github/actions/setup-oden",
       with: { "deno-version": "v2.x" },
     }),
     step({
@@ -45,7 +45,7 @@ const windowsJob = job("promote-to-release-windows", {
         "} else {",
         '  $SrcUrl = "https://dl.deno.land/canary/${{github.event.inputs.commitHash}}"',
         "}",
-        'Invoke-WebRequest -Uri "$SrcUrl/deno-${{ matrix.target }}.zip" -OutFile "deno-windows.zip"',
+        'Invoke-WebRequest -Uri "$SrcUrl/oden-${{ matrix.target }}.zip" -OutFile "deno-windows.zip"',
         'Invoke-WebRequest -Uri "$SrcUrl/denort-${{ matrix.target }}.zip" -OutFile "denort-windows.zip"',
         'Expand-Archive -Path "deno-windows.zip" -DestinationPath "."',
         'Expand-Archive -Path "denort-windows.zip" -DestinationPath "."',
@@ -54,7 +54,7 @@ const windowsJob = job("promote-to-release-windows", {
     step({
       name: "Run patchver for Windows",
       run:
-        "deno run -A --minimum-dependency-age=0 ./tools/release/promote_to_release_windows.ts ${{github.event.inputs.releaseKind}}",
+        "oden run --config=tools/oden.json -A --minimum-dependency-age=0 ./tools/release/promote_to_release_windows.ts ${{github.event.inputs.releaseKind}}",
     }),
     step({
       name: "Authenticate with Azure",
@@ -67,7 +67,7 @@ const windowsJob = job("promote-to-release-windows", {
       },
     }),
     step({
-      name: "Code sign deno.exe",
+      name: "Code sign oden.exe",
       uses: "Azure/artifact-signing-action@v0",
       with: {
         "cache-dependencies": false,
@@ -76,7 +76,7 @@ const windowsJob = job("promote-to-release-windows", {
         "trusted-signing-account-name": "deno-cli-code-signing",
         "certificate-profile-name": "deno-cli-code-signing-cert",
         "files-folder": ".",
-        "files-folder-filter": "deno.exe",
+        "files-folder-filter": "oden.exe",
         "file-digest": "SHA256",
         "timestamp-rfc3161": "http://timestamp.acs.microsoft.com",
         "timestamp-digest": "SHA256",
@@ -95,13 +95,13 @@ const windowsJob = job("promote-to-release-windows", {
       run: [
         '$SignTool = Get-ChildItem -Path "C:\\Program Files*\\Windows Kits\\*\\bin\\*\\x64\\signtool.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1',
         "$SignToolPath = $SignTool.FullName",
-        '& $SignToolPath verify /pa /v "deno.exe"',
+        '& $SignToolPath verify /pa /v "oden.exe"',
       ],
     }),
     step({
       name: "Create archives",
       run: [
-        'Compress-Archive -Path "deno.exe" -DestinationPath "deno-${{ matrix.target }}.zip" -Force',
+        'Compress-Archive -Path "oden.exe" -DestinationPath "oden-${{ matrix.target }}.zip" -Force',
         'Compress-Archive -Path "denort.exe" -DestinationPath "denort-${{ matrix.target }}.zip" -Force',
       ],
     }),
@@ -110,7 +110,7 @@ const windowsJob = job("promote-to-release-windows", {
       uses: "actions/upload-artifact@v6",
       with: {
         name: "windows-binaries-${{ matrix.target }}",
-        path: "deno-${{ matrix.target }}.zip\ndenort-${{ matrix.target }}.zip",
+        path: "oden-${{ matrix.target }}.zip\ndenort-${{ matrix.target }}.zip",
       },
     }),
   ],
@@ -154,7 +154,7 @@ const workflow = createWorkflow({
         }),
         step({
           name: "Install deno",
-          uses: "denoland/setup-deno@v2",
+          uses: "./.github/actions/setup-oden",
           with: { "deno-version": "v2.x" },
         }),
         step({
@@ -171,7 +171,7 @@ const workflow = createWorkflow({
             APPLE_CODESIGN_PASSWORD: "${{ secrets.APPLE_CODESIGN_PASSWORD }}",
           },
           run:
-            "deno run -A --minimum-dependency-age=0 ./tools/release/promote_to_release.ts ${{github.event.inputs.releaseKind}} ${{github.event.inputs.commitHash}}",
+            "oden run --config=tools/oden.json -A --minimum-dependency-age=0 ./tools/release/promote_to_release.ts ${{github.event.inputs.releaseKind}} ${{github.event.inputs.commitHash}}",
         }),
         step({
           name: "Download Windows binaries",
@@ -186,10 +186,10 @@ const workflow = createWorkflow({
           name: "Create version file",
           run: [
             "# Unzip a binary to get the version",
-            "unzip -o deno-x86_64-apple-darwin.zip",
-            "DENO_VERSION=$(./deno -V | cut -d ' ' -f 2 | cut -d '+' -f 1)",
+            "unzip -o oden-x86_64-apple-darwin.zip",
+            "DENO_VERSION=$(./oden -V | cut -d ' ' -f 2 | cut -d '+' -f 1)",
             'echo "v${DENO_VERSION}" > release-${{github.event.inputs.releaseKind}}-latest.txt',
-            "rm -f ./deno",
+            "rm -f ./oden",
           ],
         }),
         step({
@@ -240,9 +240,9 @@ const workflow = createWorkflow({
           run: [
             "# The latest.txt file lives at a stable URL but changes every",
             "# release, so the edge has to be told to drop it. Otherwise",
-            "# `deno upgrade` keeps serving the previous version until the",
+            "# `oden upgrade` keeps serving the previous version until the",
             "# 4 hour TTL expires.",
-            "deno run -A --lock=tools/deno.lock.json tools/release/purge_cdn_cache.ts release-${{github.event.inputs.releaseKind}}-latest.txt",
+            "oden run --config=tools/oden.json -A --lock=tools/deno.lock.json tools/release/purge_cdn_cache.ts release-${{github.event.inputs.releaseKind}}-latest.txt",
           ],
         }),
       ],

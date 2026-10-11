@@ -35,13 +35,13 @@ use crate::npm::version_req_matches_including_pre;
 #[derive(Debug, Error, deno_error::JsError)]
 pub enum ByonmResolvePkgFolderFromDenoReqError {
   #[class(generic)]
-  #[error("Could not find \"{}\" in a node_modules folder. Deno expects the node_modules/ directory to be up to date. Did you forget to run `deno install`?", .0)]
+  #[error("Could not find \"{}\" in a node_modules folder. Deno expects the node_modules/ directory to be up to date. Did you forget to run `oden install`?", .0)]
   MissingAlias(StackString),
   #[class(inherit)]
   #[error(transparent)]
   PackageJson(#[from] PackageJsonLoadError),
   #[class(generic)]
-  #[error("Could not find a matching package for 'npm:{}' in the node_modules directory. Ensure you have all your JSR and npm dependencies listed in your deno.json or package.json, then run `deno install`. Alternatively, turn on auto-install by specifying `\"nodeModulesDir\": \"auto\"` in your deno.json file.", .0)]
+  #[error("Could not find a matching package for 'npm:{}' in the node_modules directory. Ensure you have all your JSR and npm dependencies listed in your oden.json or package.json, then run `oden install`. Alternatively, turn on auto-install by specifying `\"nodeModulesDir\": \"auto\"` in your oden.json file.", .0)]
   UnmatchedReq(PackageReq),
   #[class(inherit)]
   #[error(transparent)]
@@ -170,7 +170,7 @@ impl<TSys: ByonmNpmResolverSys> ByonmNpmResolver<TSys> {
         // requirement. The package.json dep may intersect the req (e.g.,
         // dep is ^1.3.5, req is @1.3.6) but the physically installed
         // version might not satisfy it (e.g., 1.3.5 is installed).
-        // In that case, fall through to the .deno/ search.
+        // In that case, fall through to the .oden/ search.
         //
         // When the req is a tag (e.g. `latest`), we can't compare against
         // a parsed version, so trust the alias resolution.
@@ -195,7 +195,7 @@ impl<TSys: ByonmNpmResolverSys> ByonmNpmResolver<TSys> {
       }
     }
 
-    // check if node_modules/.deno/ matches this constraint
+    // check if node_modules/.oden/ matches this constraint
     if let Some(folder) = self.resolve_folder_in_root_node_modules(req) {
       return Ok(folder);
     }
@@ -348,9 +348,9 @@ impl<TSys: ByonmNpmResolverSys> ByonmNpmResolver<TSys> {
     &self,
     req: &PackageReq,
   ) -> Option<PathBuf> {
-    // now check if node_modules/.deno/ matches this constraint
+    // now check if node_modules/.oden/ matches this constraint
     let root_node_modules_dir = self.root_node_modules_dir.as_ref()?;
-    let node_modules_deno_dir = root_node_modules_dir.join(".deno");
+    let node_modules_deno_dir = root_node_modules_dir.join(".oden");
     let Ok(entries) = self.sys.fs_read_dir(&node_modules_deno_dir) else {
       return None;
     };

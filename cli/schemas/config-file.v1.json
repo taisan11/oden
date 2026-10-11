@@ -124,7 +124,7 @@
     },
     "compile": {
       "type": "object",
-      "description": "Configuration for `deno compile`.",
+      "description": "Configuration for `oden compile`.",
       "additionalProperties": false,
       "properties": {
         "include": {
@@ -148,7 +148,7 @@
     },
     "desktop": {
       "type": "object",
-      "description": "Configuration for `deno desktop`.",
+      "description": "Configuration for `oden desktop`.",
       "additionalProperties": false,
       "properties": {
         "app": {
@@ -937,7 +937,7 @@
           "enum": ["maintain", "caseSensitive", "caseInsensitive"]
         },
         "useEditorConfig": {
-          "description": "Whether `deno fmt` reads `.editorconfig` files to fill in formatting options that are not otherwise set. Defaults to true.",
+          "description": "Whether `oden fmt` reads `.editorconfig` files to fill in formatting options that are not otherwise set. Defaults to true.",
           "default": true,
           "type": "boolean"
         },
@@ -1021,11 +1021,11 @@
       "type": "boolean"
     },
     "preferPackageJson": {
-      "description": "When enabled, `deno add`, `deno install` and `deno remove` manage dependencies in package.json instead of deno.json, creating a package.json if one does not exist. Equivalent to passing `--package-json` to those commands.",
+      "description": "When enabled, `oden add`, `oden install` and `oden remove` manage dependencies in package.json instead of oden.json, creating a package.json if one does not exist. Equivalent to passing `--package-json` to those commands.",
       "type": "boolean"
     },
     "tasks": {
-      "description": "Configuration for deno task",
+      "description": "Configuration for oden task",
       "type": "object",
       "patternProperties": {
         "^[A-Za-z][A-Za-z0-9_\\-:]*$": {
@@ -1040,7 +1040,7 @@
               "properties": {
                 "description": {
                   "type": "string",
-                  "description": "Description of a task that will be shown when running `deno task` without a task name"
+                  "description": "Description of a task that will be shown when running `oden task` without a task name"
                 },
                 "command": {
                   "type": "string",
@@ -1082,7 +1082,7 @@
       "additionalProperties": false
     },
     "test": {
-      "description": "Configuration for deno test",
+      "description": "Configuration for oden test",
       "type": "object",
       "properties": {
         "include": {
@@ -1114,7 +1114,7 @@
     },
     "publish": {
       "oneOf": [{
-        "description": "Configuration for deno publish",
+        "description": "Configuration for oden publish",
         "type": "object",
         "properties": {
           "include": {
@@ -1133,12 +1133,12 @@
           }
         }
       }, {
-        "description": "Disable publishing this package with deno publish",
+        "description": "Disable publishing this package with oden publish",
         "const": false
       }]
     },
     "bench": {
-      "description": "Configuration for deno bench",
+      "description": "Configuration for oden bench",
       "type": "object",
       "properties": {
         "include": {
@@ -1161,7 +1161,7 @@
       }
     },
     "coverage": {
-      "description": "Configuration for deno coverage and deno test --coverage",
+      "description": "Configuration for oden coverage and oden test --coverage",
       "type": "object",
       "properties": {
         "thresholds": {

@@ -26,7 +26,7 @@ fn generate_bash(cmd: &CommandDef) -> Vec<u8> {
   let subcmd_list = subcmds.join(" ");
 
   out.push_str(&format!(
-    r#"_deno() {{
+    r#"_oden() {{
     local i cur prev opts cmds
     COMPREPLY=()
     cur="${{COMP_WORDS[COMP_CWORD]}}"
@@ -155,7 +155,7 @@ fn generate_zsh(cmd: &CommandDef) -> Vec<u8> {
   out.push_str(&format!("#compdef {name}\n\n"));
 
   // Subcommands
-  out.push_str("_deno_commands() {\n    local commands; commands=(\n");
+  out.push_str("_oden_commands() {\n    local commands; commands=(\n");
   for sub in cmd.subcommands {
     if sub.name == "help" {
       continue;
@@ -182,7 +182,7 @@ fn generate_zsh(cmd: &CommandDef) -> Vec<u8> {
     .and_then(|name| cmd.find_subcommand(name));
   if default_sub.is_some() {
     out.push_str(
-      "_deno_commands_or_files() {\n    _alternative \\\n        'commands:command:_deno_commands' \\\n        'files:file:_files'\n}\n\n",
+      "_oden_commands_or_files() {\n    _alternative \\\n        'commands:command:_oden_commands' \\\n        'files:file:_files'\n}\n\n",
     );
   }
 
@@ -192,7 +192,7 @@ fn generate_zsh(cmd: &CommandDef) -> Vec<u8> {
   out.push_str("    _arguments -C \\\n");
 
   // Global flags, plus the default subcommand's flags since they are accepted
-  // before the script in a bare invocation (e.g. `deno -A main.ts`).
+  // before the script in a bare invocation (e.g. `oden -A main.ts`).
   let mut seen = std::collections::HashSet::new();
   let root_args = cmd
     .all_args()
@@ -206,9 +206,9 @@ fn generate_zsh(cmd: &CommandDef) -> Vec<u8> {
   }
 
   if default_sub.is_some() {
-    out.push_str("        \":: :_deno_commands_or_files\" \\\n");
+    out.push_str("        \":: :_oden_commands_or_files\" \\\n");
   } else {
-    out.push_str("        \":: :_deno_commands\" \\\n");
+    out.push_str("        \":: :_oden_commands\" \\\n");
   }
   out.push_str("        \"*::arg:->args\" \\\n");
   out.push_str("        && ret=0\n\n");
@@ -238,7 +238,7 @@ fn generate_zsh(cmd: &CommandDef) -> Vec<u8> {
   if default_sub.is_some() {
     // Anything else in the first position is a script for the default
     // subcommand; complete its arguments as files. The script itself is
-    // already handled by `_deno_commands_or_files` above.
+    // already handled by `_oden_commands_or_files` above.
     out.push_str(
       "        *)\n            (( CURRENT > 1 )) && _files\n            ;;\n",
     );
@@ -503,8 +503,8 @@ compdef _clap_dynamic_completer_NAME BIN"#;
 pub type Candidate = (String, Option<String>);
 
 /// Produces completion candidates for a positional argument the built-in
-/// engine can't resolve on its own (e.g. `deno task <TAB>` -> task names read
-/// from `deno.json`). Called with the active (sub)command and the current
+/// engine can't resolve on its own (e.g. `oden task <TAB>` -> task names read
+/// from `oden.json`). Called with the active (sub)command and the current
 /// partial word. Returning an empty vec falls back to the shell's default
 /// (file) completion. This lives CLI-side so the parser crate needs no
 /// config/workspace dependencies.
@@ -639,7 +639,7 @@ fn get_candidates(
     .any(|w| !w.starts_with('-') && root.find_subcommand(w).is_some());
 
   // Value candidates come first, matching clap's ordering: subcommand names at
-  // the root, or positional values inside a subcommand (e.g. `deno task <TAB>`
+  // the root, or positional values inside a subcommand (e.g. `oden task <TAB>`
   // -> task names via the CLI-provided completer). Skipped when the user is
   // clearly typing a flag (`-...`).
   if !want_flag {
@@ -667,7 +667,7 @@ fn get_candidates(
     candidates.extend(values);
   }
 
-  // Then flags: long flags are always offered (so `deno task <TAB>` also lists
+  // Then flags: long flags are always offered (so `oden task <TAB>` also lists
   // `--config` etc.); short flags only when the user has typed a leading `-`.
   let mut flags: Vec<Candidate> = Vec::new();
   for arg in active_cmd
@@ -724,7 +724,7 @@ mod tests {
 
   #[test]
   fn completes_subcommands_at_root() {
-    let c = complete(&["deno", ""], 1, &no_positional);
+    let c = complete(&["oden", ""], 1, &no_positional);
     let v = values(&c);
     assert!(v.contains(&"run"), "{v:?}");
     assert!(v.contains(&"task"), "{v:?}");
@@ -735,7 +735,7 @@ mod tests {
 
   #[test]
   fn completes_subcommand_prefix() {
-    let c = complete(&["deno", "ru"], 1, &no_positional);
+    let c = complete(&["oden", "ru"], 1, &no_positional);
     let v = values(&c);
     assert!(v.contains(&"run"), "{v:?}");
     assert!(!v.contains(&"task"), "{v:?}");
@@ -743,7 +743,7 @@ mod tests {
 
   #[test]
   fn completes_flags_in_subcommand() {
-    let c = complete(&["deno", "run", "--no-r"], 2, &no_positional);
+    let c = complete(&["oden", "run", "--no-r"], 2, &no_positional);
     let v = values(&c);
     assert!(v.iter().all(|f| f.starts_with("--no-r")), "{v:?}");
     assert!(v.contains(&"--no-remote"), "{v:?}");
@@ -754,7 +754,7 @@ mod tests {
     // Permission args are `hidden` (they're documented in the after-help
     // "Permission options" section instead), and clap's `.hide(true)` kept
     // them out of clap_complete's candidates too — so stay consistent.
-    let c = complete(&["deno", "run", "--allow-r"], 2, &no_positional);
+    let c = complete(&["oden", "run", "--allow-r"], 2, &no_positional);
     assert!(c.is_empty(), "{:?}", values(&c));
   }
 
@@ -762,7 +762,7 @@ mod tests {
   fn value_taking_flag_defers_to_file_completion() {
     // `run --config <TAB>`: --config takes a value, so no candidates (the shell
     // does file completion).
-    let c = complete(&["deno", "run", "--config", ""], 3, &no_positional);
+    let c = complete(&["oden", "run", "--config", ""], 3, &no_positional);
     assert!(c.is_empty(), "{:?}", values(&c));
   }
 
@@ -775,7 +775,7 @@ mod tests {
         ("test".to_string(), None),
       ]
     }
-    let c = complete(&["deno", "task", ""], 2, &tasks);
+    let c = complete(&["oden", "task", ""], 2, &tasks);
     let v = values(&c);
     // task names come first...
     assert_eq!(&v[0..2], &["build", "test"], "{v:?}");
@@ -787,7 +787,7 @@ mod tests {
   fn generate_bash_uses_real_newlines() {
     let s = String::from_utf8(generate("bash", &DENO_ROOT)).unwrap();
     assert!(
-      s.contains("\"deno,run\")\n                cmd=\"deno__run\""),
+      s.contains("\"oden,run\")\n                cmd=\"oden__run\""),
       "{s}"
     );
     assert!(s.contains("            *)\n                ;;"), "{s}");
@@ -813,20 +813,20 @@ mod tests {
 
   #[test]
   fn generate_zsh_completes_files_for_bare_run() {
-    // Regression test for #36959: `deno -A ./<TAB>` only offered subcommands
+    // Regression test for #36959: `oden -A ./<TAB>` only offered subcommands
     // for the first positional and nothing after a non-subcommand word, so
     // script paths never completed for a bare `deno [flags] <script>`.
     let s =
       String::from_utf8(generate("zsh", &crate::defs::DENO_ROOT)).unwrap();
-    assert!(s.contains("_deno_commands_or_files() {"), "{s}");
+    assert!(s.contains("_oden_commands_or_files() {"), "{s}");
     assert!(s.contains("'files:file:_files'"), "{s}");
-    assert!(s.contains("\":: :_deno_commands_or_files\""), "{s}");
+    assert!(s.contains("\":: :_oden_commands_or_files\""), "{s}");
     assert!(
       s.contains("        *)\n            (( CURRENT > 1 )) && _files\n"),
       "{s}"
     );
     // The default subcommand's flags are accepted at the root.
-    let root = &s[s.find("_deno() {").unwrap()..s.find("case $state").unwrap()];
+    let root = &s[s.find("_oden() {").unwrap()..s.find("case $state").unwrap()];
     assert!(root.contains("'--watch["), "{root}");
     assert_eq!(root.matches("'--env-file[").count(), 1, "{root}");
   }
@@ -862,17 +862,17 @@ mod tests {
   #[test]
   fn generate_dynamic_bash_uses_callback_protocol() {
     let s =
-      String::from_utf8(generate_dynamic("bash", "deno", "/bin/deno")).unwrap();
-    assert!(s.contains("_clap_complete_deno"), "{s}");
+      String::from_utf8(generate_dynamic("bash", "oden", "/bin/oden")).unwrap();
+    assert!(s.contains("_clap_complete_oden"), "{s}");
     assert!(s.contains("_CLAP_COMPLETE_INDEX"), "{s}");
-    assert!(s.contains("/bin/deno"), "{s}");
-    assert!(s.contains("-F _clap_complete_deno deno"), "{s}");
+    assert!(s.contains("/bin/oden"), "{s}");
+    assert!(s.contains("-F _clap_complete_oden oden"), "{s}");
   }
 
   #[test]
   fn generate_dynamic_fish_is_exclusive_keep_order() {
     let s =
-      String::from_utf8(generate_dynamic("fish", "deno", "/bin/deno")).unwrap();
+      String::from_utf8(generate_dynamic("fish", "oden", "/bin/oden")).unwrap();
     assert!(s.contains("complete --keep-order --exclusive"), "{s}");
     assert!(s.contains("COMPLETE=fish"), "{s}");
   }
@@ -880,9 +880,9 @@ mod tests {
   #[test]
   fn generate_dynamic_zsh_preserves_order() {
     let s =
-      String::from_utf8(generate_dynamic("zsh", "deno", "/bin/deno")).unwrap();
-    assert!(s.contains("#compdef deno"), "{s}");
-    assert!(s.contains("_clap_dynamic_completer_deno"), "{s}");
+      String::from_utf8(generate_dynamic("zsh", "oden", "/bin/oden")).unwrap();
+    assert!(s.contains("#compdef oden"), "{s}");
+    assert!(s.contains("_clap_dynamic_completer_oden"), "{s}");
     assert!(s.contains("-o nosort"), "{s}");
   }
 }

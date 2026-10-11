@@ -724,6 +724,7 @@ impl CliFactory {
             | DenoSubcommand::Eval { .. }
             | DenoSubcommand::Fmt { .. }
             | DenoSubcommand::Init { .. }
+            | DenoSubcommand::FromDeno
             | DenoSubcommand::Info { .. }
             | DenoSubcommand::List { .. }
             | DenoSubcommand::JSONReference { .. }
@@ -758,7 +759,7 @@ impl CliFactory {
           // the registry, which fails under `--cached-only` (offline
           // isolates booting from an immutable, pre-baked `DENO_DIR`). See
           // denoland/deno#26427 for the original install-path dedup. This is
-          // safe on `deno run`: the dedup only affects the in-memory
+          // safe on `oden run`: the dedup only affects the in-memory
           // resolution snapshot and does not rewrite the user's lockfile
           // unless a real resolution runs (which the dedup is precisely what
           // avoids for an already-satisfied lockfile).
@@ -1274,7 +1275,7 @@ impl CliFactory {
     // Provide the watcher communicator whenever running under the file watcher,
     // not just for HMR. `CliMainWorker::run()` uses its presence to detect that
     // it is under a watcher and route `Deno.exit()` through isolate termination
-    // instead of `std::process::exit()`, which keeps `deno serve --watch` (which
+    // instead of `std::process::exit()`, which keeps `oden serve --watch` (which
     // goes through `run()` rather than `run_for_watcher`) alive across exits.
     // HMR-specific behaviour is gated separately on `create_hmr_runner`. See
     // issue #7590.
@@ -1576,7 +1577,7 @@ fn new_workspace_factory_options(
       ConfigFlag::Disabled => ConfigDiscoveryOption::Disabled,
     },
     maybe_custom_deno_dir_root: flags.internal.cache_path.clone(),
-    // For `deno install/add/remove/init` we want to force the managed
+    // For `oden install/add/remove/init` we want to force the managed
     // resolver so it can set up the `node_modules/` directory.
     is_package_manager_subcommand: matches!(
       flags.subcommand,
@@ -1601,7 +1602,7 @@ fn new_workspace_factory_options(
           | DenoSubcommand::Uninstall(_)
       ),
     // Seed deno.lock from package-lock.json only when the user is explicitly
-    // setting up dependencies via `deno install` (local form).
+    // setting up dependencies via `oden install` (local form).
     import_npm_lockfile: matches!(
       flags.subcommand,
       DenoSubcommand::Install(InstallFlags::Local(..))

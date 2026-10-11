@@ -80,8 +80,8 @@
           "output": "update_latest/root/update.out"
         },
         {
-          "args": "-A print_file.ts ./deno.json",
-          "output": "./update_latest/root/deno.json.out"
+          "args": "-A print_file.ts ./oden.json",
+          "output": "./update_latest/root/oden.json.out"
         }
       ]
     },
@@ -97,8 +97,8 @@
           "output": "update_latest/subdir/member_a.out"
         },
         {
-          "args": "-A print_file.ts ./member-a/deno.json",
-          "output": "update_latest/subdir/member_a_deno.json.out"
+          "args": "-A print_file.ts ./member-a/oden.json",
+          "output": "update_latest/subdir/member_a_oden.json.out"
         },
         {
           "cwd": "member-b",
@@ -122,12 +122,12 @@
           "output": "update_latest/recursive/update.out"
         },
         {
-          "args": "-A print_file.ts ./deno.json",
-          "output": "update_latest/root/deno.json.out"
+          "args": "-A print_file.ts ./oden.json",
+          "output": "update_latest/root/oden.json.out"
         },
         {
-          "args": "-A print_file.ts ./member-a/deno.json",
-          "output": "update_latest/subdir/member_a_deno.json.out"
+          "args": "-A print_file.ts ./member-a/oden.json",
+          "output": "update_latest/subdir/member_a_oden.json.out"
         },
         {
           "args": "-A print_file.ts ./member-b/package.json",
@@ -146,12 +146,12 @@
           "output": "filtered/update.out"
         },
         {
-          "args": "-A print_file.ts ./deno.json",
-          "output": "./update_latest/root/deno.json.out"
+          "args": "-A print_file.ts ./oden.json",
+          "output": "./update_latest/root/oden.json.out"
         },
         {
-          "args": "-A print_file.ts ./member-a/deno.json",
-          "output": "./filtered/member_a_deno.json.out"
+          "args": "-A print_file.ts ./member-a/oden.json",
+          "output": "./filtered/member_a_oden.json.out"
         },
         {
           "args": "-A print_file.ts ./member-b/package.json",

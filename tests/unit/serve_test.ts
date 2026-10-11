@@ -669,7 +669,7 @@ Deno.test(
   async function httpServerOnErrorFails() {
     const ac = new AbortController();
     const { promise, resolve } = Promise.withResolvers<void>();
-    // NOTE(bartlomieju): deno lint doesn't know that it's actually used later,
+    // NOTE(bartlomieju): oden lint doesn't know that it's actually used later,
     // but TypeScript can't see that either ¯\_(ツ)_/¯
     // deno-lint-ignore no-unused-vars
     let requestStash: Request | null;

@@ -1,0 +1,59 @@
+{
+  "tempDir": true,
+  "tests": {
+    "json": {
+      "cwd": "json",
+      "steps": [
+        {
+          "args": "from deno",
+          "output": "Migrated deno.json to oden.json\n"
+        },
+        {
+          "args": [
+            "eval",
+            "--no-config",
+            "if (Deno.readTextFileSync(\"oden.json\") !== Deno.readTextFileSync(\"original.txt\")) throw new Error(\"contents changed\"); try { Deno.statSync(\"deno.json\"); throw new Error(\"source still exists\"); } catch (e) { if (!(e instanceof Deno.errors.NotFound)) throw e; }"
+          ],
+          "output": ""
+        },
+        {
+          "args": "task --quiet verify",
+          "output": "migrated\n"
+        }
+      ]
+    },
+    "jsonc": {
+      "cwd": "jsonc",
+      "steps": [
+        {
+          "args": "from deno",
+          "output": "Migrated deno.jsonc to oden.jsonc\n"
+        },
+        {
+          "args": [
+            "eval",
+            "--no-config",
+            "if (Deno.readTextFileSync(\"oden.jsonc\") !== Deno.readTextFileSync(\"original.txt\")) throw new Error(\"contents changed\"); try { Deno.statSync(\"deno.jsonc\"); throw new Error(\"source still exists\"); } catch (e) { if (!(e instanceof Deno.errors.NotFound)) throw e; }"
+          ],
+          "output": ""
+        },
+        {
+          "args": "task --quiet verify",
+          "output": "migrated\n"
+        }
+      ]
+    },
+    "conflict": {
+      "cwd": "conflict",
+      "args": "from deno",
+      "output": "error: Cannot migrate: oden.jsonc already exists\n",
+      "exitCode": 1
+    },
+    "missing": {
+      "cwd": "missing",
+      "args": "from deno",
+      "output": "error: No deno.json or deno.jsonc found in [WILDCARD]\n",
+      "exitCode": 1
+    }
+  }
+}

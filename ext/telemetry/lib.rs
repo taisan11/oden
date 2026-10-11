@@ -202,7 +202,7 @@ fn otel_create_shared_runtime() -> UnboundedSender<BoxFuture<'static, ()>> {
       .enable_time()
       // This limits the number of threads for blocking operations (like for
       // synchronous fs ops) or CPU bound tasks like when we run dprint in
-      // parallel for deno fmt.
+      // parallel for oden fmt.
       // The default value is 512, which is an unhelpfully large thread pool. We
       // don't ever want to have more than a couple dozen threads.
       .max_blocking_threads(if cfg!(windows) {
@@ -1286,8 +1286,8 @@ pub fn init(
     .with_attributes([
       KeyValue::new(PROCESS_RUNTIME_NAME, rt_config.runtime_name),
       KeyValue::new(PROCESS_RUNTIME_VERSION, rt_config.runtime_version.clone()),
-      KeyValue::new(TELEMETRY_SDK_LANGUAGE, format!("deno-{sdk_language}")),
-      KeyValue::new(TELEMETRY_SDK_NAME, format!("deno-{sdk_name}")),
+      KeyValue::new(TELEMETRY_SDK_LANGUAGE, format!("oden-{sdk_language}")),
+      KeyValue::new(TELEMETRY_SDK_NAME, format!("oden-{sdk_name}")),
       KeyValue::new(
         TELEMETRY_SDK_VERSION,
         format!("{}-{}", rt_config.runtime_version, sdk_version),

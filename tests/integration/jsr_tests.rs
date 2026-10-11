@@ -28,7 +28,7 @@ fn fast_check_cache() {
     const value: number = add(1, 2);
     console.log(value);"#,
   );
-  temp_dir.path().join("deno.json").write_json(&json!({
+  temp_dir.path().join("oden.json").write_json(&json!({
     "vendor": true
   }));
 
@@ -155,7 +155,7 @@ async fn specifiers_in_lockfile() {
 
 console.log(version);"#,
   );
-  temp_dir.write("deno.json", "{}"); // to automatically create a lockfile
+  temp_dir.write("oden.json", "{}"); // to automatically create a lockfile
 
   test_context
     .new_command()
@@ -278,13 +278,13 @@ fn reload_info_not_found_cache_but_exists_remote() {
 
 #[test]
 fn install_cache_busts_if_version_not_found() {
-  // Tests that if you try to deno install a package, if we can't find the version in the cached
+  // Tests that if you try to oden install a package, if we can't find the version in the cached
   // meta.json, we bust the cache to .
   let test_context = TestContextBuilder::for_jsr().use_temp_cwd().build();
   let deno_dir = test_context.deno_dir();
   let temp_dir = test_context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{ "imports": { "@denotest/has-pre-release": "jsr:@denotest/has-pre-release@2.0.0-beta.1" } }"#,
   );
 
@@ -304,7 +304,7 @@ fn install_cache_busts_if_version_not_found() {
   );
 
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{ "imports": { "@denotest/has-pre-release": "jsr:@denotest/has-pre-release@2.0.0-beta.2" } }"#,
   );
 
@@ -329,7 +329,7 @@ async fn lockfile_bad_package_integrity() {
 
 console.log(version);"#,
   );
-  temp_dir.write("deno.json", "{}"); // to automatically create a lockfile
+  temp_dir.write("oden.json", "{}"); // to automatically create a lockfile
 
   test_context
     .new_command()
@@ -377,7 +377,7 @@ Investigate the lockfile; delete it to regenerate the lockfile or --reload to re
   // now try with a vendor folder
   temp_dir
     .path()
-    .join("deno.json")
+    .join("oden.json")
     .write_json(&json!({ "vendor": true }));
 
   // should fail again
@@ -449,7 +449,7 @@ error: Integrity check failed in package. The package may have been tampered wit
   Actual: 9a30ac96b5d5c1b67eca69e1e2cf0798817d9578c8d7d904a81a67b983b35cba
   Expected: bad-checksum
 
-If you modified your global cache, run again with the --reload flag to restore its state. If you want to modify dependencies locally run again with the --vendor flag or specify `\"vendor\": true` in a deno.json then modify the contents of the vendor/ folder.
+If you modified your global cache, run again with the --reload flag to restore its state. If you want to modify dependencies locally run again with the --vendor flag or specify `\"vendor\": true` in a oden.json then modify the contents of the vendor/ folder.
 ",
     )
     .assert_exit_code(10);
@@ -466,7 +466,7 @@ If you modified your global cache, run again with the --reload flag to restore i
   Actual: 9a30ac96b5d5c1b67eca69e1e2cf0798817d9578c8d7d904a81a67b983b35cba
   Expected: bad-checksum
 
-If you modified your global cache, run again with the --reload flag to restore its state. If you want to modify dependencies locally run again with the --vendor flag or specify `\"vendor\": true` in a deno.json then modify the contents of the vendor/ folder.
+If you modified your global cache, run again with the --reload flag to restore its state. If you want to modify dependencies locally run again with the --vendor flag or specify `\"vendor\": true` in a oden.json then modify the contents of the vendor/ folder.
 ",
     )
     .assert_exit_code(10);

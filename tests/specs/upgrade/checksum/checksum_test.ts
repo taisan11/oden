@@ -3,7 +3,7 @@
 
 const version = "99.99.99";
 const target = Deno.build.target;
-const archiveName = `deno-${target}.zip`;
+const archiveName = `oden-${target}.zip`;
 const downloadUrl =
   `http://localhost:4545/deno-upgrade/download/v${version}/${archiveName}`;
 

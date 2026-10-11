@@ -46,7 +46,7 @@ pub async fn desktop(
 ) -> Result<(), AnyError> {
   log::warn!(
     "{}",
-    colors::yellow_bold("⚠ deno desktop is experimental and subject to change")
+    colors::yellow_bold("⚠ oden desktop is experimental and subject to change")
   );
 
   let all_targets = desktop_flags.all_targets;
@@ -94,7 +94,7 @@ pub async fn desktop(
   }
 }
 
-/// Applies `deno.json`'s `desktop` config to the CLI flags. A `deno.json` field
+/// Applies `oden.json`'s `desktop` config to the CLI flags. A `oden.json` field
 /// only fills in a flag that was left unset — CLI flags always win. The webview
 /// backend remains the final fallback via the `unwrap_or("webview")` call sites
 /// that consume `desktop_flags.backend`.
@@ -333,7 +333,7 @@ async fn compile_desktop(
             // (e.g. Vite's); type-checking it would demand the project ship
             // `@types/node` and checks nothing user-authored, so skip it.
             flags.type_check_mode = TypeCheckMode::None;
-            // The dev server used to run as an unsandboxed `deno task dev`
+            // The dev server used to run as an unsandboxed `oden task dev`
             // subprocess; now that it runs inside the desktop runtime, keep
             // that behavior — a sandboxed Vite immediately dies on env reads
             // (e.g. NAPI_RS_WASI_FLAVOR from its napi loader).
@@ -347,10 +347,10 @@ async fn compile_desktop(
       };
       log::info!("Detected {} framework", detection.name);
       if !use_framework_hmr {
-        // Run the framework's build step (e.g. `deno task build`) before its
+        // Run the framework's build step (e.g. `oden task build`) before its
         // build output (`dist`, `.next`, etc.) is added to the compile includes
         // below; otherwise the include points at a directory that doesn't exist
-        // yet and the compile fails (#35535). Mirrors `deno compile .`.
+        // yet and the compile fails (#35535). Mirrors `oden compile .`.
         super::framework::run_build_command(detection, cwd)?;
       }
       // Enable CJS detection for Node-based frameworks.
@@ -367,8 +367,8 @@ async fn compile_desktop(
       // NamedTempFile below cleans up on drop, but a Ctrl-C delivers SIGINT
       // to the whole process group (see `run_desktop_hmr`) and the parent
       // exits without running destructors — so the dev loop would otherwise
-      // accumulate `.deno_desktop_entry-*.ts` files in the project root.
-      const ENTRY_PREFIX: &str = ".deno_desktop_entry-";
+      // accumulate `.oden_desktop_entry-*.ts` files in the project root.
+      const ENTRY_PREFIX: &str = ".oden_desktop_entry-";
       if let Ok(entries) = std::fs::read_dir(cwd) {
         for entry in entries.flatten() {
           if entry
@@ -381,7 +381,7 @@ async fn compile_desktop(
         }
       }
       // Write a temporary entrypoint file. tempfile gives us a unique
-      // name (no collision between concurrent `deno desktop` runs in
+      // name (no collision between concurrent `oden desktop` runs in
       // the same project) and 0600 mode (no symlink-pre-creation
       // attack); cleanup-on-drop replaces the explicit guard.
       let entrypoint_temp = tempfile::Builder::new()
@@ -1286,7 +1286,7 @@ async fn run_desktop_hmr(
   // menu bar, Dock and Cmd-Tab switcher. Pass a clearer name (the configured
   // app name / project directory) so laufey can override the process name at
   // launch. `desktop_flags.output` is already resolved from `--output`,
-  // deno.json `desktop.app.name`, or the project dir before we get here.
+  // oden.json `desktop.app.name`, or the project dir before we get here.
   let app_name = desktop_flags
     .output
     .as_deref()
@@ -1337,7 +1337,7 @@ async fn run_desktop_hmr(
     cmd.env("LAUFEY_APP_NAME", name);
   }
   // Only enable the file watcher + setScriptSource pipeline when the user
-  // actually asked for HMR. `deno desktop --inspect` alone used to spin up
+  // actually asked for HMR. `oden desktop --inspect` alone used to spin up
   // both, surprising users (and burning the inspector channel on hot
   // reloads they didn't request).
   if desktop_flags.hmr {
@@ -1501,9 +1501,9 @@ async fn run_desktop_hmr(
 /// Marker file written into every generated desktop app directory/bundle so a
 /// later build can recognize its own previous output and clear it, while never
 /// touching unrelated user data that happens to share the inferred app name.
-const APP_DIR_MARKER: &str = ".deno-desktop-app";
+const APP_DIR_MARKER: &str = ".oden-desktop-app";
 
-/// Used for `deno desktop --hmr` when a framework runs its own HMR server.
+/// Used for `oden desktop --hmr` when a framework runs its own HMR server.
 /// The compiled app has nothing to serve in this case.
 const NOOP_ENTRYPOINT: &str =
   "// @ts-nocheck\nawait new Promise<void>(() => {});\n";
@@ -1547,7 +1547,7 @@ fn reserve_app_dir(app_dir: &Path) -> Result<(), AnyError> {
   if !is_ours && !is_empty {
     bail!(
       "Refusing to delete existing directory '{}': it was not created by \
-       `deno desktop`. The app name was inferred from the entrypoint or the \
+       `oden desktop`. The app name was inferred from the entrypoint or the \
        project directory and collided with this directory. Pass --output to \
        choose a different name, or remove the directory yourself if it is a \
        leftover from an older build.",
@@ -2004,7 +2004,7 @@ impl LaufeyBackendResolver {
     })?;
     std::fs::create_dir_all(parent)?;
 
-    // Stage extraction in a sibling tempdir so concurrent `deno desktop`
+    // Stage extraction in a sibling tempdir so concurrent `oden desktop`
     // builds don't see (or stomp on) a half-populated `dir` while one
     // is mid-extract. tempfile's cleanup-on-drop covers panic /
     // early-return paths; on the happy path we consume the TempDir via
@@ -2209,7 +2209,7 @@ fn extract_laufey_archive(
     let decoder = flate2::read::GzDecoder::new(data);
     let mut archive = tar::Archive::new(decoder);
     // Strip mode bits from archive entries: a tampered archive could
-    // otherwise ship setuid/setgid binaries into the deno cache. Files keep
+    // otherwise ship setuid/setgid binaries into the oden cache. Files keep
     // the umask-applied default; we re-add execute bits below for entries
     // that need them.
     archive.set_preserve_permissions(false);
@@ -2592,8 +2592,8 @@ fn codesign_macos_bundle(
   if !cfg!(target_os = "macos") {
     bail!(
       "codesigning requires a macOS build host (uses `codesign(1)`). \
-       Run `deno desktop` on macOS, or drop `macos.codesignIdentity` \
-       from your deno.json when cross-building."
+       Run `oden desktop` on macOS, or drop `macos.codesignIdentity` \
+       from your oden.json when cross-building."
     );
   }
   if identity.is_empty() {
@@ -3254,7 +3254,7 @@ async fn package_macos_app_bundle(
 
   // Resolve the bundle identifier. The user-configured `identifier` is
   // preferred; otherwise we synthesize one from the app name. The
-  // synthetic form is fine for `deno run`-like local use, but real
+  // synthetic form is fine for `oden run`-like local use, but real
   // distribution wants a stable reverse-DNS identifier — notification
   // permission (and other tcc-keyed permissions) are decided per
   // (bundle id, code signature), so a synthetic id changes the user's
@@ -3277,7 +3277,7 @@ async fn package_macos_app_bundle(
   // string builder (and is called repeatedly from tests). The plist keys
   // accept only period-separated integers, so a non-numeric version leaves
   // the defaults in place — say so, since the deb/rpm path rejects the same
-  // `deno.json` outright.
+  // `oden.json` outright.
   warn_about_unusable_version(
     config_package_version(cli_options).as_deref(),
     "the bundle will carry CFBundleShortVersionString 1.0 / CFBundleVersion \
@@ -3383,7 +3383,7 @@ fn render_macos_info_plist(
   has_icon: bool,
   config_version: Option<&str>,
 ) -> String {
-  // deno.json `version` when configured (#36503), reduced to the numeric
+  // oden.json `version` when configured (#36503), reduced to the numeric
   // `major.minor.build` form both version keys accept — a semver prerelease
   // carried through verbatim is rejected by notarization and App Store
   // validation (macOS only tolerates it for locally-distributed apps). The
@@ -3818,7 +3818,7 @@ fn debian_package_name(app_name: &str) -> String {
   }
 }
 
-/// The workspace root deno.json `version` field, used as the package version
+/// The workspace root oden.json `version` field, used as the package version
 /// across the macOS bundle and the Linux/Windows installers (#36503).
 fn config_package_version(
   cli_options: &crate::args::CliOptions,
@@ -3830,7 +3830,7 @@ fn config_package_version(
     .filter(|v| !v.is_empty())
 }
 
-/// The workspace root deno.json `license` field (when it is a string), used
+/// The workspace root oden.json `license` field (when it is a string), used
 /// for the `.rpm` License tag (#36503).
 fn config_package_license(
   cli_options: &crate::args::CliOptions,
@@ -3867,7 +3867,7 @@ fn linux_package_meta(
   })
 }
 
-/// The `.deb`/`.rpm` version string for a configured deno.json `version`.
+/// The `.deb`/`.rpm` version string for a configured oden.json `version`.
 ///
 /// Both formats constrain the version tag, and outside of publishing
 /// `version` is a free-form string, so an unusable value has to be rejected
@@ -3890,14 +3890,14 @@ fn linux_package_version(
   };
   if !version.starts_with(|c: char| c.is_ascii_digit()) {
     bail!(
-      "deno.json `version` \"{version}\" cannot be used as a Debian/RPM package version: it must start with a digit"
+      "oden.json `version` \"{version}\" cannot be used as a Debian/RPM package version: it must start with a digit"
     );
   }
   if let Some(c) = version.chars().find(|c| {
     !(c.is_ascii_alphanumeric() || matches!(c, '.' | '+' | '-' | '~'))
   }) {
     bail!(
-      "deno.json `version` \"{version}\" cannot be used as a Debian/RPM package version: the character '{c}' is not allowed (only alphanumerics, '.', '+', '-' and '~')"
+      "oden.json `version` \"{version}\" cannot be used as a Debian/RPM package version: the character '{c}' is not allowed (only alphanumerics, '.', '+', '-' and '~')"
     );
   }
   Ok(version.replace('-', "~"))
@@ -4286,7 +4286,7 @@ fn create_linux_rpm(
   let mut builder = rpm::PackageBuilder::new(
     &meta.package,
     &meta.version,
-    // deno.json `license` when configured; the previous hard-coded "MIT"
+    // oden.json `license` when configured; the previous hard-coded "MIT"
     // mislabeled every package built from a differently-licensed project
     // (#36503).
     config_license.unwrap_or("MIT"),
@@ -4315,7 +4315,7 @@ fn create_linux_rpm(
   // /usr/share/applications/<pkg>.desktop — staged to a temp file because the
   // rpm builder reads file content from disk.
   let staging = tempfile::Builder::new()
-    .prefix(".deno-desktop-rpm-")
+    .prefix(".oden-desktop-rpm-")
     .tempdir()?;
   let desktop_path = staging.path().join("app.desktop");
   std::fs::write(&desktop_path, system_desktop_entry(&meta))?;
@@ -4492,7 +4492,7 @@ fn msi_product_version(
   for (field, (limit, name)) in fields.iter().zip(LIMITS) {
     if *field > limit {
       bail!(
-        "deno.json `version` \"{version}\" cannot be used as an MSI \
+        "oden.json `version` \"{version}\" cannot be used as an MSI \
          ProductVersion: the {name} field {field} exceeds the maximum of \
          {limit}. Windows Installer packs ProductVersion into \
          major(0-255).minor(0-255).build(0-65535), so a CalVer-style version \
@@ -4518,7 +4518,7 @@ fn msi_product_version(
 /// the format holds. Neither is an error: MSI's ProductVersion and the plist
 /// version keys simply can't express those versions, so falling back or
 /// truncating is the only way through. But the deb/rpm path rejects the very
-/// same `deno.json`, and quietly shipping a version the user didn't write is
+/// same `oden.json`, and quietly shipping a version the user didn't write is
 /// the failure #36503 is about. `consequence` names what will ship instead.
 ///
 /// Call this once per build, from the packager rather than from a helper:
@@ -4533,13 +4533,13 @@ fn warn_about_unusable_version(
     return;
   };
   if numeric_version_fields(version).is_none() {
-    log::warn!("deno.json `version` {version:?} is not numeric; {consequence}");
+    log::warn!("oden.json `version` {version:?} is not numeric; {consequence}");
   } else if version_core_fields(version).len() > 3 {
     // Three is all either target can hold (MSI's ProductVersion has three
     // fields, `CFBundleVersion` accepts at most three integers), so the
     // output is right — this is only about saying so.
     log::warn!(
-      "deno.json `version` {version:?} has more than three numeric fields; \
+      "oden.json `version` {version:?} has more than three numeric fields; \
        only the leading major.minor.build are used"
     );
   }
@@ -4605,7 +4605,7 @@ fn create_windows_msi(
     .file_name()
     .map(|s| s.to_string_lossy().into_owned())
     .unwrap_or_else(|| "App".to_string());
-  // deno.json `version` when configured, reduced to the numeric
+  // oden.json `version` when configured, reduced to the numeric
   // `major.minor.build` form MSI's ProductVersion requires (a semver
   // prerelease/build suffix would fail MSI validation); the default matches
   // the macOS bundle's CFBundleVersion and the Linux package default
@@ -4845,7 +4845,7 @@ fn create_windows_msi(
     summary.set_comments(format!("{app_name} desktop application"));
     summary.set_arch(arch);
     summary.set_languages(&[msi::Language::from_code(1033)]);
-    summary.set_creating_application("deno desktop");
+    summary.set_creating_application("oden desktop");
     // Package code: a fresh GUID identifying this exact package build.
     summary.set_uuid(uuid::Uuid::new_v5(
       &MSI_GUID_NAMESPACE,
@@ -6059,7 +6059,7 @@ def456  other.zip
       ("noseparator", "no dot"),
       ("com.deno.", "trailing empty segment"),
       (".com.deno", "leading empty segment"),
-      ("com..deno", "doubled dot"),
+      ("com..oden", "doubled dot"),
       ("com.deno.app/foo", "slash"),
       ("com.deno.app foo", "space"),
       ("com.deno.app$bar", "shell metachar"),
@@ -6265,7 +6265,7 @@ def456  other.zip
 
   #[test]
   fn resolve_app_dir_targets_rejects_clobbering_a_backend_library() {
-    // `deno desktop --output libcef` on Linux, `--output libcef` on Windows:
+    // `oden desktop --output libcef` on Linux, `--output libcef` on Windows:
     // the runtime library copy would replace a file CEF ships.
     let tmp = tempfile::tempdir().unwrap();
 
@@ -6398,7 +6398,7 @@ def456  other.zip
 
   #[test]
   fn reject_backend_file_collision_rejects_a_backend_file() {
-    // `deno desktop --output libcef` on Linux, or `--output d3dcompiler_47` on
+    // `oden desktop --output libcef` on Linux, or `--output d3dcompiler_47` on
     // Windows: the copy would replace a file CEF ships and the app would no
     // longer start, with nothing in the build output to say why.
     let tmp = tempfile::tempdir().unwrap();
@@ -7573,7 +7573,7 @@ def456  other.zip
 
   #[test]
   fn packaging_honors_config_version_and_license() {
-    // deno.json `version`/`license` must reach the installers instead of the
+    // oden.json `version`/`license` must reach the installers instead of the
     // hard-coded 1.0.0 / MIT defaults (#36503). Semver prereleases map to the
     // `~` ordering both deb and rpm use for "before the release".
     let tmp = tempfile::tempdir().unwrap();
@@ -8266,7 +8266,7 @@ def456  other.zip
 
   #[test]
   fn reserve_app_dir_clears_previous_build() {
-    // A directory carrying our marker is a prior `deno desktop` output and
+    // A directory carrying our marker is a prior `oden desktop` output and
     // may be replaced.
     let tmp = tempfile::tempdir().unwrap();
     let app_dir = tmp.path().join("app");
@@ -8316,7 +8316,7 @@ def456  other.zip
     assert!(path.exists());
   }
 
-  // --- desktop.backend config merge (CLI flag > deno.json > webview) ---
+  // --- desktop.backend config merge (CLI flag > oden.json > webview) ---
 
   #[test]
   fn backend_from_deno_json_when_flag_absent() {

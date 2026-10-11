@@ -159,7 +159,7 @@ struct EmbeddedModuleLoader {
   hook_registry: LoaderHookRegistry,
   permissions: PermissionsContainer,
   /// Whether this loader belongs to a web worker. A worker's main module is
-  /// checked against read permissions like a dynamic import (as in `deno run`).
+  /// checked against read permissions like a dynamic import (as in `oden run`).
   is_worker: bool,
   sys: DenoRtSys,
   /// For blob/object-URL module workers, the captured root blob and its
@@ -208,7 +208,7 @@ impl CjsAnalysisSourceProvider for StandaloneCjsAnalysisSourceProvider<'_> {
 impl EmbeddedModuleLoader {
   /// Local files that aren't embedded in the binary are read from the host
   /// file system. When loaded via `import()` or as a worker's main module,
-  /// they must pass the read permission check, the same as in `deno run`.
+  /// they must pass the read permission check, the same as in `oden run`.
   fn check_host_fs_read_permission(
     &self,
     specifier: &Url,
@@ -881,7 +881,7 @@ impl ModuleLoader for EmbeddedModuleLoader {
               ModuleSourceCode::Bytes(bytes.into_boxed_slice().into())
             }
             _ => {
-              // Mirror `deno run`'s charset-aware decoding (see
+              // Mirror `oden run`'s charset-aware decoding (see
               // `TextDecodedFile::decode` in cli/file_fetcher.rs) so blob
               // sources honor the content-type charset and have a leading BOM
               // stripped, instead of blindly assuming UTF-8.
@@ -1366,9 +1366,9 @@ pub struct RunOptions {
   /// Version and rollback state for desktop auto-update JS initialization.
   pub auto_update_version: Option<String>,
   pub auto_update_rolled_back: bool,
-  /// Error reporting URL from deno.json `desktop.errorReporting.url`.
+  /// Error reporting URL from oden.json `desktop.errorReporting.url`.
   pub error_reporting_url: Option<String>,
-  /// Auto-update release base URL from deno.json `desktop.release.baseUrl`.
+  /// Auto-update release base URL from oden.json `desktop.release.baseUrl`.
   /// Used as the default `url` for `Deno.autoUpdate` when none is passed.
   pub release_base_url: Option<String>,
   /// Stop on the first line of user code. Mirrors `--inspect-brk`.
@@ -1455,7 +1455,7 @@ pub async fn run_with_options(
       _ => entrypoint,
     }
   };
-  let npm_global_cache_dir = root_path.join(".deno_compile_node_modules");
+  let npm_global_cache_dir = root_path.join(".oden_compile_node_modules");
   let pkg_json_resolver = Arc::new(PackageJsonResolver::new(
     sys.clone(),
     Some(Arc::new(PackageJsonThreadLocalCache)),
@@ -1657,7 +1657,7 @@ pub async fn run_with_options(
         .jsr_pkgs
         .iter()
         .map(|pkg| ResolverWorkspaceJsrPackage {
-          is_link: false, // only used for enhancing the diagnostic, which isn't shown in deno compile
+          is_link: false, // only used for enhancing the diagnostic, which isn't shown in oden compile
           base: root_dir_url.join(&pkg.relative_base).unwrap(),
           name: pkg.name.clone(),
           version: pkg.version.clone(),
@@ -1720,7 +1720,7 @@ pub async fn run_with_options(
   // and aborts script execution before the event-loop IIFE registers —
   // which manifests as a blank window where nothing works (no input,
   // no auto-tests, no bindings). Granting them up front avoids forcing
-  // every `deno desktop` user to remember `-A`.
+  // every `oden desktop` user to remember `-A`.
   let has_desktop = op_state_init.is_some();
   let permissions = {
     let mut permissions = metadata.permissions;

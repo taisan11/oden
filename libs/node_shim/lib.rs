@@ -3144,8 +3144,8 @@ pub fn parse_args(args: Vec<String>) -> Result<ParseResult, Vec<String>> {
 /// Options for controlling translation behavior
 #[derive(Debug, Clone, Default)]
 pub struct TranslateOptions {
-  /// Use "deno node" as base command (for standalone CLI)
-  /// When false, uses "deno run" (for child_process spawning)
+  /// Use "oden node" as base command (for standalone CLI)
+  /// When false, uses "oden run" (for child_process spawning)
   pub use_node_subcommand: bool,
   /// Add unstable Node.js compat flags (--unstable-bare-node-builtins,
   /// --unstable-detect-cjs)
@@ -3231,9 +3231,9 @@ pub fn wrap_eval_code(source_code: &str) -> String {
 
 /// Deno subcommands - if the first arg is one of these, pass through unchanged.
 /// This must be kept in sync with the subcommands registered in
-/// `cli/args/flags.rs` so that spawning e.g. `deno bundle ...` via
+/// `cli/args/flags.rs` so that spawning e.g. `oden bundle ...` via
 /// `node:child_process` is passed through instead of being treated as a script
-/// to `deno run`. The `subcommands_recognized_by_node_shim` test in
+/// to `oden run`. The `subcommands_recognized_by_node_shim` test in
 /// `cli/args/flags.rs` enforces this. See #35591.
 const DENO_SUBCOMMANDS: &[&str] = &[
   "add",
@@ -3256,6 +3256,7 @@ const DENO_SUBCOMMANDS: &[&str] = &[
   "doc",
   "eval",
   "fmt",
+  "from",
   "help",
   "i",
   "info",
@@ -3430,7 +3431,7 @@ pub fn resolve_entrypoint(
   }
 }
 
-/// For a translated `deno run ...` argv, resolve the entrypoint argument in
+/// For a translated `oden run ...` argv, resolve the entrypoint argument in
 /// place using [`resolve_entrypoint`].
 ///
 /// No-op unless `deno_args` is a `run` invocation with an entrypoint (the first
@@ -3484,7 +3485,7 @@ pub fn translate_to_deno_args(
     let mut deno_args = parsed_args.remaining_args;
     // A spawned Node.js process has no permission model. When a tool detects it
     // is running under Deno and spawns an execution subcommand (e.g.
-    // `deno run <script>`) without any permission flags, grant `-A` so the
+    // `oden run <script>`) without any permission flags, grant `-A` so the
     // child behaves like Node.js instead of tripping a permission prompt. Tools
     // that pass explicit permission flags (e.g. vitest workers spawn
     // `run -A ...`) are left untouched. See #35441.
@@ -3549,7 +3550,7 @@ pub fn translate_to_deno_args(
     return result;
   }
 
-  // Handle --run flag (run package.json script via deno task)
+  // Handle --run flag (run package.json script via oden task)
   if !opts.run.is_empty() {
     if options.use_node_subcommand {
       deno_args.push("node".to_string());
@@ -3580,7 +3581,7 @@ pub fn translate_to_deno_args(
       deno_args.push("node".to_string());
     }
     deno_args.push("eval".to_string());
-    // Note: deno eval has implicit permissions, so we don't add -A
+    // Note: oden eval has implicit permissions, so we don't add -A
 
     if options.add_unstable_flags {
       deno_args.push("--unstable-bare-node-builtins".to_string());
@@ -3653,7 +3654,7 @@ pub fn translate_to_deno_args(
     return result;
   }
 
-  // Handle --test flag (run tests via deno test)
+  // Handle --test flag (run tests via oden test)
   if env_opts.test_runner {
     if options.use_node_subcommand {
       deno_args.push("node".to_string());
@@ -5371,7 +5372,7 @@ mod tests {
 
   #[test]
   fn passthrough_run_without_perms_gets_allow_all() {
-    // Regression test for #35441: `deno run <script>` spawned without any
+    // Regression test for #35441: `oden run <script>` spawned without any
     // permission flags must receive `-A` so the Node-compat child has full
     // access instead of prompting.
     assert_eq!(

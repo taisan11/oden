@@ -126,7 +126,7 @@ fn format_locked_files_message(
   if processes.is_empty() {
     message.push_str(
       "\n\nThis is usually an editor running the Deno language server holding \
-       the cache open. Close it (or any running `deno` process) and run `deno \
+       the cache open. Close it (or any running `oden` process) and run `oden \
        clean` again.",
     );
   } else {
@@ -144,7 +144,7 @@ fn format_locked_files_message(
       message.push_str(&format!("\n  {} (PID {}){}", label, process.pid, hint));
     }
     message
-      .push_str("\n\nClose the process(es) above and run `deno clean` again.");
+      .push_str("\n\nClose the process(es) above and run `oden clean` again.");
   }
 
   message
@@ -608,7 +608,7 @@ fn clean_node_modules(
     bail!("expected a node_modules directory, got: {}", dir.display());
   }
 
-  let base = dir.join(".deno");
+  let base = dir.join(".oden");
   let base_metadata = match std::fs::symlink_metadata(&base) {
     Ok(metadata) => metadata,
     Err(err)
@@ -621,13 +621,13 @@ fn clean_node_modules(
     }
     Err(err) => {
       return Err(err).with_context(|| {
-        format!("failed to stat node_modules/.deno at {}", base.display())
+        format!("failed to stat node_modules/.oden at {}", base.display())
       });
     }
   };
   if base_metadata.file_type().is_symlink() {
     bail!(
-      "refusing to clean symlinked node_modules/.deno directory at {}",
+      "refusing to clean symlinked node_modules/.oden directory at {}",
       base.display()
     );
   }
@@ -640,7 +640,7 @@ fn clean_node_modules(
     .map(deno_resolver::npm::get_package_folder_id_folder_name)
     .collect::<HashSet<_>>();
 
-  // remove the actual packages from node_modules/.deno
+  // remove the actual packages from node_modules/.oden
   let entries = match std::fs::read_dir(&base) {
     Ok(entries) => entries,
     // `base` was confirmed to be a real directory above, so reaching this arm
@@ -702,7 +702,7 @@ fn clean_node_modules(
     }
   };
 
-  // remove top level symlinks from node_modules/<package> to node_modules/.deno/<package>
+  // remove top level symlinks from node_modules/<package> to node_modules/.oden/<package>
   // where the target doesn't exist (because it was removed above)
   deno_npm_installer::remove_unused_node_modules_symlinks(
     &sys,
@@ -715,7 +715,7 @@ fn clean_node_modules(
   )
   .map_err(AnyError::from)?;
 
-  // remove symlinks from node_modules/.deno/node_modules/<package> to node_modules/.deno/<package>
+  // remove symlinks from node_modules/.oden/node_modules/<package> to node_modules/.oden/<package>
   // where the target doesn't exist (because it was removed above)
   let deno_nm = base.join("node_modules");
   deno_npm_installer::remove_unused_node_modules_symlinks(
@@ -769,8 +769,8 @@ mod tests {
     let processes = vec![
       LockingProcess {
         pid: 1234,
-        name: "deno".to_string(),
-        exe: Some(PathBuf::from("C:/Program Files/deno/deno.exe")),
+        name: "oden".to_string(),
+        exe: Some(PathBuf::from("C:/Program Files/deno/oden.exe")),
         is_deno: true,
       },
       LockingProcess {
@@ -783,7 +783,7 @@ mod tests {
     let message = format_locked_files_message(&paths, &processes);
     assert!(message.starts_with("2 files could not be removed"));
     assert!(message.contains("Held open by:"));
-    assert!(message.contains("deno.exe (PID 1234)"));
+    assert!(message.contains("oden.exe (PID 1234)"));
     assert!(message.contains("likely the language server"));
     assert!(message.contains("Some Editor (PID 5678)"));
     assert!(message.contains("Close the process(es) above"));
@@ -805,7 +805,7 @@ mod tests {
     temp_dir.create_dir_all("node_modules");
     temp_dir.create_dir_all("victim/important_dir");
     temp_dir.write("victim/important_dir/secret.txt", "secret");
-    temp_dir.symlink_dir("victim", "node_modules/.deno");
+    temp_dir.symlink_dir("victim", "node_modules/.oden");
 
     let mut cleaner = FsCleaner::new(None);
     let node_modules = temp_dir.path().join("node_modules");

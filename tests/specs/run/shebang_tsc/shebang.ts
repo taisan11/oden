@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run
+#!/usr/bin/env -S oden run
 
 import test from "./shebang2.ts";
 

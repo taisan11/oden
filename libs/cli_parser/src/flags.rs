@@ -110,16 +110,16 @@ pub struct VersionFlags {
   pub start: Option<String>,
   pub base: Option<String>,
   /// Path to the import map to rewrite jsr: version constraints in. Defaults
-  /// to the root deno.json (or whatever its `importMap` field points to).
+  /// to the root oden.json (or whatever its `importMap` field points to).
   pub import_map: Option<String>,
   /// Path to the release notes markdown file to prepend in conventional-commits
   /// mode. Defaults to `Releases.md`.
   pub release_notes: Option<String>,
   /// Don't write any files; just print what would happen.
   pub dry_run: bool,
-  /// Explicit path to the manifest file to bump. May point to a `deno.json`
+  /// Explicit path to the manifest file to bump. May point to a `oden.json`
   /// (or `.jsonc`) or a `package.json`. When set, single-file mode is forced
-  /// (workspace auto-detection is bypassed). Useful when both `deno.json` and
+  /// (workspace auto-detection is bypassed). Useful when both `oden.json` and
   /// `package.json` exist in the same directory.
   pub config: Option<String>,
 }
@@ -220,7 +220,7 @@ pub struct CompileFlags {
   /// `--include npm:<pkg>` for any such packages.
   pub exclude_unused_npm: bool,
   /// JS engine the compiled binary should run on. Named `engine` because
-  /// `deno desktop --backend` already means the render backend.
+  /// `oden desktop --backend` already means the render backend.
   pub engine: JavaScriptEngine,
 }
 
@@ -260,7 +260,7 @@ pub struct DesktopFlags {
   pub identifier: Option<String>,
   /// Custom URL schemes (deep links) to register with the OS, e.g. `["acme"]`
   /// for `acme://...` links. Sourced from `desktop.app.deepLinks` in
-  /// `deno.json`. Each entry is a bare scheme with no `://`.
+  /// `oden.json`. Each entry is a bare scheme with no `://`.
   pub deep_links: Vec<String>,
   /// macOS codesigning identity (e.g. `Developer ID Application: Acme,
   /// Inc. (TEAMID)`, or `-` for ad-hoc). When unset the bundle is left
@@ -278,7 +278,7 @@ pub struct DesktopFlags {
   pub compress: Option<String>,
   /// Embed only the npm packages reachable from the module graph instead of
   /// the full managed snapshot. Same opt-in semantics as
-  /// `deno compile --exclude-unused-npm`.
+  /// `oden compile --exclude-unused-npm`.
   pub exclude_unused_npm: bool,
 }
 
@@ -309,7 +309,7 @@ pub struct CoverageFlags {
   pub exclude: Vec<String>,
   pub r#type: CoverageType,
   /// Minimum coverage percentage (0-100) applied to line, branch, and function
-  /// coverage. Overrides per-metric thresholds from `deno.json`.
+  /// coverage. Overrides per-metric thresholds from `oden.json`.
   pub threshold: Option<u32>,
 }
 
@@ -650,7 +650,7 @@ pub struct TestFlags {
   pub coverage_dir: Option<String>,
   pub coverage_raw_data_only: bool,
   /// Minimum coverage percentage (0-100) required when `--coverage` is set.
-  /// Overrides per-metric thresholds from `deno.json`.
+  /// Overrides per-metric thresholds from `oden.json`.
   pub coverage_threshold: Option<u32>,
   pub clean: bool,
   pub fail_fast: Option<NonZeroUsize>,
@@ -802,6 +802,7 @@ pub enum DenoSubcommand {
   Doc(DocFlags),
   Eval(EvalFlags),
   Fmt(FmtFlags),
+  FromDeno,
   Init(InitFlags),
   Info(InfoFlags),
   List(ListFlags),
@@ -891,11 +892,11 @@ impl Default for DenoSubcommand {
 pub enum TypeCheckMode {
   /// Type-check all modules.
   All,
-  /// Skip type-checking of all modules. The default value for "deno run" and
+  /// Skip type-checking of all modules. The default value for "oden run" and
   /// several other subcommands.
   #[default]
   None,
-  /// Only type-check local modules. The default value for "deno test" and
+  /// Only type-check local modules. The default value for "oden test" and
   /// several other subcommands.
   Local,
 }
@@ -921,7 +922,7 @@ pub struct InternalFlags {
   pub lockfile_skip_write: bool,
   /// Set when running the desktop subcommand to use desktop type libs.
   pub is_desktop: bool,
-  /// Set by `deno compile --bundle` when the bundled output contains
+  /// Set by `oden compile --bundle` when the bundled output contains
   /// references that need to resolve against npm packages at runtime
   /// (CJS dependencies, native addons). When true, the standalone
   /// binary writer embeds (a subset of) the npm tree. Pure-ESM bundles
@@ -935,7 +936,7 @@ pub struct InternalFlags {
   /// Force-enable bundle-style resolution config regardless of the
   /// current subcommand. Set by `compile --bundle` so the bundle phase
   /// of compilation pulls deep CJS files (e.g. `jiti.cjs`) into the
-  /// module graph the same way `deno bundle` does.
+  /// module graph the same way `oden bundle` does.
   pub force_bundle_mode: bool,
 }
 

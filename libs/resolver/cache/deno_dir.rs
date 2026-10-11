@@ -59,7 +59,7 @@ impl<TSys: DenoDirSys> DenoDirProvider<TSys> {
 /// in single directory that can be controlled with `$DENO_DIR` env variable.
 #[derive(Debug, Clone)]
 pub struct DenoDir<TSys: DiskCacheSys> {
-  /// Example: /Users/rld/.deno/
+  /// Example: /Users/rld/.oden/
   pub root: PathBuf,
   /// Used by TsCompiler to cache compiler output.
   pub gen_cache: DiskCache<TSys>,

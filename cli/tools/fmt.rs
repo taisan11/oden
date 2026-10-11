@@ -233,7 +233,7 @@ fn maybe_show_format_confirmation(
     Ok(())
   } else {
     bail!(
-      "Did not format non-workspace directory. Run again specifying the current directory (ex. `deno fmt .`)"
+      "Did not format non-workspace directory. Run again specifying the current directory (ex. `oden fmt .`)"
     )
   }
 }
@@ -880,14 +880,14 @@ trait Formatter {
 
 /// Returns a per-file [`FmtOptionsConfig`], merging values from
 /// `.editorconfig` (lowest priority) under the resolved `base` config
-/// (which already incorporates `deno.json` plus CLI flags).
+/// (which already incorporates `oden.json` plus CLI flags).
 fn resolve_per_file_options(
   base: &FmtOptionsConfig,
   editorconfig_cache: &EditorConfigCache,
   file_path: &Path,
 ) -> FmtOptionsConfig {
   // `.editorconfig` reading is on by default; `useEditorConfig: false` in
-  // deno.json or `--no-editorconfig` on the CLI opts out (the latter takes
+  // oden.json or `--no-editorconfig` on the CLI opts out (the latter takes
   // precedence, resolved upstream in `resolve_fmt_options`).
   if base.use_editor_config == Some(false) {
     return base.clone();
@@ -1725,7 +1725,7 @@ where
 }
 
 /// This function is similar to is_supported_ext but adds additional extensions
-/// supported by `deno fmt`.
+/// supported by `oden fmt`.
 fn is_supported_ext_fmt(path: &Path) -> bool {
   get_extension(path).is_some_and(|ext| {
     matches!(

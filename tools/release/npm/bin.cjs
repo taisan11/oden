@@ -9,7 +9,7 @@ const fs = require("fs");
 
 const exePath = path.join(
   __dirname,
-  os.platform() === "win32" ? "deno.exe" : "deno",
+  os.platform() === "win32" ? "oden.exe" : "oden",
 );
 
 if (!fs.existsSync(exePath)) {

@@ -153,7 +153,7 @@ impl CjsAnalysisSourceProvider for VfsCjsAnalysisSourceProvider<'_> {
   }
 }
 
-// `deno compile` is a trusted local build step, so sources absent from the
+// `oden compile` is a trusted local build step, so sources absent from the
 // graph and VFS may be read directly to preserve compile-time CJS analysis.
 struct FileSystemCjsAnalysisSourceProvider<'a> {
   sys: &'a CliSys,
@@ -460,7 +460,7 @@ impl<'a> DenoCompileBinaryWriter<'a> {
 
     // Used for testing.
     //
-    // Phase 2 of the 'min sized' deno compile RFC talks
+    // Phase 2 of the 'min sized' oden compile RFC talks
     // about adding this as a flag.
     if let Some(path) = get_dev_binary_path() {
       if compile_flags.engine == JavaScriptEngine::QuickJs {
@@ -1150,7 +1150,7 @@ impl<'a> DenoCompileBinaryWriter<'a> {
               root_dir_url.specifier_key(i.base_url()).into_owned()
             } else {
               // just make a remote url local
-              "deno.json".to_string()
+              "oden.json".to_string()
             },
             json: i.to_json(),
           }
@@ -1295,7 +1295,7 @@ impl<'a> DenoCompileBinaryWriter<'a> {
       .await
   }
 
-  /// Decide what to embed for `deno compile --bundle`. The bundle is
+  /// Decide what to embed for `oden compile --bundle`. The bundle is
   /// always shipped; this controls the npm portion. We need it when
   /// either the CJS-from-ESM wrapper pointed at on-disk paths during
   /// rewriting, or the resolved tree has a native (`.node`) addon — in
@@ -1500,7 +1500,7 @@ impl<'a> DenoCompileBinaryWriter<'a> {
 
         let global_cache_root_path = npm_resolver.global_cache_root_path();
 
-        // Flatten all the registries folders into a single ".deno_compile_node_modules/localhost" folder
+        // Flatten all the registries folders into a single ".oden_compile_node_modules/localhost" folder
         // that will be used by denort when loading the npm cache. This avoids us exposing
         // the user's private registry information and means we don't have to bother
         // serializing all the different registry config into the binary.

@@ -66,10 +66,10 @@ pub async fn init_project(
 
     create_json_file(
       &dir,
-      "deno.json",
+      "oden.json",
       &json!({
         "tasks": {
-          "dev": "deno run --watch main.ts"
+          "dev": "oden run --watch main.ts"
         }
       }),
     )?;
@@ -148,10 +148,10 @@ Deno.test(async function serverFetchStatic() {
 
     create_json_file(
       &dir,
-      "deno.json",
+      "oden.json",
       &json!({
         "tasks": {
-          "dev": "deno serve --watch -R main.ts",
+          "dev": "oden serve --watch -R main.ts",
         },
         "imports": {
           "@std/assert": "jsr:@std/assert@1",
@@ -189,13 +189,13 @@ Deno.test(function addTest() {
 
     create_json_file(
       &dir,
-      "deno.json",
+      "oden.json",
       &json!({
         "name": project_name,
         "version": "0.1.0",
         "exports": "./mod.ts",
         "tasks": {
-          "dev": "deno test --watch"
+          "dev": "oden test --watch"
         },
         "license": "MIT",
         "imports": {
@@ -251,10 +251,10 @@ Deno.test("returns json on /api", async () => {
 
     create_json_file(
       &dir,
-      "deno.json",
+      "oden.json",
       &json!({
         "tasks": {
-          "dev": "deno run --watch --allow-net main.ts"
+          "dev": "oden run --watch --allow-net main.ts"
         },
         "imports": {
           "@std/assert": "jsr:@std/assert@1"
@@ -273,49 +273,49 @@ Deno.test("returns json on /api", async () => {
   }
   if init_flags.empty {
     info!("  {}", colors::gray("# Run the program"));
-    info!("  deno run main.ts");
+    info!("  oden run main.ts");
     info!("");
     info!(
       "  {}",
       colors::gray("# Run the program and watch for file changes")
     );
-    info!("  deno task dev");
+    info!("  oden task dev");
   } else if init_flags.serve {
     info!("  {}", colors::gray("# Run the server"));
-    info!("  deno serve -R main.ts");
+    info!("  oden serve -R main.ts");
     info!("");
     info!(
       "  {}",
       colors::gray("# Run the server and watch for file changes")
     );
-    info!("  deno task dev");
+    info!("  oden task dev");
     info!("");
     info!("  {}", colors::gray("# Run the tests"));
-    info!("  deno test -R");
+    info!("  oden test -R");
   } else if init_flags.lib {
     info!("  {}", colors::gray("# Run the tests"));
-    info!("  deno test");
+    info!("  oden test");
     info!("");
     info!(
       "  {}",
       colors::gray("# Run the tests and watch for file changes")
     );
-    info!("  deno task dev");
+    info!("  oden task dev");
     info!("");
     info!("  {}", colors::gray("# Publish to JSR (dry run)"));
-    info!("  deno publish --dry-run");
+    info!("  oden publish --dry-run");
   } else {
     info!("  {}", colors::gray("# Run the server"));
-    info!("  deno run --allow-net main.ts");
+    info!("  oden run --allow-net main.ts");
     info!("");
     info!(
       "  {}",
       colors::gray("# Run the server and watch for file changes")
     );
-    info!("  deno task dev");
+    info!("  oden task dev");
     info!("");
     info!("  {}", colors::gray("# Run the tests"));
-    info!("  deno test");
+    info!("  oden test");
   }
   Ok(0)
 }
@@ -428,7 +428,7 @@ fn confirm_package_trust(
     log::info!(
       "{}",
       cformat!(
-        "You can initialize project manually by running <u>deno run {}</> and applying desired permissions.",
+        "You can initialize project manually by running <u>oden run {}</> and applying desired permissions.",
         std::iter::once(script_name)
           .chain(args.iter().map(|a| a.as_ref()))
           .collect::<Vec<_>>()

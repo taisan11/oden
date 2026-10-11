@@ -2859,7 +2859,7 @@ mod tests {
     };
     let resp = deno_graph::source::Loader::load(
       &loader,
-      &Url::parse("file:///deno.jsonc").unwrap(),
+      &Url::parse("file:///oden.jsonc").unwrap(),
       LoadOptions {
         in_dynamic_branch: false,
         was_dynamic_root: false,
@@ -2917,22 +2917,22 @@ mod tests {
     assert_eq!(
       eszip.specifiers(),
       vec![
-        "file:///deno.jsonc".to_string(),
+        "file:///oden.jsonc".to_string(),
         "file:///main.ts".to_string(),
         "file:///a.ts".to_string(),
       ],
     );
 
     // JSONC can be obtained by calling `get_import_map`
-    let deno_jsonc = eszip.get_import_map("file:///deno.jsonc").unwrap();
+    let deno_jsonc = eszip.get_import_map("file:///oden.jsonc").unwrap();
     let source = deno_jsonc.source().await.unwrap();
     assert_matches_file!(
       source,
-      "./testdata/deno_jsonc_as_import_map/deno.jsonc"
+      "./testdata/deno_jsonc_as_import_map/oden.jsonc"
     );
 
     // JSONC can NOT be obtained as a module
-    assert!(eszip.get_module("file:///deno.jsonc").is_none());
+    assert!(eszip.get_module("file:///oden.jsonc").is_none());
   }
 
   #[tokio::test]
@@ -2942,7 +2942,7 @@ mod tests {
     };
     let resp = deno_graph::source::Loader::load(
       &loader,
-      &Url::parse("file:///deno.jsonc").unwrap(),
+      &Url::parse("file:///oden.jsonc").unwrap(),
       LoadOptions {
         in_dynamic_branch: false,
         was_dynamic_root: false,
@@ -3005,8 +3005,8 @@ mod tests {
 
     let expected = vec![
       Expected {
-        specifier: "file:///deno.jsonc".to_string(),
-        source: include_str!("testdata/deno_jsonc_as_import_map/deno.jsonc"),
+        specifier: "file:///oden.jsonc".to_string(),
+        source: include_str!("testdata/deno_jsonc_as_import_map/oden.jsonc"),
         kind: ModuleKind::Jsonc,
       },
       Expected {

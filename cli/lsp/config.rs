@@ -881,7 +881,7 @@ impl Settings {
   }
 
   /// Returns `None` if the value should be deferred to the presence of a
-  /// `deno.json` file.
+  /// `oden.json` file.
   pub fn specifier_enabled(&self, specifier: &ModuleSpecifier) -> Option<bool> {
     let Ok(path) = url_to_file_path(specifier) else {
       // Non-file URLs are not disabled by these settings.
@@ -1515,11 +1515,11 @@ impl ConfigData {
         // check if any of these need to be added to the workspace
         let files = [
           (
-            scope.join("deno.json").unwrap(),
+            scope.join("oden.json").unwrap(),
             ConfigWatchedFileType::DenoJson,
           ),
           (
-            scope.join("deno.jsonc").unwrap(),
+            scope.join("oden.jsonc").unwrap(),
             ConfigWatchedFileType::DenoJson,
           ),
           (
@@ -1984,8 +1984,8 @@ impl ConfigTree {
       let Ok(file_url) = Url::from_file_path(path) else {
         continue;
       };
-      if !(file_url.path().ends_with("/deno.json")
-        || file_url.path().ends_with("/deno.jsonc")
+      if !(file_url.path().ends_with("/oden.json")
+        || file_url.path().ends_with("/oden.jsonc")
         || file_url.path().ends_with("/package.json"))
       {
         continue;
@@ -2080,7 +2080,7 @@ fn resolve_node_modules_dir_mode(
   byonm: bool,
 ) -> NodeModulesDirMode {
   // For the language server, require an explicit opt-in via the
-  // `nodeModulesDir: true` setting in the deno.json file. This is to
+  // `nodeModulesDir: true` setting in the oden.json file. This is to
   // reduce the chance of modifying someone's node_modules directory
   // without them having asked us to do so.
   let node_modules_mode = workspace.node_modules_dir().ok().flatten();
@@ -2426,7 +2426,7 @@ mod tests {
     config
       .tree
       .inject_config_file(
-        ConfigFile::new("{}", root_uri.join("deno.json").unwrap()).unwrap(),
+        ConfigFile::new("{}", root_uri.join("oden.json").unwrap()).unwrap(),
       )
       .await;
     assert!(config.specifier_enabled(&root_uri));
@@ -2546,7 +2546,7 @@ mod tests {
             },
           })
           .to_string(),
-          root_uri.join("deno.json").unwrap(),
+          root_uri.join("oden.json").unwrap(),
         )
         .unwrap(),
       )
@@ -2571,7 +2571,7 @@ mod tests {
             },
           })
           .to_string(),
-          root_uri.join("deno.json").unwrap(),
+          root_uri.join("oden.json").unwrap(),
         )
         .unwrap(),
       )
@@ -2588,7 +2588,7 @@ mod tests {
             },
           })
           .to_string(),
-          root_uri.join("deno.json").unwrap(),
+          root_uri.join("oden.json").unwrap(),
         )
         .unwrap(),
       )

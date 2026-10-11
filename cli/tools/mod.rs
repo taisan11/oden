@@ -14,6 +14,7 @@ pub mod doc;
 pub mod fmt;
 pub mod fmt_editorconfig;
 pub mod framework;
+pub mod from_deno;
 pub mod info;
 pub mod init;
 pub mod installer;

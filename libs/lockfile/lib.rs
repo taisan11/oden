@@ -37,7 +37,7 @@ use crate::graphs::LockfilePackageGraph;
 
 pub struct SetWorkspaceConfigOptions {
   pub config: WorkspaceConfig,
-  /// Maintains deno.json dependencies and workspace config
+  /// Maintains oden.json dependencies and workspace config
   /// regardless of the `config` options provided.
   ///
   /// Ex. the CLI sets this to `true` when someone runs a

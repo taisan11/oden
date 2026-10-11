@@ -29,7 +29,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install Deno
-        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
+        uses: ./.github/actions/setup-oden
         with:
           deno-version: v2.7.1
       - name: Build npm packages
@@ -133,9 +133,9 @@ jobs:
           mkdir -p "$TEST_DIR"
           cd "$TEST_DIR"
           npm init -y
-          EXPECTED_VERSION="deno ${{ steps.publish-verdaccio.outputs.version }}"
+          EXPECTED_VERSION="oden ${{ steps.publish-verdaccio.outputs.version }}"
           npm install deno@${{ steps.publish-verdaccio.outputs.version }}
-          ACTUAL="$(npx deno -v)"
+          ACTUAL="$(npx oden -v)"
           echo "$ACTUAL"
           [ "$ACTUAL" = "$EXPECTED_VERSION" ] || { echo "Version mismatch: expected '$EXPECTED_VERSION', got '$ACTUAL'"; exit 1; }
       - name: Test deno via bin.cjs fallback
@@ -149,37 +149,39 @@ jobs:
           cd "$TEST_DIR"
           npm init -y
           npm install deno@${{ steps.publish-verdaccio.outputs.version }}
-          rm -f node_modules/deno/deno*
+          rm -f node_modules/deno/oden node_modules/deno/oden.exe
           DENO_SIMULATED_READONLY_FILE_SYSTEM=1 node node_modules/deno/bin.cjs -v
       - name: Test npm global install deno
         run: |-
-          EXPECTED_VERSION="deno ${{ steps.publish-verdaccio.outputs.version }}"
+          EXPECTED_VERSION="oden ${{ steps.publish-verdaccio.outputs.version }}"
           npm install -g deno@${{ steps.publish-verdaccio.outputs.version }}
-          ACTUAL="$(deno -v)"
+          ACTUAL="$(oden -v)"
           echo "$ACTUAL"
           [ "$ACTUAL" = "$EXPECTED_VERSION" ] || { echo "Version mismatch: expected '$EXPECTED_VERSION', got '$ACTUAL'"; exit 1; }
-          deno eval "console.log('global npm install works')"
+          oden eval "console.log('global npm install works')"
           # Verify the global bin entry points directly at the native binary, not bin.cjs
           if [ "$RUNNER_OS" = "Windows" ]; then
-            DENO_CMD="$(npm prefix -g)/deno.cmd"
-            grep -q "bin.cjs" "$DENO_CMD" && { echo "ERROR: deno.cmd still points to bin.cjs"; exit 1; }
-            echo "deno.cmd correctly points to native binary"
+            ODEN_CMD="$(npm prefix -g)/oden.cmd"
+            test -f "$ODEN_CMD"
+            grep -q "bin.cjs" "$ODEN_CMD" && { echo "ERROR: oden.cmd still points to bin.cjs"; exit 1; }
+            echo "oden.cmd correctly points to native binary"
           else
-            DENO_LINK="$(which deno)"
-            LINK_TARGET="$(readlink "$DENO_LINK")"
-            echo "deno symlink target: $LINK_TARGET"
-            echo "$LINK_TARGET" | grep -q "bin.cjs" && { echo "ERROR: deno symlink still points to bin.cjs"; exit 1; }
-            echo "deno symlink correctly points to native binary"
+            ODEN_LINK="$(npm prefix -g)/bin/oden"
+            test -L "$ODEN_LINK"
+            LINK_TARGET="$(readlink "$ODEN_LINK")"
+            echo "oden symlink target: $LINK_TARGET"
+            echo "$LINK_TARGET" | grep -q "bin.cjs" && { echo "ERROR: oden symlink still points to bin.cjs"; exit 1; }
+            echo "oden symlink correctly points to native binary"
           fi
           npm uninstall -g deno
       - name: Test npm global install deno (--ignore-scripts)
         run: |-
-          EXPECTED_VERSION="deno ${{ steps.publish-verdaccio.outputs.version }}"
+          EXPECTED_VERSION="oden ${{ steps.publish-verdaccio.outputs.version }}"
           npm install -g --ignore-scripts deno@${{ steps.publish-verdaccio.outputs.version }}
-          ACTUAL="$(deno -v)"
+          ACTUAL="$(oden -v)"
           echo "$ACTUAL"
           [ "$ACTUAL" = "$EXPECTED_VERSION" ] || { echo "Version mismatch: expected '$EXPECTED_VERSION', got '$ACTUAL'"; exit 1; }
-          deno eval "console.log('global npm install works')"
+          oden eval "console.log('global npm install works')"
           npm uninstall -g deno
       - name: Test pnpm local install deno (without postinstall)
         run: |-
@@ -187,16 +189,16 @@ jobs:
           mkdir -p "$TEST_DIR"
           cd "$TEST_DIR"
           npm init -y
-          EXPECTED_VERSION="deno ${{ steps.publish-verdaccio.outputs.version }}"
+          EXPECTED_VERSION="oden ${{ steps.publish-verdaccio.outputs.version }}"
           pnpm install --ignore-scripts deno@${{ steps.publish-verdaccio.outputs.version }} --registry http://localhost:4873/
           ACTUAL="$(node node_modules/deno/bin.cjs -v)"
           echo "$ACTUAL"
           [ "$ACTUAL" = "$EXPECTED_VERSION" ] || { echo "Version mismatch: expected '$EXPECTED_VERSION', got '$ACTUAL'"; exit 1; }
       - name: Test pnpm global install deno (without postinstall)
         run: |-
-          EXPECTED_VERSION="deno ${{ steps.publish-verdaccio.outputs.version }}"
+          EXPECTED_VERSION="oden ${{ steps.publish-verdaccio.outputs.version }}"
           pnpm install -g --ignore-scripts deno@${{ steps.publish-verdaccio.outputs.version }} --registry http://localhost:4873/
-          ACTUAL="$(deno -v)"
+          ACTUAL="$(oden -v)"
           echo "$ACTUAL"
           [ "$ACTUAL" = "$EXPECTED_VERSION" ] || { echo "Version mismatch: expected '$EXPECTED_VERSION', got '$ACTUAL'"; exit 1; }
           pnpm uninstall -g deno
@@ -207,11 +209,11 @@ jobs:
           cd "$TEST_DIR"
           npm init -y
           printf 'allowBuilds:\n  deno: true\n' > pnpm-workspace.yaml
-          EXPECTED_VERSION="deno ${{ steps.publish-verdaccio.outputs.version }}"
+          EXPECTED_VERSION="oden ${{ steps.publish-verdaccio.outputs.version }}"
           pnpm install deno@${{ steps.publish-verdaccio.outputs.version }} --registry http://localhost:4873/
           # `pnpm exec` may print lockfile verification messages to stdout before
           # the command output, so only compare against the last line
-          ACTUAL="$(pnpm exec deno -v | tail -n 1)"
+          ACTUAL="$(pnpm exec oden -v | tail -n 1)"
           echo "$ACTUAL"
           [ "$ACTUAL" = "$EXPECTED_VERSION" ] || { echo "Version mismatch: expected '$EXPECTED_VERSION', got '$ACTUAL'"; exit 1; }
       - name: Test pnpm global install deno (with postinstall)
@@ -219,42 +221,42 @@ jobs:
           GLOBAL_DIR="$(pnpm root -g)"
           mkdir -p "$GLOBAL_DIR"
           printf 'allowBuilds:\n  deno: true\n' > "$GLOBAL_DIR/pnpm-workspace.yaml"
-          EXPECTED_VERSION="deno ${{ steps.publish-verdaccio.outputs.version }}"
+          EXPECTED_VERSION="oden ${{ steps.publish-verdaccio.outputs.version }}"
           pnpm install -g deno@${{ steps.publish-verdaccio.outputs.version }} --registry http://localhost:4873/
-          ACTUAL="$(deno -v)"
+          ACTUAL="$(oden -v)"
           echo "$ACTUAL"
           [ "$ACTUAL" = "$EXPECTED_VERSION" ] || { echo "Version mismatch: expected '$EXPECTED_VERSION', got '$ACTUAL'"; exit 1; }
-          deno eval "console.log('global pnpm install works')"
+          oden eval "console.log('global pnpm install works')"
           pnpm uninstall -g deno
       - name: Test npm local install deno (PowerShell)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |-
           cd "${{ runner.temp }}/npm-test"
-          npx deno -v
-          npx deno eval "console.log('PowerShell npm local install works')"
+          npx oden -v
+          npx oden eval "console.log('PowerShell npm local install works')"
       - name: Test npm global install deno (PowerShell)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |-
           npm install -g deno@${{ steps.publish-verdaccio.outputs.version }}
-          deno -v
-          deno eval "console.log('PowerShell npm global install works')"
+          oden -v
+          oden eval "console.log('PowerShell npm global install works')"
           npm uninstall -g deno
       - name: Test npm local install deno (cmd)
         if: runner.os == 'Windows'
         shell: cmd
         run: |-
           cd "${{ runner.temp }}/npm-test"
-          npx deno -v
-          npx deno eval "console.log('cmd npm local install works')"
+          npx oden -v
+          npx oden eval "console.log('cmd npm local install works')"
       - name: Test npm global install deno (cmd)
         if: runner.os == 'Windows'
         shell: cmd
         run: |-
           npm install -g deno@${{ steps.publish-verdaccio.outputs.version }}
-          deno -v
-          deno eval "console.log('cmd npm global install works')"
+          oden -v
+          oden eval "console.log('cmd npm global install works')"
           npm uninstall -g deno
   publish:
     name: npm publish
@@ -276,7 +278,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install Deno
-        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
+        uses: ./.github/actions/setup-oden
         with:
           deno-version: v2.7.1
       - name: Install Node
@@ -298,4 +300,3 @@ jobs:
 # gagen:pin actions/download-artifact@v6 = 018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
 # gagen:pin actions/setup-node@v6 = 53b83947a5a98c8d113130e565377fae1a50d02f
 # gagen:pin actions/upload-artifact@v6 = b7c566a772e6b6bfb58ed0dc250532a479d7789f
-# gagen:pin denoland/setup-deno@v2 = 667a34cdef165d8d2b2e98dde39547c9daac7282

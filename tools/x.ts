@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-all
+#!/usr/bin/env -S oden run --config=tools/oden.json --allow-all
 
 // Copyright 2018-2026 the Deno authors. MIT license.
 
@@ -76,10 +76,10 @@ You should run this before committing any changes. It is also included
 in the './x verify' pre-commit workflow.
 
 Under the hood:
-  deno run -A tools/format.js`,
+  oden run -A tools/format.js`,
     async fn(_args: string[]) {
       $.logStep("Formatting code...");
-      await $`deno run -A tools/format.js`.cwd(root);
+      await $`oden run -A tools/format.js`.cwd(root);
       $.logStep("Formatting complete.");
     },
   };
@@ -91,10 +91,10 @@ clippy. This is significantly faster than './x lint' when you have
 not modified any Rust code.
 
 Under the hood:
-  deno run -A tools/lint.js --js`,
+  oden run -A tools/lint.js --js`,
     async fn(_args: string[]) {
       $.logStep("Linting JavaScript/TypeScript...");
-      await $`deno run -A tools/lint.js --js`.cwd(root);
+      await $`oden run -A tools/lint.js --js`.cwd(root);
       $.logStep("JS lint complete.");
     },
   };
@@ -111,18 +111,18 @@ modify Rust code, to ensure you have working binaries for development and
 testing.
 
 Under the hood:
-  cargo build --bin deno --bin test_server`,
+  cargo build --bin oden --bin test_server`,
       async fn(_args: string[]) {
         $.logStep("Setting up development environment...");
         $.logStep("Building deno and test_server...");
-        await $`cargo build --bin deno --bin test_server`.cwd(root);
+        await $`cargo build --bin oden --bin test_server`.cwd(root);
         $.logStep("Setup complete.");
       },
     },
     "build": {
       description: "Build the deno binary (debug mode)",
       help: `Compiles the main 'deno' binary in debug mode (unoptimized, with
-debug symbols). The resulting binary is placed at ./target/debug/deno.
+debug symbols). The resulting binary is placed at ./target/debug/oden.
 
 Use this during normal development iteration. For a release-optimized
 build, run 'cargo build --release' directly.
@@ -132,10 +132,10 @@ binary, use './x check' instead — it is significantly faster because
 it skips the linking step.
 
 Under the hood:
-  cargo build --bin deno`,
+  cargo build --bin oden`,
       async fn(_args: string[]) {
         $.logStep("Building Deno...");
-        await $`cargo build --bin deno`.cwd(root);
+        await $`cargo build --bin oden`.cwd(root);
         $.logStep("Build complete.");
       },
     },
@@ -333,7 +333,7 @@ Examples:
 
 Under the hood:
   cargo build -p test_napi
-  deno test --allow-read --allow-env --allow-ffi --allow-run \\
+  oden test --allow-read --allow-env --allow-ffi --allow-run \\
     --v8-flags=--expose-gc tests/napi/`,
       async fn(args: string[]) {
         $.logStep("Building test_napi native module...");
@@ -341,9 +341,9 @@ Under the hood:
         $.logStep("Running NAPI tests...");
         const filter = args.length > 0 ? args.map((a) => `--filter=${a}`) : [];
         await $`${
-          root.join("target/debug/deno").toString()
+          root.join("target/debug/oden").toString()
         } test --allow-read --allow-env --allow-ffi --allow-run --v8-flags=--expose-gc --config ${
-          root.join("tests/config/deno.json").toString()
+          root.join("tests/config/oden.json").toString()
         } --no-lock ${filter} .`.cwd(root.join("tests/napi"));
         $.logStep("NAPI tests complete.");
       },
@@ -352,17 +352,17 @@ Under the hood:
     "lint": {
       description: "Lint all code (JS/TS + Rust)",
       help: `Runs the full lint suite across the entire codebase, including both
-JavaScript/TypeScript linting (via deno lint) and Rust
+JavaScript/TypeScript linting (via oden lint) and Rust
 linting (via clippy).
 
 Use this when you have changed both JS/TS and Rust code. If you only
 changed JS/TS files, './x lint-js' is faster.
 
 Under the hood:
-  deno run -A tools/lint.js`,
+  oden run -A tools/lint.js`,
       async fn(_args: string[]) {
         $.logStep("Linting code...");
-        await $`deno run -A tools/lint.js`.cwd(root);
+        await $`oden run -A tools/lint.js`.cwd(root);
         $.logStep("Linting complete.");
       },
     },

@@ -9,7 +9,7 @@
           "output": "install.out"
         },
         {
-          // Verify both packages exist in node_modules/.deno
+          // Verify both packages exist in node_modules/.oden
           "args": [
             "eval",
             "const entries = Array.from(Deno.readDirSync('node_modules/.deno')).filter(e => !e.name.startsWith('.')).map(e => e.name); const hasChalk = entries.some(e => e.includes('chalk@5.0.1')); const hasCowsay = entries.some(e => e.includes('cowsay@1.5.0')); console.log(`chalk: ${hasChalk}, cowsay: ${hasCowsay}`);"

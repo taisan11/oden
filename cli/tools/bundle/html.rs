@@ -318,7 +318,7 @@ pub struct HtmlEntrypoint {
   pub virtual_module_path: PathBuf,
 }
 
-const VIRTUAL_ENTRY_SUFFIX: &str = ".deno-bundle-html.entry";
+const VIRTUAL_ENTRY_SUFFIX: &str = ".oden-bundle-html.entry";
 
 // Helper to create a filesystem-friendly name based on a path
 fn sanitize_entry_name(cwd: &Path, path: &Path) -> String {
@@ -409,7 +409,7 @@ pub struct HtmlOutputFiles<'a, 'f> {
 impl<'a, 'f> HtmlOutputFiles<'a, 'f> {
   pub fn new(output_files: &'f mut Vec<OutputFile<'a>>) -> Self {
     let re =
-      lazy_regex::regex!(r"(^.+\.deno-bundle-html.entry)-([^.]+)(\..+)$");
+      lazy_regex::regex!(r"(^.+\.oden-bundle-html.entry)-([^.]+)(\..+)$");
     let mut index = std::collections::HashMap::new();
     for (i, f) in output_files.iter().enumerate() {
       if let Some(name) = f.path.file_name().map(|s| s.to_string_lossy()) {

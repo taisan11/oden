@@ -191,7 +191,7 @@ pub struct LockfileFlags {
   pub no_npm: bool,
   /// When no `deno.lock` exists in the workspace, attempt to seed one by
   /// translating a sibling `package-lock.json`. Currently only set by
-  /// `deno install`.
+  /// `oden install`.
   pub import_npm_lockfile: bool,
 }
 
@@ -275,7 +275,7 @@ impl<TSys: LockfileSys> LockfileLock<TSys> {
     // If the lockfile path is a symlink, resolve it to its target so the
     // atomic write below replaces the target file rather than clobbering the
     // symlink with a freshly created regular file. This matches how the
-    // deno.json/package.json writes follow symlinks (they write in place).
+    // oden.json/package.json writes follow symlinks (they write in place).
     let write_path = if self.sys.fs_is_symlink_no_err(&lockfile.filename) {
       self
         .sys
@@ -580,7 +580,7 @@ impl<TSys: LockfileSys> LockfileLock<TSys> {
         }
       };
       Err(JsErrorBox::generic(format!(
-        "The lockfile is out of date. Run `deno install --frozen=false`, or rerun with `--frozen=false` to update it.\nchanges:\n{truncated_diff}"
+        "The lockfile is out of date. Run `oden install --frozen=false`, or rerun with `--frozen=false` to update it.\nchanges:\n{truncated_diff}"
       )))
     } else {
       Ok(())

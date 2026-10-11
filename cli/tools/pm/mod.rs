@@ -62,7 +62,7 @@ pub(crate) enum ConfigKind {
 }
 
 /// Which `package.json` section a dependency should be written to. Only
-/// meaningful for `package.json`; `deno.json` always uses `imports`.
+/// meaningful for `package.json`; `oden.json` always uses `imports`.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum DependencyKind {
   Normal,
@@ -382,9 +382,9 @@ fn create_deno_json(
   flags: &Arc<Flags>,
   options: &CliOptions,
 ) -> Result<CliFactory, AnyError> {
-  std::fs::write(options.initial_cwd().join("deno.json"), "{}\n")
-    .context("Failed to create deno.json file")?;
-  log::info!("Created deno.json configuration file.");
+  std::fs::write(options.initial_cwd().join("oden.json"), "{}\n")
+    .context("Failed to create oden.json file")?;
+  log::info!("Created oden.json configuration file.");
   let factory = CliFactory::from_flags(flags.clone());
   Ok(factory)
 }
@@ -459,7 +459,7 @@ fn load_configs(
 
   // The `--package-json` flag or the `preferPackageJson` config setting both
   // force dependencies to be managed via package.json. `link`/`unlink` opt out
-  // of the config setting because the `"links"` field lives in deno.json.
+  // of the config setting because the `"links"` field lives in oden.json.
   let force_package_json = force_package_json
     || (honor_prefer_package_json && start_dir.workspace.prefer_package_json());
 
@@ -508,8 +508,8 @@ fn load_configs(
       let options = factory.cli_options()?.clone();
       let Some(deno_json) = options.start_dir.member_or_root_deno_json() else {
         bail!(
-          "Failed to discover the newly created deno.json at \"{}\". This can happen when the current directory is inside a node_modules directory.",
-          options.initial_cwd().join("deno.json").display(),
+          "Failed to discover the newly created oden.json at \"{}\". This can happen when the current directory is inside a node_modules directory.",
+          options.initial_cwd().join("oden.json").display(),
         );
       };
       (
@@ -552,7 +552,7 @@ pub async fn add(
   {
     bail!(
       concat!(
-        "`deno {}` is not supported when configuration file contains an \"importMap\" field. ",
+        "`oden {}` is not supported when configuration file contains an \"importMap\" field. ",
         "Inline the import map into the Deno configuration file.\n",
         "    at {}",
       ),
@@ -563,9 +563,9 @@ pub async fn add(
 
   let start_dir = cli_factory.cli_options()?.start_dir.dir_path();
 
-  // only prefer to add npm deps to `package.json` if there isn't a closer deno.json.
-  // example: if deno.json is in the CWD and package.json is in the parent, we should add
-  // npm deps to deno.json, since it's closer
+  // only prefer to add npm deps to `package.json` if there isn't a closer oden.json.
+  // example: if oden.json is in the CWD and package.json is in the parent, we should add
+  // npm deps to oden.json, since it's closer
   let prefer_npm_config = match (npm_config.as_ref(), deno_config.as_ref()) {
     (Some(npm), Some(deno)) => {
       let npm_distance = path_distance(&npm.path, &start_dir);
@@ -636,7 +636,7 @@ pub async fn add(
               add_req.package_name(),
               add_req.alias,
               crate::colors::yellow(format!(
-                "deno {cmd_name} my-alias@{}",
+                "oden {cmd_name} my-alias@{}",
                 add_req.package_name()
               )),
             );
@@ -657,7 +657,7 @@ pub async fn add(
         {
           bail!(
             "{entry_text} is missing a prefix. Did you mean `{}`?",
-            crate::colors::yellow(format!("deno {cmd_name} jsr:{package_req}"))
+            crate::colors::yellow(format!("oden {cmd_name} jsr:{package_req}"))
           )
         } else if npm_resolver
           .req_to_nv(&package_req)
@@ -668,7 +668,7 @@ pub async fn add(
         {
           bail!(
             "{entry_text} is missing a prefix. Did you mean `{}`?",
-            crate::colors::yellow(format!("deno {cmd_name} npm:{package_req}"))
+            crate::colors::yellow(format!("oden {cmd_name} npm:{package_req}"))
           )
         } else {
           bail!(
@@ -712,14 +712,14 @@ pub async fn add(
           bail!(
             "{} was not found, but a matching npm package exists. Did you mean `{}`?",
             crate::colors::red(package_name),
-            crate::colors::yellow(format!("deno {cmd_name} npm:{package_req}"))
+            crate::colors::yellow(format!("oden {cmd_name} npm:{package_req}"))
           );
         }
         Some(NotFoundHelp::JsrPackage) => {
           bail!(
             "{} was not found, but a matching jsr package exists. Did you mean `{}`?",
             crate::colors::red(package_name),
-            crate::colors::yellow(format!("deno {cmd_name} jsr:{package_req}"))
+            crate::colors::yellow(format!("oden {cmd_name} jsr:{package_req}"))
           )
         }
         Some(NotFoundHelp::PreReleaseVersion(version)) => {
@@ -727,7 +727,7 @@ pub async fn add(
             "{} has only pre-release versions available. Try specifying a version: `{}`",
             crate::colors::red(&package_name),
             crate::colors::yellow(format!(
-              "deno {cmd_name} {package_name}@^{version}"
+              "oden {cmd_name} {package_name}@^{version}"
             ))
           )
         }
@@ -1136,7 +1136,7 @@ impl AddRmPackageReq {
     // The reference parsers use the strict specifier version grammar, which
     // only accepts `^`, `~`, exact versions and tags. On the command line we
     // also accept the full npm range grammar (`>=4`, `>=4 <5`, `^4 || 5`,
-    // `1 - 2`, etc) by falling back to loose parsing. `deno add` resolves the
+    // `1 - 2`, etc) by falling back to loose parsing. `oden add` resolves the
     // requirement to a concrete version before writing it, so what ends up in
     // the config (and in `npm:`/`jsr:` specifiers in code) still uses the
     // strict grammar.
@@ -1349,7 +1349,7 @@ async fn npm_install_after_modification(
 
 /// If the user-supplied `spec` looks like a path to a local JSR package
 /// directory (relative or absolute, currently exists, and contains a
-/// `deno.json`(c)), return a message suggesting `deno link` instead.
+/// `oden.json`(c)), return a message suggesting `oden link` instead.
 fn link_hint_for_spec(cwd: &Path, spec: &str) -> Option<String> {
   // Skip anything with a registry prefix.
   if spec.contains(':') {
@@ -1373,16 +1373,16 @@ fn link_hint_for_spec(cwd: &Path, spec: &str) -> Option<String> {
   if !abs.is_dir() {
     return None;
   }
-  // Only hint when the directory is actually linkable. `deno link` requires
-  // the target's deno.json(c) to exist *and* declare a "name", so check the
-  // same condition here. Otherwise the hint dead-ends: `deno add ./pkg` ->
-  // "Did you mean `deno link ./pkg`?" -> `deno link ./pkg` -> "its deno.json
+  // Only hint when the directory is actually linkable. `oden link` requires
+  // the target's oden.json(c) to exist *and* declare a "name", so check the
+  // same condition here. Otherwise the hint dead-ends: `oden add ./pkg` ->
+  // "Did you mean `oden link ./pkg`?" -> `oden link ./pkg` -> "its oden.json
   // has no name field".
   read_link_target_name(&abs)?;
   Some(format!(
     "'{}' looks like a local package directory. Did you mean `{}`?",
     spec,
-    crate::colors::yellow(format!("deno link {spec}"))
+    crate::colors::yellow(format!("oden link {spec}"))
   ))
 }
 
@@ -1397,9 +1397,9 @@ fn path_to_link_string(path: &Path) -> String {
   s.strip_prefix("./").map(|s| s.to_string()).unwrap_or(s)
 }
 
-/// Read the `"name"` field from a deno.json(c) in the given directory.
+/// Read the `"name"` field from a oden.json(c) in the given directory.
 fn read_link_target_name(dir: &Path) -> Option<String> {
-  for filename in ["deno.json", "deno.jsonc"] {
+  for filename in ["oden.json", "oden.jsonc"] {
     let path = dir.join(filename);
     let Ok(text) = std::fs::read_to_string(&path) else {
       continue;
@@ -1434,20 +1434,20 @@ fn load_deno_config_for_link(
   create_if_missing: bool,
 ) -> Result<(CliFactory, ConfigUpdater), AnyError> {
   if create_if_missing {
-    // For `link`, force creation of deno.json if missing; the `"links"` field
+    // For `link`, force creation of oden.json if missing; the `"links"` field
     // lives there. We achieve this by claiming jsr specifiers are present,
-    // which makes `load_configs` materialise a deno.json when one isn't found.
+    // which makes `load_configs` materialise a oden.json when one isn't found.
     let (cli_factory, _force_package_json, _npm_config, deno_config) =
       load_configs(flags, || true, false, false)?;
     let deno_config = deno_config.ok_or_else(|| {
-      deno_core::anyhow::anyhow!("Could not load or create deno.json")
+      deno_core::anyhow::anyhow!("Could not load or create oden.json")
     })?;
     return Ok((cli_factory, deno_config));
   }
 
-  // For `unlink`, never create a deno.json: if there isn't one, there's
+  // For `unlink`, never create a oden.json: if there isn't one, there's
   // nothing to unlink. Load only an existing config so a failed unlink can't
-  // leave an empty deno.json behind.
+  // leave an empty oden.json behind.
   let cli_factory = CliFactory::from_flags(flags.clone());
   let options = cli_factory.cli_options()?;
   let deno_config = match options.start_dir.member_deno_json() {
@@ -1455,7 +1455,7 @@ fn load_deno_config_for_link(
       ConfigKind::DenoJson,
       url_to_file_path(&deno_json.specifier)?,
     )?,
-    None => bail!("No deno.json found; there are no linked packages to unlink"),
+    None => bail!("No oden.json found; there are no linked packages to unlink"),
   };
   Ok((cli_factory, deno_config))
 }
@@ -1488,17 +1488,17 @@ pub async fn link(
       bail!("Cannot link '{}': not a directory", raw_path);
     }
     let has_config =
-      abs.join("deno.json").exists() || abs.join("deno.jsonc").exists();
+      abs.join("oden.json").exists() || abs.join("oden.jsonc").exists();
     if !has_config {
       bail!(
-        "Cannot link '{}': no deno.json found in directory. \
-         A linked package must contain a deno.json with a \"name\" field.",
+        "Cannot link '{}': no oden.json found in directory. \
+         A linked package must contain a oden.json with a \"name\" field.",
         raw_path
       );
     }
     if read_link_target_name(&abs).is_none() {
       bail!(
-        "Cannot link '{}': its deno.json has no \"name\" field. \
+        "Cannot link '{}': its oden.json has no \"name\" field. \
          A linked package must declare a JSR-style \"name\" to be importable.",
         raw_path
       );
@@ -1557,8 +1557,8 @@ pub async fn unlink(
   let (cli_factory, mut deno_config) =
     load_deno_config_for_link(&flags, false)?;
   // Resolve path arguments relative to the cwd, matching how `link()` resolves
-  // them, so `deno unlink ../pkg` finds an entry created by `deno link ../pkg`
-  // from the same directory regardless of where the deno.json lives.
+  // them, so `oden unlink ../pkg` finds an entry created by `oden link ../pkg`
+  // from the same directory regardless of where the oden.json lives.
   let cwd = cli_factory.cli_options()?.initial_cwd().to_path_buf();
   let config_dir = deno_config
     .path

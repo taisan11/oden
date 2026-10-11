@@ -647,8 +647,8 @@ fn get_message_suggestions_inner(
           "these packages require local `node_modules` directory to be present.",
         ]),
         FixSuggestion::hint_multiline(&[
-          "Add `\"nodeModulesDir\": \"auto\" option to `deno.json`, and then run",
-          "`deno install --allow-scripts=npm:<package> --entrypoint <script>` to setup `node_modules` directory.",
+          "Add `\"nodeModulesDir\": \"auto\" option to `oden.json`, and then run",
+          "`oden install --allow-scripts=npm:<package> --entrypoint <script>` to setup `node_modules` directory.",
         ]),
       ];
     // Captures the error thrown by `ext/napi` when a native addon was built

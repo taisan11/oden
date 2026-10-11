@@ -27,7 +27,7 @@ and hot swap `init_ops_and_esm` function into the previously built `deno` bin.
 cargo plonk run \
   --package deno_webgpu \
   --symbol init_ops_and_esm \
-  --bin deno \
+  --bin oden \
   --watch
 ```
 
@@ -60,7 +60,7 @@ Use the `-v`/`--verbose` flag to turn on debug info.
 
 ```
     Finished dev [unoptimized + debuginfo] target(s) in 8.86s
-[*] Running: DYLD_INSERT_LIBRARIES="/Users/divy/gh/plonk/target/release/build/cargo-plonk-dd0f08c90ca82109/out/inject.dylib" DYLD_LIBRARY_PATH="/Users/divy/.rustup/toolchains/1.75.0-aarch64-apple-darwin/lib" NEW_SYMBOL="_ZN11deno_webgpu11deno_webgpu16init_ops_and_esm17h683ed96f45027bc1E" PLONK_BINARY="/Users/divy/gh/deno/target/debug/deno" PLONK_LIBRARY="/Users/divy/gh/deno/target/debug/libdeno_webgpu.dylib" SYMBOL="_ZN11deno_webgpu11deno_webgpu16init_ops_and_esm17h6907fcd8be7e215eE" VERBOSE="y" "/Users/divy/gh/deno/target/debug/deno" "eval" "await navigator.gpu.requestAdapter()" "--unstable"
+[*] Running: DYLD_INSERT_LIBRARIES="/Users/divy/gh/plonk/target/release/build/cargo-plonk-dd0f08c90ca82109/out/inject.dylib" DYLD_LIBRARY_PATH="/Users/divy/.rustup/toolchains/1.75.0-aarch64-apple-darwin/lib" NEW_SYMBOL="_ZN11deno_webgpu11deno_webgpu16init_ops_and_esm17h683ed96f45027bc1E" PLONK_BINARY="/Users/divy/gh/deno/target/debug/oden" PLONK_LIBRARY="/Users/divy/gh/deno/target/debug/libdeno_webgpu.dylib" SYMBOL="_ZN11deno_webgpu11deno_webgpu16init_ops_and_esm17h6907fcd8be7e215eE" VERBOSE="y" "/Users/divy/gh/deno/target/debug/oden" "eval" "await navigator.gpu.requestAdapter()" "--unstable"
 [*] Plonking _ZN11deno_webgpu11deno_webgpu16init_ops_and_esm17h6907fcd8be7e215eE in /Users/divy/gh/deno/target/debug/libdeno_webgpu.dylib
 [*] Old address: 0x105fcff2c
 [*] New address: 0x128511424

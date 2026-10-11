@@ -955,7 +955,7 @@ fn get_remote_completions(
 }
 
 /// Returns true if the given file URL points to a Deno configuration file
-/// (`deno.json` or `deno.jsonc`).
+/// (`oden.json` or `oden.jsonc`).
 pub fn is_deno_config_url(url: &ModuleSpecifier) -> bool {
   if url.scheme() != "file" {
     return false;
@@ -963,7 +963,7 @@ pub fn is_deno_config_url(url: &ModuleSpecifier) -> bool {
   let Some(name) = url.path_segments().and_then(|mut s| s.next_back()) else {
     return false;
   };
-  name == "deno.json" || name == "deno.jsonc"
+  name == "oden.json" || name == "oden.jsonc"
 }
 
 /// Walk a `jsonc_parser` AST looking for the innermost string literal whose
@@ -1145,7 +1145,7 @@ mod tests {
     fs_sources: &[(&str, &str)],
   ) -> DocumentModules {
     let temp_dir = TempDir::new();
-    let cache = LspCache::new(Some(temp_dir.url().join(".deno_dir").unwrap()));
+    let cache = LspCache::new(Some(temp_dir.url().join(".oden_dir").unwrap()));
     let mut document_modules = DocumentModules::default();
     document_modules.update_config(
       &Default::default(),

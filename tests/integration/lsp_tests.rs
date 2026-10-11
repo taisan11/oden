@@ -127,7 +127,7 @@ fn lsp_config_setting_compiler_options_types_config_sub_dir() {
   );
   let a_dts = "// deno-lint-ignore-file no-var\ndeclare var a: string;";
   sub_dir.join("a.d.ts").write(a_dts);
-  temp_dir.write("deno.json", "{}");
+  temp_dir.write("oden.json", "{}");
 
   let mut client = context.new_lsp_command().build();
   client.initialize(|builder| {
@@ -191,7 +191,7 @@ fn unadded_dependency_message_with_import_map() {
     .to_string(),
   );
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "importMap": "import_map.json".to_string(),
     })
@@ -220,7 +220,7 @@ fn unadded_dependency_message_with_import_map() {
   let mut expected_lsp_messages = Vec::from([
     "`x` is never used\nIf this is intentional, prefix it with an underscore like `_x`",
     "'x' is declared but its value is never read.",
-    "Import \"@std/fs\" not a dependency and not in import map from \"   hint: If you want to use the JSR package, try running `deno add jsr:@std/fs`",
+    "Import \"@std/fs\" not a dependency and not in import map from \"   hint: If you want to use the JSR package, try running `oden add jsr:@std/fs`",
   ]);
   expected_lsp_messages.sort();
   let all_diagnostics = diagnostics.all();
@@ -241,10 +241,10 @@ fn unadded_dependency_message_with_import_map() {
 fn lsp_doc_lint_diagnostics() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  // A publishable package: `deno doc --lint` checks its export entrypoints for
+  // A publishable package: `oden doc --lint` checks its export entrypoints for
   // missing documentation.
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
   "name": "@foo/bar",
   "version": "1.0.0",
@@ -323,7 +323,7 @@ fn unadded_dependency_message() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
         "imports": {
 
@@ -354,7 +354,7 @@ fn unadded_dependency_message() {
   let mut expected_lsp_messages = Vec::from([
     "`x` is never used\nIf this is intentional, prefix it with an underscore like `_x`",
     "'x' is declared but its value is never read.",
-    "Import \"@std/fs\" not a dependency and not in import map from \"   hint: If you want to use the JSR package, try running `deno add jsr:@std/fs`",
+    "Import \"@std/fs\" not a dependency and not in import map from \"   hint: If you want to use the JSR package, try running `oden add jsr:@std/fs`",
   ]);
   expected_lsp_messages.sort();
   let all_diagnostics = diagnostics.all();
@@ -437,7 +437,7 @@ fn lsp_import_map_diagnostics() {
   },
   "unexpected": true
 }"#;
-  temp_dir.write("deno.json", r#"{ "importMap": "import-map.json" }"#);
+  temp_dir.write("oden.json", r#"{ "importMap": "import-map.json" }"#);
   temp_dir.write("import-map.json", import_map);
 
   let mut client = context.new_lsp_command().build();
@@ -548,7 +548,7 @@ fn lsp_hover_dependency_import_map() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
   "imports": {
     "foo": "./lib/foo.ts",
@@ -561,7 +561,7 @@ fn lsp_hover_dependency_import_map() {
 
   let mut client = context.new_lsp_command().build();
   client.initialize(|builder| {
-    builder.set_config("./deno.json");
+    builder.set_config("./oden.json");
   });
 
   let uri = url_to_uri(&temp_dir.url().join("main.ts").unwrap()).unwrap();
@@ -588,7 +588,7 @@ fn lsp_hover_dependency_import_map() {
     .and_then(|v| v.as_str())
     .unwrap();
   assert!(
-    value.contains("**Import Map**: `foo` → `./lib/foo.ts` _(deno.json)_"),
+    value.contains("**Import Map**: `foo` → `./lib/foo.ts` _(oden.json)_"),
     "{value}"
   );
 
@@ -605,7 +605,7 @@ fn lsp_hover_dependency_import_map() {
     .and_then(|v| v.as_str())
     .unwrap();
   assert!(
-    value.contains("**Import Map**: `bar/` → `./lib/bar/` _(deno.json)_"),
+    value.contains("**Import Map**: `bar/` → `./lib/bar/` _(oden.json)_"),
     "{value}"
   );
 
@@ -873,11 +873,11 @@ fn lsp_import_map_config_file_auto_discovered() {
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
 
-  // add the deno.json
-  temp_dir.write("deno.jsonc", r#"{ "imports": { "/~/": "./lib/" } }"#);
+  // add the oden.json
+  temp_dir.write("oden.jsonc", r#"{ "imports": { "/~/": "./lib/" } }"#);
   client.did_change_watched_files(json!({
     "changes": [{
-      "uri": url_to_uri(&temp_dir.url().join("deno.jsonc").unwrap()).unwrap(),
+      "uri": url_to_uri(&temp_dir.url().join("oden.jsonc").unwrap()).unwrap(),
       "type": 2
     }]
   }));
@@ -923,20 +923,20 @@ fn lsp_import_map_config_file_auto_discovered() {
   );
 
   // now cause a syntax error
-  temp_dir.write("deno.jsonc", r#",,#,#,,"#);
+  temp_dir.write("oden.jsonc", r#",,#,#,,"#);
   client.did_change_watched_files(json!({
     "changes": [{
-      "uri": url_to_uri(&temp_dir.url().join("deno.jsonc").unwrap()).unwrap(),
+      "uri": url_to_uri(&temp_dir.url().join("oden.jsonc").unwrap()).unwrap(),
       "type": 2
     }]
   }));
   assert_eq!(client.read_diagnostics().all().len(), 1);
 
   // now fix it, and things should work again
-  temp_dir.write("deno.jsonc", r#"{ "imports": { "/~/": "./lib/" } }"#);
+  temp_dir.write("oden.jsonc", r#"{ "imports": { "/~/": "./lib/" } }"#);
   client.did_change_watched_files(json!({
     "changes": [{
-      "uri": url_to_uri(&temp_dir.url().join("deno.jsonc").unwrap()).unwrap(),
+      "uri": url_to_uri(&temp_dir.url().join("oden.jsonc").unwrap()).unwrap(),
       "type": 2
     }]
   }));
@@ -987,26 +987,26 @@ fn lsp_import_map_config_file_auto_discovered_symlink() {
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
 
-  // now create a symlink in the current directory to a subdir/deno.json
+  // now create a symlink in the current directory to a subdir/oden.json
   // and ensure the watched files notification still works
-  temp_dir.write("subdir/deno.json", r#"{ }"#);
+  temp_dir.write("subdir/oden.json", r#"{ }"#);
   temp_dir.symlink_file(
-    temp_dir.path().join("subdir").join("deno.json"),
-    temp_dir.path().join("deno.json"),
+    temp_dir.path().join("subdir").join("oden.json"),
+    temp_dir.path().join("oden.json"),
   );
   client.did_change_watched_files(json!({
     "changes": [{
       // the client will give a watched file changed event for the symlink's target
-      "uri": temp_dir.path().join("subdir/deno.json").canonicalize().uri_file(),
+      "uri": temp_dir.path().join("subdir/oden.json").canonicalize().uri_file(),
       "type": 2
     }]
   }));
   client.read_diagnostics();
 
-  // this will discover the deno.json in the root
+  // this will discover the oden.json in the root
   let search_line = format!(
     "  Resolved Deno configuration file: \"{}\"",
-    temp_dir.url().join("deno.json").unwrap().as_str()
+    temp_dir.url().join("oden.json").unwrap().as_str()
   );
   client.wait_until_stderr_line(|line| line.contains(&search_line));
 
@@ -1022,11 +1022,11 @@ fn lsp_import_map_config_file_auto_discovered_symlink() {
   assert_eq!(diagnostics.all().len(), 1);
 
   // update the import map to have the imports now
-  temp_dir.write("subdir/deno.json", r#"{ "imports": { "/~/": "./lib/" } }"#);
+  temp_dir.write("subdir/oden.json", r#"{ "imports": { "/~/": "./lib/" } }"#);
   client.did_change_watched_files(json!({
     "changes": [{
       // now still say that the target path has changed
-      "uri": temp_dir.path().join("subdir/deno.json").canonicalize().uri_file(),
+      "uri": temp_dir.path().join("subdir/oden.json").canonicalize().uri_file(),
       "type": 2
     }]
   }));
@@ -1046,7 +1046,7 @@ fn lsp_deno_config_setting_no_workspace() {
     .source_file("file.ts", "const foo_bar = 1;\nconsole.log(foo_bar);\n");
   let temp_dir_for_deno_json = test_util::TempDir::new();
   temp_dir_for_deno_json.write(
-    "deno.json",
+    "oden.json",
     json!({
       "lint": {
         "rules": { "include": ["camelcase"] },
@@ -1058,7 +1058,7 @@ fn lsp_deno_config_setting_no_workspace() {
   client.initialize(|builder| {
     builder.set_workspace_folders(vec![]);
     builder.set_deno_enable(true);
-    builder.set_config(temp_dir_for_deno_json.url().join("deno.json").unwrap());
+    builder.set_config(temp_dir_for_deno_json.url().join("oden.json").unwrap());
   });
   let diagnostics = client.did_open_file(&file);
   assert_eq!(
@@ -1087,7 +1087,7 @@ fn lsp_deno_json_imports_comments_cache() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.jsonc",
+    "oden.jsonc",
     r#"{
       // comment
       "imports": {
@@ -1124,7 +1124,7 @@ fn lsp_import_map_node_specifiers() {
   let context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
 
-  temp_dir.write("deno.json", r#"{ "imports": { "fs": "node:fs" } }"#);
+  temp_dir.write("oden.json", r#"{ "imports": { "fs": "node:fs" } }"#);
 
   // cache @types/node
   context
@@ -1136,7 +1136,7 @@ fn lsp_import_map_node_specifiers() {
 
   let mut client = context.new_lsp_command().build();
   client.initialize(|builder| {
-    builder.set_config("./deno.json");
+    builder.set_config("./oden.json");
   });
 
   let diagnostics = client.did_open(json!({
@@ -1235,7 +1235,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "workspace/deno.json",
+    "workspace/oden.json",
     json!({
       "workspace": [
         "member1",
@@ -1244,10 +1244,10 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
     })
     .to_string(),
   );
-  temp_dir.write("workspace/member1/deno.json", json!({}).to_string());
+  temp_dir.write("workspace/member1/oden.json", json!({}).to_string());
   temp_dir.write("workspace/member1/package.json", json!({}).to_string());
   temp_dir.write("workspace/member2/package.json", json!({}).to_string());
-  temp_dir.write("non_workspace1/deno.json", json!({}).to_string());
+  temp_dir.write("non_workspace1/oden.json", json!({}).to_string());
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
   let mut res = client
@@ -1264,7 +1264,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
           "scopeUri": url_to_uri(&temp_dir.url().join("non_workspace1/").unwrap()).unwrap(),
           "workspaceRootScopeUri": null,
           "denoJson": {
-            "uri": url_to_uri(&temp_dir.url().join("non_workspace1/deno.json").unwrap()).unwrap(),
+            "uri": url_to_uri(&temp_dir.url().join("non_workspace1/oden.json").unwrap()).unwrap(),
           },
           "packageJson": null,
         },
@@ -1272,7 +1272,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
           "scopeUri": url_to_uri(&temp_dir.url().join("workspace/").unwrap()).unwrap(),
           "workspaceRootScopeUri": null,
           "denoJson": {
-            "uri": url_to_uri(&temp_dir.url().join("workspace/deno.json").unwrap()).unwrap(),
+            "uri": url_to_uri(&temp_dir.url().join("workspace/oden.json").unwrap()).unwrap(),
           },
           "packageJson": null,
         },
@@ -1280,7 +1280,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
           "scopeUri": url_to_uri(&temp_dir.url().join("workspace/member1/").unwrap()).unwrap(),
           "workspaceRootScopeUri": url_to_uri(&temp_dir.url().join("workspace/").unwrap()).unwrap(),
           "denoJson": {
-            "uri": url_to_uri(&temp_dir.url().join("workspace/member1/deno.json").unwrap()).unwrap(),
+            "uri": url_to_uri(&temp_dir.url().join("workspace/member1/oden.json").unwrap()).unwrap(),
           },
           "packageJson": {
             "uri": url_to_uri(&temp_dir.url().join("workspace/member1/package.json").unwrap()).unwrap(),
@@ -1297,10 +1297,10 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
       ],
     }),
   );
-  temp_dir.write("non_workspace2/deno.json", json!({}).to_string());
+  temp_dir.write("non_workspace2/oden.json", json!({}).to_string());
   client.did_change_watched_files(json!({
     "changes": [{
-      "uri": url_to_uri(&temp_dir.url().join("non_workspace2/deno.json").unwrap()).unwrap(),
+      "uri": url_to_uri(&temp_dir.url().join("non_workspace2/oden.json").unwrap()).unwrap(),
       "type": 1,
     }],
   }));
@@ -1320,7 +1320,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
           "scopeUri": url_to_uri(&temp_dir.url().join("non_workspace1/").unwrap()).unwrap(),
           "workspaceRootScopeUri": null,
           "denoJson": {
-            "uri": url_to_uri(&temp_dir.url().join("non_workspace1/deno.json").unwrap()).unwrap(),
+            "uri": url_to_uri(&temp_dir.url().join("non_workspace1/oden.json").unwrap()).unwrap(),
           },
           "packageJson": null,
         },
@@ -1328,7 +1328,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
           "scopeUri": url_to_uri(&temp_dir.url().join("non_workspace2/").unwrap()).unwrap(),
           "workspaceRootScopeUri": null,
           "denoJson": {
-            "uri": url_to_uri(&temp_dir.url().join("non_workspace2/deno.json").unwrap()).unwrap(),
+            "uri": url_to_uri(&temp_dir.url().join("non_workspace2/oden.json").unwrap()).unwrap(),
           },
           "packageJson": null,
         },
@@ -1336,7 +1336,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
           "scopeUri": url_to_uri(&temp_dir.url().join("workspace/").unwrap()).unwrap(),
           "workspaceRootScopeUri": null,
           "denoJson": {
-            "uri": url_to_uri(&temp_dir.url().join("workspace/deno.json").unwrap()).unwrap(),
+            "uri": url_to_uri(&temp_dir.url().join("workspace/oden.json").unwrap()).unwrap(),
           },
           "packageJson": null,
         },
@@ -1344,7 +1344,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
           "scopeUri": url_to_uri(&temp_dir.url().join("workspace/member1/").unwrap()).unwrap(),
           "workspaceRootScopeUri": url_to_uri(&temp_dir.url().join("workspace/").unwrap()).unwrap(),
           "denoJson": {
-            "uri": url_to_uri(&temp_dir.url().join("workspace/member1/deno.json").unwrap()).unwrap(),
+            "uri": url_to_uri(&temp_dir.url().join("workspace/member1/oden.json").unwrap()).unwrap(),
           },
           "packageJson": {
             "uri": url_to_uri(&temp_dir.url().join("workspace/member1/package.json").unwrap()).unwrap(),
@@ -1380,7 +1380,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
           "scopeUri": url_to_uri(&temp_dir.url().join("non_workspace2/").unwrap()).unwrap(),
           "workspaceRootScopeUri": null,
           "denoJson": {
-            "uri": url_to_uri(&temp_dir.url().join("non_workspace2/deno.json").unwrap()).unwrap(),
+            "uri": url_to_uri(&temp_dir.url().join("non_workspace2/oden.json").unwrap()).unwrap(),
           },
           "packageJson": null,
         },
@@ -1388,7 +1388,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
           "scopeUri": url_to_uri(&temp_dir.url().join("workspace/").unwrap()).unwrap(),
           "workspaceRootScopeUri": null,
           "denoJson": {
-            "uri": url_to_uri(&temp_dir.url().join("workspace/deno.json").unwrap()).unwrap(),
+            "uri": url_to_uri(&temp_dir.url().join("workspace/oden.json").unwrap()).unwrap(),
           },
           "packageJson": null,
         },
@@ -1396,7 +1396,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
           "scopeUri": url_to_uri(&temp_dir.url().join("workspace/member1/").unwrap()).unwrap(),
           "workspaceRootScopeUri": url_to_uri(&temp_dir.url().join("workspace/").unwrap()).unwrap(),
           "denoJson": {
-            "uri": url_to_uri(&temp_dir.url().join("workspace/member1/deno.json").unwrap()).unwrap(),
+            "uri": url_to_uri(&temp_dir.url().join("workspace/member1/oden.json").unwrap()).unwrap(),
           },
           "packageJson": {
             "uri": url_to_uri(&temp_dir.url().join("workspace/member1/package.json").unwrap()).unwrap(),
@@ -1420,7 +1420,7 @@ fn lsp_did_refresh_deno_configuration_tree_notification() {
 fn lsp_did_change_deno_configuration_notification() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   temp_dir.write("package.json", json!({}).to_string());
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
@@ -1433,7 +1433,7 @@ fn lsp_did_change_deno_configuration_notification() {
       "changes": [
         {
           "scopeUri": temp_dir.uri(),
-          "fileUri": url_to_uri(&temp_dir.url().join("deno.json").unwrap()).unwrap(),
+          "fileUri": url_to_uri(&temp_dir.url().join("oden.json").unwrap()).unwrap(),
           "type": "added",
           "configurationType": "denoJson"
         },
@@ -1448,12 +1448,12 @@ fn lsp_did_change_deno_configuration_notification() {
   );
 
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({ "fmt": { "semiColons": false } }).to_string(),
   );
   client.did_change_watched_files(json!({
     "changes": [{
-      "uri": url_to_uri(&temp_dir.url().join("deno.json").unwrap()).unwrap(),
+      "uri": url_to_uri(&temp_dir.url().join("oden.json").unwrap()).unwrap(),
       "type": 2,
     }],
   }));
@@ -1465,17 +1465,17 @@ fn lsp_did_change_deno_configuration_notification() {
     Some(json!({
       "changes": [{
         "scopeUri": temp_dir.uri(),
-        "fileUri": url_to_uri(&temp_dir.url().join("deno.json").unwrap()).unwrap(),
+        "fileUri": url_to_uri(&temp_dir.url().join("oden.json").unwrap()).unwrap(),
         "type": "changed",
         "configurationType": "denoJson"
       }],
     }))
   );
 
-  temp_dir.remove_file("deno.json");
+  temp_dir.remove_file("oden.json");
   client.did_change_watched_files(json!({
     "changes": [{
-      "uri": url_to_uri(&temp_dir.url().join("deno.json").unwrap()).unwrap(),
+      "uri": url_to_uri(&temp_dir.url().join("oden.json").unwrap()).unwrap(),
       "type": 3,
     }],
   }));
@@ -1487,7 +1487,7 @@ fn lsp_did_change_deno_configuration_notification() {
     Some(json!({
       "changes": [{
         "scopeUri": temp_dir.uri(),
-        "fileUri": url_to_uri(&temp_dir.url().join("deno.json").unwrap()).unwrap(),
+        "fileUri": url_to_uri(&temp_dir.url().join("oden.json").unwrap()).unwrap(),
         "type": "removed",
         "configurationType": "denoJson"
       }],
@@ -1545,13 +1545,13 @@ fn lsp_deno_task() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.jsonc",
+    "oden.jsonc",
     json!({
       "tasks": {
-        "build": "deno test",
+        "build": "oden test",
         "serve": {
           "description": "Start the dev server",
-          "command": "deno run -RN server.ts",
+          "command": "oden run -RN server.ts",
         },
       },
     })
@@ -1565,15 +1565,15 @@ fn lsp_deno_task() {
     json!([
       {
         "name": "build",
-        "command": "deno test",
+        "command": "oden test",
         "description": null,
-        "sourceUri": url_to_uri(&temp_dir.url().join("deno.jsonc").unwrap()).unwrap(),
+        "sourceUri": url_to_uri(&temp_dir.url().join("oden.jsonc").unwrap()).unwrap(),
       },
       {
         "name": "serve",
-        "command": "deno run -RN server.ts",
+        "command": "oden run -RN server.ts",
         "description": "Start the dev server",
-        "sourceUri": url_to_uri(&temp_dir.url().join("deno.jsonc").unwrap()).unwrap(),
+        "sourceUri": url_to_uri(&temp_dir.url().join("oden.jsonc").unwrap()).unwrap(),
       }
     ])
   );
@@ -1713,7 +1713,7 @@ fn lsp_import_map_import_completions() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "/~/": "./lib/",
@@ -2019,7 +2019,7 @@ const inferred = {
 fn lsp_hover_asset() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   let file = temp_dir.source_file("file.ts", "console.log(Date.now());\n");
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
@@ -2711,7 +2711,7 @@ fn lsp_exclude_config() {
   );
   temp_dir.write("worker/shared.ts", "export const a = 1");
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
   "exclude": ["other"],
 }"#,
@@ -3397,7 +3397,7 @@ fn lsp_document_preload_limit_zero_deno_json_detection() {
     .use_temp_cwd()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   let mut client = context.new_lsp_command().build();
   client.initialize(|builder| {
     builder.set_preload_limit(0);
@@ -3409,7 +3409,7 @@ fn lsp_document_preload_limit_zero_deno_json_detection() {
     Some(json!({
       "changes": [{
         "scopeUri": temp_dir.uri(),
-        "fileUri": url_to_uri(&temp_dir.url().join("deno.json").unwrap()).unwrap(),
+        "fileUri": url_to_uri(&temp_dir.url().join("oden.json").unwrap()).unwrap(),
         "type": "added",
         "configurationType": "denoJson",
       }],
@@ -3426,7 +3426,7 @@ fn lsp_import_map_setting_with_deno_json() {
     .use_temp_cwd()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   temp_dir.write(
     "import_map.json",
     json!({
@@ -3509,7 +3509,7 @@ fn lsp_hover_typescript_types_via_import_map() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
       "imports": {
         "foo": "http://127.0.0.1:4545/xTypeScriptTypes.js"
@@ -3547,7 +3547,7 @@ fn lsp_hover_typescript_types_via_import_map() {
     json!({
       "contents": {
         "kind": "markdown",
-        "value": "**Resolved Dependency**\n\n**Code**: http&#8203;://127.0.0.1:4545/xTypeScriptTypes.js\n\n**Types**: http&#8203;://127.0.0.1:4545/xTypeScriptTypes.d.ts\n\n**Import Map**: `foo` → `http://127.0.0.1:4545/xTypeScriptTypes.js` _(deno.json)_\n"
+        "value": "**Resolved Dependency**\n\n**Code**: http&#8203;://127.0.0.1:4545/xTypeScriptTypes.js\n\n**Types**: http&#8203;://127.0.0.1:4545/xTypeScriptTypes.d.ts\n\n**Import Map**: `foo` → `http://127.0.0.1:4545/xTypeScriptTypes.js` _(oden.json)_\n"
       },
       "range": {
         "start": { "line": 0, "character": 19 },
@@ -6585,7 +6585,7 @@ fn lsp_jsr_lockfile() {
   let context = TestContextBuilder::for_jsr().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "./deno.json",
+    "./oden.json",
     json!({
       "lint": {
         "rules": {
@@ -6637,7 +6637,7 @@ fn lsp_jsr_prerelease_only_package() {
   let context = TestContextBuilder::for_jsr().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "./deno.json",
+    "./oden.json",
     json!({
       "lint": {
         "rules": {
@@ -6738,7 +6738,7 @@ fn lsp_jsr_auto_import_completion_import_map() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "add": "jsr:@denotest/add@^1.0",
@@ -6802,7 +6802,7 @@ fn lsp_jsr_auto_import_completion_import_map_sub_path() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "@std/path": "jsr:@std/path@^0.220.1",
@@ -6870,14 +6870,14 @@ fn lsp_jsr_auto_import_completion_workspace_member() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "workspace": ["member"],
     })
     .to_string(),
   );
   temp_dir.write(
-    "member/deno.json",
+    "member/oden.json",
     json!({
       "name": "@org/package",
       "exports": "./mod.ts",
@@ -6933,7 +6933,7 @@ fn lsp_jsr_auto_import_completion_patch() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "@org/package": "jsr:@org/package"
@@ -6943,7 +6943,7 @@ fn lsp_jsr_auto_import_completion_patch() {
     .to_string(),
   );
   temp_dir.write(
-    "package/deno.json",
+    "package/oden.json",
     json!({
       "name": "@org/package",
       "exports": "./mod.ts",
@@ -6996,14 +6996,14 @@ fn lsp_diagnostics_linked_pkg_wrong_name_hint() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "links": ["package"],
     })
     .to_string(),
   );
   temp_dir.write(
-    "package/deno.json",
+    "package/oden.json",
     json!({
       "name": "@org/package",
       "exports": "./mod.ts",
@@ -7013,7 +7013,7 @@ fn lsp_diagnostics_linked_pkg_wrong_name_hint() {
   temp_dir.write("package/mod.ts", "export const someValue = 1;\n");
   // Import the linked package by its unscoped tail ("package") instead of its
   // declared name ("@org/package"). The diagnostic should hint at the full
-  // name rather than suggesting `deno add npm:`.
+  // name rather than suggesting `oden add npm:`.
   let file = temp_dir.source_file("file.ts", "import \"package\";\n");
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
@@ -7605,7 +7605,7 @@ fn lsp_asset_document_dom_code_action() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "compilerOptions": {
         "lib": ["deno.window", "dom"],
@@ -8069,7 +8069,7 @@ fn lsp_code_actions_import_map_remap() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "foo": "./foo.ts",
@@ -8186,7 +8186,7 @@ fn lsp_no_import_map_remap_for_relative_keys() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "./some_dir/": "./some_dir/",
@@ -8434,7 +8434,7 @@ fn lsp_code_actions_imports_respects_fmt_config() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "./deno.jsonc",
+    "./oden.jsonc",
     json!({
       "fmt": {
         "semiColons": false,
@@ -8684,11 +8684,11 @@ fn lsp_quote_style_from_workspace_settings() {
     }]),
   );
 
-  // It should ignore the workspace setting if a `deno.json` is present.
-  temp_dir.write("./deno.json", json!({}).to_string());
+  // It should ignore the workspace setting if a `oden.json` is present.
+  temp_dir.write("./oden.json", json!({}).to_string());
   client.did_change_watched_files(json!({
     "changes": [{
-      "uri": url_to_uri(&temp_dir.url().join("deno.json").unwrap()).unwrap(),
+      "uri": url_to_uri(&temp_dir.url().join("oden.json").unwrap()).unwrap(),
       "type": 1,
     }],
   }));
@@ -8883,14 +8883,14 @@ fn lsp_code_actions_organize_imports_in_a_workspace() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "workspace": ["./member", "./other"]
     })
     .to_string(),
   );
   temp_dir.write(
-    "member/deno.json",
+    "member/oden.json",
     json!({
       "name": "@scope/member",
       "version": "1.0.0",
@@ -8911,7 +8911,7 @@ console.log(other, submodule);
   );
   temp_dir.source_file("member/submodule.ts", r#"export const submodule = 0;"#);
   temp_dir.write(
-    "other/deno.json",
+    "other/oden.json",
     json!({
       "name": "@scope/other",
       "version": "1.0.0",
@@ -9740,7 +9740,7 @@ fn lsp_npm_auto_import_and_quick_fix_byonm() {
     .add_npm_env_vars()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   temp_dir.write(
     "package.json",
     json!({
@@ -9927,7 +9927,7 @@ fn lsp_npm_auto_import_with_deno_types() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "compilerOptions": {
         "jsx": "react-jsx",
@@ -10162,7 +10162,7 @@ fn lsp_completions_node_specifier() {
 fn lsp_infer_return_type() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   temp_dir.write(
     "types.d.ts",
     r#"
@@ -10360,7 +10360,7 @@ fn lsp_npm_reexport_from_non_export_add_import_quick_fix() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "nodeModulesDir": "auto",
     })
@@ -10424,7 +10424,7 @@ fn lsp_npm_managed_import_map_no_duplicate_completions() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "chalk": "npm:chalk"
@@ -11074,7 +11074,7 @@ fn lsp_completions_auto_import_in_empty_import_clause_with_import_map() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "$globals": "npm:@denotest/globals@1",
@@ -11152,7 +11152,7 @@ fn lsp_auto_import_local_dir_import_map_alias() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "@app/": "./src/",
@@ -11207,7 +11207,7 @@ fn lsp_auto_import_import_map_prefer_relative() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "src/": "./src/",
@@ -11259,7 +11259,7 @@ fn lsp_auto_import_same_dir_import_map_alias() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "$src/": "./src/",
@@ -11312,7 +11312,7 @@ fn lsp_completions_empty_tsx_react_jsx() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{ "compilerOptions": { "jsx": "react-jsx" } }"#,
   );
   let file_uri = url_to_uri(&temp_dir.url().join("file.tsx").unwrap()).unwrap();
@@ -11652,7 +11652,7 @@ fn lsp_completions_deno_json_imports() {
     .build();
   let temp_dir = context.temp_dir();
   let deno_json_uri =
-    url_to_uri(&temp_dir.url().join("deno.json").unwrap()).unwrap();
+    url_to_uri(&temp_dir.url().join("oden.json").unwrap()).unwrap();
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
   // Layout of line 2 (0-indexed columns):
@@ -11773,7 +11773,7 @@ fn lsp_completions_npm_package_exports() {
 fn lsp_auto_import_npm_export_node_modules_dir_auto() {
   let context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let temp_dir_path = context.temp_dir().path();
-  temp_dir_path.join("deno.json").write_json(&json!({
+  temp_dir_path.join("oden.json").write_json(&json!({
     "nodeModulesDir": "auto",
     "imports": {
       "preact": "npm:preact@^10.19.6",
@@ -11837,7 +11837,7 @@ fn lsp_auto_import_npm_export_node_modules_dir_manual() {
   let context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "nodeModulesDir": "manual",
     })
@@ -11909,14 +11909,14 @@ fn lsp_auto_import_npm_export_node_modules_dir_no_package_json() {
   let context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "nodeModulesDir": "manual",
     })
     .to_string(),
   );
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "preact": "npm:preact",
@@ -11975,7 +11975,7 @@ fn lsp_npm_export_shared_workspace_data_across_members() {
   let context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "workspace": ["member_a", "member_b"],
       "nodeModulesDir": "manual",
@@ -11984,7 +11984,7 @@ fn lsp_npm_export_shared_workspace_data_across_members() {
   );
   for member in ["member_a", "member_b"] {
     temp_dir.write(
-      format!("{member}/deno.json"),
+      format!("{member}/oden.json"),
       json!({
         "imports": {
           "preact": "npm:preact",
@@ -12041,7 +12041,7 @@ fn lsp_auto_import_npm_export_import_map_workspace_member() {
   let context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "workspace": ["member"],
       "nodeModulesDir": "manual",
@@ -12049,7 +12049,7 @@ fn lsp_auto_import_npm_export_import_map_workspace_member() {
     .to_string(),
   );
   temp_dir.write(
-    "member/deno.json",
+    "member/oden.json",
     json!({
       "imports": {
         "preact": "npm:preact",
@@ -12101,7 +12101,7 @@ fn lsp_auto_import_node_modules_alias_only_configured_deps() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "nodeModulesDir": "manual",
     })
@@ -12416,7 +12416,7 @@ fn lsp_completions_node_specifier_node_modules_dir() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    temp_dir.path().join("deno.json"),
+    temp_dir.path().join("oden.json"),
     json!({
       "nodeModulesDir": "auto",
     })
@@ -12811,7 +12811,7 @@ fn lsp_npmrc() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    temp_dir.path().join("deno.json"),
+    temp_dir.path().join("oden.json"),
     json!({
       "nodeModulesDir": "auto",
     })
@@ -12880,7 +12880,7 @@ fn lsp_lockfile_redirect_resolution() {
     .use_temp_cwd()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   temp_dir.write("deno.lock", json!({
     "version": "3",
     "redirects": {
@@ -13275,7 +13275,7 @@ fn lsp_diagnostics_none_for_resolving_types() {
   let context = TestContextBuilder::for_npm().use_temp_cwd().build();
   context
     .temp_dir()
-    .write("deno.json", r#"{ "unstable": ["byonm"] }"#);
+    .write("oden.json", r#"{ "unstable": ["byonm"] }"#);
   context.temp_dir().write(
     "package.json",
     r#"{ "dependencies": { "@denotest/monaco-editor": "*" } }"#,
@@ -13308,7 +13308,7 @@ fn lsp_jupyter_import_map_and_diagnostics() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "exports": "./exports.ts",
@@ -13459,7 +13459,7 @@ fn lsp_jupyter_import_map_and_diagnostics() {
 fn lsp_jupyter_completions() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   temp_dir.write("./other.ts", "");
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
@@ -13553,7 +13553,7 @@ fn lsp_jupyter_tsx() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "compilerOptions": {
         "jsx": "react-jsx",
@@ -13563,7 +13563,7 @@ fn lsp_jupyter_tsx() {
     .to_string(),
   );
 
-  // TODO(nayeemrmn): `deno install` should work here, it doesn't as of writing.
+  // TODO(nayeemrmn): `oden install` should work here, it doesn't as of writing.
   temp_dir.write("main.tsx", "");
   context.run_deno("check main.tsx");
 
@@ -13653,7 +13653,7 @@ fn lsp_jupyter_untitled_notebook() {
   use std::str::FromStr;
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
   // Simulate VSCode opening an unsaved Jupyter notebook. The notebook URI uses
@@ -13692,13 +13692,13 @@ fn lsp_jupyter_untitled_notebook_workspace_scope() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   // An unsaved (untitled) notebook has no path on disk, so its cells should
-  // still resolve against the workspace's `deno.json` — including its import
+  // still resolve against the workspace's `oden.json` — including its import
   // map. Otherwise imports like `"exports"` below would be flagged as missing
   // dependencies, producing TS/Deno errors that go away once the notebook is
   // saved into the workspace. Regression test for
   // https://github.com/denoland/deno/issues/22628.
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({ "imports": { "exports": "./exports.ts" } }).to_string(),
   );
   temp_dir.write("./exports.ts", "export const someExport = 1;\n");
@@ -14432,7 +14432,7 @@ fn lsp_format_sql() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "unstable": ["fmt-sql"],
     })
@@ -14474,7 +14474,7 @@ fn lsp_format_component() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "unstable": ["fmt-component"],
     })
@@ -15252,7 +15252,7 @@ fn lsp_code_actions_update_ignore_lint() {
       "languageId": "typescript",
       "version": 1,
       "text":
-"#!/usr/bin/env -S deno run
+"#!/usr/bin/env -S oden run
 // deno-lint-ignore-file camelcase
 let snake_case = 'Hello, Deno!';
 console.log(snake_case);
@@ -15466,7 +15466,7 @@ fn lsp_no_slow_types_diagnostics() {
 
   // a publishable JSR package - its public API is checked for slow types
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
   "name": "@foo/bar",
   "version": "1.0.0",
@@ -15540,7 +15540,7 @@ fn lsp_no_slow_types_diagnostics_excluded() {
 
   // a publishable JSR package that excludes the `no-slow-types` rule
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
   "name": "@foo/bar",
   "version": "1.0.0",
@@ -15592,7 +15592,7 @@ fn lsp_no_slow_types_unanalyzable_exports() {
   // analyzable exports should still be reported
   // https://github.com/denoland/deno/issues/26308
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
   "name": "@foo/bar",
   "version": "1.0.0",
@@ -15790,7 +15790,7 @@ fn lsp_jsx_import_source_byonm_preact() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "compilerOptions": {
         "jsx": "react-jsx",
@@ -15972,7 +15972,7 @@ Deno.test({
 });
 "#;
   temp_dir.write("./test.ts", contents);
-  temp_dir.write("./deno.jsonc", "{}");
+  temp_dir.write("./oden.jsonc", "{}");
   let uri = url_to_uri(&temp_dir.url().join("test.ts").unwrap()).unwrap();
 
   let mut client = context.new_lsp_command().build();
@@ -16077,7 +16077,7 @@ Deno.test({
     .unwrap()
     .as_str()
     .unwrap();
-  // deno test's output capturing flushes with a zero-width space in order to
+  // oden test's output capturing flushes with a zero-width space in order to
   // synchronize the output pipes. Occasionally this zero width space
   // might end up in the output so strip it from the output comparison here.
   assert_eq!(notification_value.replace('\u{200B}', ""), "test a\r\n");
@@ -16217,7 +16217,7 @@ Deno.test({
 fn lsp_testing_api_imported_step_helper() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("./deno.jsonc", "{}");
+  temp_dir.write("./oden.jsonc", "{}");
   temp_dir.write(
     "./each.ts",
     r#"
@@ -16448,7 +16448,7 @@ Deno.test("test", async (testContext) => {
 fn lsp_testing_api_failure() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("./deno.json", json!({}).to_string());
+  temp_dir.write("./oden.json", json!({}).to_string());
   let file = temp_dir.source_file(
     "test.ts",
     r#"
@@ -16571,7 +16571,7 @@ fn lsp_testing_api_failure() {
 fn lsp_testing_api_empty_test_name() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("./deno.json", json!({}).to_string());
+  temp_dir.write("./oden.json", json!({}).to_string());
   let file = temp_dir.source_file(
     "test.ts",
     "Deno.test(\"valid\", () => {});\nDeno.test(\"\", () => {});\n",
@@ -16627,7 +16627,7 @@ fn lsp_testing_api_empty_test_name() {
 }
 
 // Regression test for https://github.com/denoland/deno/issues/28797.
-// When deno.json declares a `test` task with `--env-file=...`, the LSP test
+// When oden.json declares a `test` task with `--env-file=...`, the LSP test
 // runner should load that env file too — otherwise tests that read env vars at
 // module load throw before any test runs and VSCode reports "The test run did
 // not record any output".
@@ -16636,10 +16636,10 @@ fn lsp_testing_api_inherits_test_task_env_file() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "./deno.json",
+    "./oden.json",
     json!({
       "tasks": {
-        "test": "deno test --env-file=.env.test -A",
+        "test": "oden test --env-file=.env.test -A",
       },
     })
     .to_string(),
@@ -16686,7 +16686,7 @@ fn lsp_testing_api_inherits_test_task_env_file() {
   }
   assert!(
     passed,
-    "test should pass: --env-file from deno.json `test` task should be honored",
+    "test should pass: --env-file from oden.json `test` task should be honored",
   );
   client.shutdown();
 }
@@ -16702,10 +16702,10 @@ fn lsp_testing_api_test_task_env_file_conflicting_scopes_first_wins() {
   let temp_dir = context.temp_dir();
   for (dir, value) in [("a", "value_a"), ("b", "value_b")] {
     temp_dir.write(
-      format!("./{dir}/deno.json"),
+      format!("./{dir}/oden.json"),
       json!({
         "tasks": {
-          "test": "deno test --env-file=.env.test -A",
+          "test": "oden test --env-file=.env.test -A",
         },
       })
       .to_string(),
@@ -16784,7 +16784,7 @@ fn lsp_testing_api_describe_it_failure() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({ "nodeModulesDir": "manual" }).to_string(),
   );
   let file = temp_dir.source_file(
@@ -16989,7 +16989,7 @@ fn lsp_testing_api_describe_it() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({ "nodeModulesDir": "manual" }).to_string(),
   );
   let file = temp_dir.source_file(
@@ -17264,7 +17264,7 @@ fn lsp_closed_file_find_references_excluded_path() {
     "import { a } from '../../sub_dir/mod.ts'; console.log(a);",
   );
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
   "exclude": [
     "./sub_dir/mod.test.ts",
@@ -17306,7 +17306,7 @@ fn lsp_data_urls_with_jsx_compiler_option() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{ "compilerOptions": { "jsx": "react-jsx" } }"#,
   );
 
@@ -17373,7 +17373,7 @@ fn lsp_node_modules_dir() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "nodeModulesDir": "none",
     })
@@ -17407,13 +17407,13 @@ fn lsp_node_modules_dir() {
   assert!(!temp_dir.path().join("node_modules").exists());
 
   temp_dir.write(
-    temp_dir.path().join("deno.json"),
+    temp_dir.path().join("oden.json"),
     "{ \"nodeModulesDir\": \"auto\" }\n",
   );
   let refresh_config = |client: &mut LspClient| {
     client.change_configuration(json!({ "deno": {
       "enable": true,
-      "config": "./deno.json",
+      "config": "./oden.json",
       "codeLens": {
         "implementations": true,
         "references": true,
@@ -17440,7 +17440,7 @@ fn lsp_node_modules_dir() {
 
   // now add a lockfile and cache
   temp_dir.write(
-    temp_dir.path().join("deno.json"),
+    temp_dir.path().join("oden.json"),
     "{ \"nodeModulesDir\": \"auto\" }\n",
   );
   refresh_config(&mut client);
@@ -17503,7 +17503,7 @@ fn lsp_vendor_dir() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "vendor": true,
       "lock": false,
@@ -17770,7 +17770,7 @@ fn lsp_deno_json_scopes_import_map() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "project1/deno.json",
+    "project1/oden.json",
     json!({
       "imports": {
         "foo": "./foo1.ts",
@@ -17780,7 +17780,7 @@ fn lsp_deno_json_scopes_import_map() {
   );
   temp_dir.write("project1/foo1.ts", "");
   temp_dir.write(
-    "project2/deno.json",
+    "project2/oden.json",
     json!({
       "imports": {
         "foo": "./foo2.ts",
@@ -17790,7 +17790,7 @@ fn lsp_deno_json_scopes_import_map() {
   );
   temp_dir.write("project2/foo2.ts", "");
   temp_dir.write(
-    "project2/project3/deno.json",
+    "project2/project3/oden.json",
     json!({
       "imports": {
         "foo": "./foo3.ts",
@@ -17823,7 +17823,7 @@ fn lsp_deno_json_scopes_import_map() {
     json!({
       "contents": {
         "kind": "markdown",
-        "value": format!("**Resolved Dependency**\n\n**Code**: file&#8203;{}\n\n**Import Map**: `foo` → `./foo1.ts` _(deno.json)_\n", temp_dir.url().join("project1/foo1.ts").unwrap().as_str().trim_start_matches("file")),
+        "value": format!("**Resolved Dependency**\n\n**Code**: file&#8203;{}\n\n**Import Map**: `foo` → `./foo1.ts` _(oden.json)_\n", temp_dir.url().join("project1/foo1.ts").unwrap().as_str().trim_start_matches("file")),
       },
       "range": {
         "start": { "line": 0, "character": 7 },
@@ -17853,7 +17853,7 @@ fn lsp_deno_json_scopes_import_map() {
     json!({
       "contents": {
         "kind": "markdown",
-        "value": format!("**Resolved Dependency**\n\n**Code**: file&#8203;{}\n\n**Import Map**: `foo` → `./foo2.ts` _(deno.json)_\n", temp_dir.url().join("project2/foo2.ts").unwrap().as_str().trim_start_matches("file")),
+        "value": format!("**Resolved Dependency**\n\n**Code**: file&#8203;{}\n\n**Import Map**: `foo` → `./foo2.ts` _(oden.json)_\n", temp_dir.url().join("project2/foo2.ts").unwrap().as_str().trim_start_matches("file")),
       },
       "range": {
         "start": { "line": 0, "character": 7 },
@@ -17883,7 +17883,7 @@ fn lsp_deno_json_scopes_import_map() {
     json!({
       "contents": {
         "kind": "markdown",
-        "value": format!("**Resolved Dependency**\n\n**Code**: file&#8203;{}\n\n**Import Map**: `foo` → `./foo3.ts` _(deno.json)_\n", temp_dir.url().join("project2/project3/foo3.ts").unwrap().as_str().trim_start_matches("file")),
+        "value": format!("**Resolved Dependency**\n\n**Code**: file&#8203;{}\n\n**Import Map**: `foo` → `./foo3.ts` _(oden.json)_\n", temp_dir.url().join("project2/project3/foo3.ts").unwrap().as_str().trim_start_matches("file")),
       },
       "range": {
         "start": { "line": 0, "character": 7 },
@@ -17902,21 +17902,21 @@ fn lsp_deno_json_scopes_vendor_dir() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "project1/deno.json",
+    "project1/oden.json",
     json!({
       "vendor": true,
     })
     .to_string(),
   );
   temp_dir.write(
-    "project2/deno.json",
+    "project2/oden.json",
     json!({
       "vendor": true,
     })
     .to_string(),
   );
   temp_dir.write(
-    "project2/project3/deno.json",
+    "project2/project3/oden.json",
     json!({
       "vendor": true,
     })
@@ -18089,21 +18089,21 @@ fn lsp_deno_json_scopes_node_modules_dir() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "project1/deno.json",
+    "project1/oden.json",
     json!({
       "nodeModulesDir": "auto",
     })
     .to_string(),
   );
   temp_dir.write(
-    "project2/deno.json",
+    "project2/oden.json",
     json!({
       "nodeModulesDir": "auto",
     })
     .to_string(),
   );
   temp_dir.write(
-    "project2/project3/deno.json",
+    "project2/project3/oden.json",
     json!({
       "nodeModulesDir": "auto",
     })
@@ -18136,7 +18136,7 @@ fn lsp_deno_json_scopes_node_modules_dir() {
   assert_eq!(
     res,
     json!([{
-      "targetUri": url_to_uri(&canon_temp_dir.join("project1/node_modules/.deno/@denotest+add@1.0.0/node_modules/@denotest/add/index.d.ts").unwrap()).unwrap(),
+      "targetUri": url_to_uri(&canon_temp_dir.join("project1/node_modules/.oden/@denotest+add@1.0.0/node_modules/@denotest/add/index.d.ts").unwrap()).unwrap(),
       "targetRange": {
         "start": { "line": 0, "character": 0 },
         "end": { "line": 1, "character": 0 },
@@ -18169,7 +18169,7 @@ fn lsp_deno_json_scopes_node_modules_dir() {
   assert_eq!(
     res,
     json!([{
-      "targetUri": url_to_uri(&canon_temp_dir.join("project2/node_modules/.deno/%40denotest%2Badd%401.0.0/node_modules/%40denotest/add/index.d.ts").unwrap()).unwrap(),
+      "targetUri": url_to_uri(&canon_temp_dir.join("project2/node_modules/.oden/%40denotest%2Badd%401.0.0/node_modules/%40denotest/add/index.d.ts").unwrap()).unwrap(),
       "targetRange": {
         "start": { "line": 0, "character": 0 },
         "end": { "line": 1, "character": 0 },
@@ -18203,7 +18203,7 @@ fn lsp_deno_json_scopes_node_modules_dir() {
   assert_eq!(
     res,
     json!([{
-      "targetUri": url_to_uri(&canon_temp_dir.join("project2/project3/node_modules/.deno/%40denotest%2Badd%401.0.0/node_modules/%40denotest/add/index.d.ts").unwrap()).unwrap(),
+      "targetUri": url_to_uri(&canon_temp_dir.join("project2/project3/node_modules/.oden/%40denotest%2Badd%401.0.0/node_modules/%40denotest/add/index.d.ts").unwrap()).unwrap(),
       "targetRange": {
         "start": { "line": 0, "character": 0 },
         "end": { "line": 1, "character": 0 },
@@ -18221,9 +18221,9 @@ fn lsp_deno_json_scopes_node_modules_dir() {
 fn lsp_deno_json_scopes_compiler_options() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("project1/deno.json", json!({}).to_string());
+  temp_dir.write("project1/oden.json", json!({}).to_string());
   temp_dir.write(
-    "project2/deno.json",
+    "project2/oden.json",
     json!({
       "compilerOptions": {
         "lib": ["deno.worker"],
@@ -18306,11 +18306,11 @@ fn lsp_vendor_dir_workspace_folder_added() {
   // not part of the workspace yet, so its vendor config is only discovered once
   // the folder is added via `workspace/didChangeWorkspaceFolders`.
   temp_dir.create_dir_all("initial");
-  temp_dir.write("initial/deno.json", json!({}).to_string());
+  temp_dir.write("initial/oden.json", json!({}).to_string());
   // A separate project that vendors its remote dependencies.
   temp_dir.create_dir_all("project");
   temp_dir.write(
-    "project/deno.json",
+    "project/oden.json",
     json!({ "vendor": true, "lock": false }).to_string(),
   );
   let file = temp_dir.source_file(
@@ -18319,7 +18319,7 @@ fn lsp_vendor_dir_workspace_folder_added() {
   );
   // Populate the project's vendor directory out of band so the mapping exists
   // on disk independently of the language server's workspace state. Run from the
-  // project directory so its deno.json (and `vendor: true`) is discovered.
+  // project directory so its oden.json (and `vendor: true`) is discovered.
   context
     .new_command()
     .current_dir("project")
@@ -18397,8 +18397,8 @@ fn lsp_vendor_dir_workspace_folder_added() {
 fn lsp_deno_json_scopes_declaration_files() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("project1/deno.json", json!({}).to_string());
-  temp_dir.write("project2/deno.json", json!({}).to_string());
+  temp_dir.write("project1/oden.json", json!({}).to_string());
+  temp_dir.write("project2/oden.json", json!({}).to_string());
   temp_dir.write("project1/foo.d.ts", "declare type Foo = number;\n");
   temp_dir.write("project2/bar.d.ts", "declare type Bar = number;\n");
   let mut client = context.new_lsp_command().build();
@@ -18463,8 +18463,8 @@ fn lsp_deno_json_scopes_declaration_files() {
 fn lsp_deno_json_scopes_find_references() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("project1/deno.json", json!({}).to_string());
-  temp_dir.write("project2/deno.json", json!({}).to_string());
+  temp_dir.write("project1/oden.json", json!({}).to_string());
+  temp_dir.write("project2/oden.json", json!({}).to_string());
   let file1 = source_file(
     temp_dir.path().join("project1/file.ts"),
     "export const foo = 1;\n",
@@ -18507,8 +18507,8 @@ fn lsp_deno_json_scopes_find_references() {
 fn lsp_deno_json_scopes_file_rename_import_edits() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("project1/deno.json", json!({}).to_string());
-  temp_dir.write("project2/deno.json", json!({}).to_string());
+  temp_dir.write("project1/oden.json", json!({}).to_string());
+  temp_dir.write("project2/oden.json", json!({}).to_string());
   let file1 = source_file(temp_dir.path().join("project1/file.ts"), "");
   let file2 = source_file(
     temp_dir.path().join("project2/file.ts"),
@@ -18554,8 +18554,8 @@ fn lsp_deno_json_scopes_file_rename_import_edits() {
 fn lsp_deno_json_scopes_goto_implementations() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("project1/deno.json", json!({}).to_string());
-  temp_dir.write("project2/deno.json", json!({}).to_string());
+  temp_dir.write("project1/oden.json", json!({}).to_string());
+  temp_dir.write("project2/oden.json", json!({}).to_string());
   let file1 = source_file(
     temp_dir.path().join("project1/file.ts"),
     "export interface Foo {}\n",
@@ -18593,9 +18593,9 @@ fn lsp_deno_json_scopes_goto_implementations() {
 fn lsp_deno_json_scopes_call_hierarchy() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("project1/deno.json", json!({}).to_string());
-  temp_dir.write("project2/deno.json", json!({}).to_string());
-  temp_dir.write("project3/deno.json", json!({}).to_string());
+  temp_dir.write("project1/oden.json", json!({}).to_string());
+  temp_dir.write("project2/oden.json", json!({}).to_string());
+  temp_dir.write("project3/oden.json", json!({}).to_string());
   let file1 = source_file(
     temp_dir.path().join("project1/file.ts"),
     r#"
@@ -18704,8 +18704,8 @@ fn lsp_deno_json_scopes_call_hierarchy() {
 fn lsp_deno_json_scopes_rename_symbol() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("project1/deno.json", json!({}).to_string());
-  temp_dir.write("project2/deno.json", json!({}).to_string());
+  temp_dir.write("project1/oden.json", json!({}).to_string());
+  temp_dir.write("project2/oden.json", json!({}).to_string());
   let file1 = source_file(
     temp_dir.path().join("project1/file.ts"),
     "export const foo = 1;\n",
@@ -18758,8 +18758,8 @@ fn lsp_deno_json_scopes_rename_symbol() {
 fn lsp_deno_json_scopes_search_symbol() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("project1/deno.json", json!({}).to_string());
-  temp_dir.write("project2/deno.json", json!({}).to_string());
+  temp_dir.write("project1/oden.json", json!({}).to_string());
+  temp_dir.write("project2/oden.json", json!({}).to_string());
   let file1 = source_file(
     temp_dir.path().join("project1/file.ts"),
     "export const someSymbol1 = 1;\n",
@@ -18802,7 +18802,7 @@ fn lsp_deno_json_workspace_fmt_config() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "workspace": ["project1", "project2"],
       "fmt": {
@@ -18812,7 +18812,7 @@ fn lsp_deno_json_workspace_fmt_config() {
     .to_string(),
   );
   temp_dir.write(
-    "project1/deno.json",
+    "project1/oden.json",
     json!({
       "fmt": {
         "singleQuote": true,
@@ -18820,7 +18820,7 @@ fn lsp_deno_json_workspace_fmt_config() {
     })
     .to_string(),
   );
-  temp_dir.write("project2/deno.json", json!({}).to_string());
+  temp_dir.write("project2/oden.json", json!({}).to_string());
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
   client.did_open(json!({
@@ -18883,7 +18883,7 @@ fn lsp_deno_json_workspace_fmt_config() {
       "newText": "console.log('')\n",
     }])
   );
-  // `project2/file.ts` should use the fmt settings from `deno.json`, since it
+  // `project2/file.ts` should use the fmt settings from `oden.json`, since it
   // has no fmt field.
   client.did_open(json!({
     "textDocument": {
@@ -18923,7 +18923,7 @@ fn lsp_deno_json_workspace_lint_config() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "workspace": ["project1", "project2"],
       "lint": {
@@ -18935,7 +18935,7 @@ fn lsp_deno_json_workspace_lint_config() {
     .to_string(),
   );
   temp_dir.write(
-    "project1/deno.json",
+    "project1/oden.json",
     json!({
       "lint": {
         "rules": {
@@ -18945,7 +18945,7 @@ fn lsp_deno_json_workspace_lint_config() {
     })
     .to_string(),
   );
-  temp_dir.write("project2/deno.json", json!({}).to_string());
+  temp_dir.write("project2/oden.json", json!({}).to_string());
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
   let diagnostics = client.did_open(json!({
@@ -19031,7 +19031,7 @@ fn lsp_deno_json_workspace_lint_config() {
       },
     }),
   );
-  // `project2/file.ts` should use the lint settings from `deno.json`, since it
+  // `project2/file.ts` should use the lint settings from `oden.json`, since it
   // has no lint field.
   let diagnostics = client.did_open(json!({
     "textDocument": {
@@ -19074,7 +19074,7 @@ fn lsp_jsx_no_unused_vars() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "workspace": ["classic", "automatic"],
     })
@@ -19083,7 +19083,7 @@ fn lsp_jsx_no_unused_vars() {
   // The classic runtime transpiles JSX to `React.createElement(...)`, so the
   // `React` binding is used implicitly and must not be reported as unused.
   temp_dir.write(
-    "classic/deno.json",
+    "classic/oden.json",
     json!({
       "compilerOptions": {
         "jsx": "react",
@@ -19096,7 +19096,7 @@ fn lsp_jsx_no_unused_vars() {
   // The automatic runtime imports the factory itself, so `React` really is
   // unused here and should be reported.
   temp_dir.write(
-    "automatic/deno.json",
+    "automatic/oden.json",
     json!({
       "compilerOptions": {
         "jsx": "react-jsx",
@@ -19184,7 +19184,7 @@ fn lsp_deno_json_workspace_import_map() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "project1/deno.json",
+    "project1/oden.json",
     json!({
       "workspace": ["project2"],
       "imports": {
@@ -19195,7 +19195,7 @@ fn lsp_deno_json_workspace_import_map() {
   );
   temp_dir.write("project1/foo1.ts", "");
   temp_dir.write(
-    "project1/project2/deno.json",
+    "project1/project2/oden.json",
     json!({
       // should overwrite the "foo" entry in the parent for this scope
       "imports": {
@@ -19232,7 +19232,7 @@ fn lsp_deno_json_workspace_import_map() {
       json!({
         "contents": {
           "kind": "markdown",
-          "value": format!("**Resolved Dependency**\n\n**Code**: file&#8203;{}\n\n**Import Map**: `foo` → `./foo1.ts` _(deno.json)_\n", temp_dir.url().join("project1/foo1.ts").unwrap().as_str().trim_start_matches("file")),
+          "value": format!("**Resolved Dependency**\n\n**Code**: file&#8203;{}\n\n**Import Map**: `foo` → `./foo1.ts` _(oden.json)_\n", temp_dir.url().join("project1/foo1.ts").unwrap().as_str().trim_start_matches("file")),
         },
         "range": {
           "start": { "line": 0, "character": 7 },
@@ -19266,7 +19266,7 @@ fn lsp_deno_json_workspace_import_map() {
       json!({
         "contents": {
           "kind": "markdown",
-          "value": format!("**Resolved Dependency**\n\n**Code**: file&#8203;{}\n\n**Import Map**: `foo` → `./project2/foo2.ts` _(deno.json)_\n", temp_dir.url().join("project1/project2/foo2.ts").unwrap().as_str().trim_start_matches("file")),
+          "value": format!("**Resolved Dependency**\n\n**Code**: file&#8203;{}\n\n**Import Map**: `foo` → `./project2/foo2.ts` _(oden.json)_\n", temp_dir.url().join("project1/project2/foo2.ts").unwrap().as_str().trim_start_matches("file")),
         },
         "range": {
           "start": { "line": 0, "character": 7 },
@@ -19286,7 +19286,7 @@ fn lsp_workspace_lockfile() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "project1/deno.json",
+    "project1/oden.json",
     json!({
       "workspace": ["project2"],
     })
@@ -19299,7 +19299,7 @@ fn lsp_workspace_lockfile() {
     },
     "remote": {},
   }).to_string());
-  temp_dir.write("project1/project2/deno.json", json!({}).to_string());
+  temp_dir.write("project1/project2/oden.json", json!({}).to_string());
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
   client.did_open(json!({
@@ -19363,14 +19363,14 @@ fn lsp_deno_json_workspace_vendor_dir() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "project1/deno.json",
+    "project1/oden.json",
     json!({
       "workspace": ["project2"],
       "vendor": true,
     })
     .to_string(),
   );
-  temp_dir.write("project1/project2/deno.json", json!({}).to_string());
+  temp_dir.write("project1/project2/oden.json", json!({}).to_string());
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
   client.did_open(json!({
@@ -19436,14 +19436,14 @@ fn lsp_deno_json_workspace_node_modules_dir() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "project1/deno.json",
+    "project1/oden.json",
     json!({
       "workspace": ["project2"],
       "nodeModulesDir": "auto",
     })
     .to_string(),
   );
-  temp_dir.write("project1/project2/deno.json", json!({}).to_string());
+  temp_dir.write("project1/project2/oden.json", json!({}).to_string());
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
   client.did_open(json!({
@@ -19477,7 +19477,7 @@ fn lsp_deno_json_workspace_node_modules_dir() {
           "start": { "line": 0, "character": 7 },
           "end": { "line": 0, "character": 28 },
         },
-        "targetUri": url_to_uri(&canon_temp_dir.join("project1/node_modules/.deno/@denotest+add@1.0.0/node_modules/@denotest/add/index.d.ts").unwrap()).unwrap(),
+        "targetUri": url_to_uri(&canon_temp_dir.join("project1/node_modules/.oden/@denotest+add@1.0.0/node_modules/@denotest/add/index.d.ts").unwrap()).unwrap(),
         "targetRange": {
           "start": { "line": 0, "character": 0 },
           "end": { "line": 1, "character": 0 },
@@ -19489,7 +19489,7 @@ fn lsp_deno_json_workspace_node_modules_dir() {
       }])
     } else {
       json!([{
-        "targetUri": url_to_uri(&canon_temp_dir.join("project1/node_modules/.deno/@denotest+add@1.0.0/node_modules/@denotest/add/index.d.ts").unwrap()).unwrap(),
+        "targetUri": url_to_uri(&canon_temp_dir.join("project1/node_modules/.oden/@denotest+add@1.0.0/node_modules/@denotest/add/index.d.ts").unwrap()).unwrap(),
         "targetRange": {
           "start": { "line": 0, "character": 0 },
           "end": { "line": 1, "character": 0 },
@@ -19509,14 +19509,14 @@ fn lsp_deno_json_workspace_jsr_resolution() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "workspace": ["project1"],
     })
     .to_string(),
   );
   temp_dir.write(
-    "project1/deno.json",
+    "project1/oden.json",
     json!({
       "name": "@org/project1",
       "version": "1.0.0",
@@ -19569,7 +19569,7 @@ fn lsp_workspace_compiler_options_root_dirs() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "workspace": ["member"],
       "compilerOptions": {
@@ -19579,7 +19579,7 @@ fn lsp_workspace_compiler_options_root_dirs() {
     .to_string(),
   );
   temp_dir.write(
-    "member/deno.json",
+    "member/oden.json",
     json!({
       "compilerOptions": {
         "rootDirs": ["subdir", "subdir_types"],
@@ -19631,7 +19631,7 @@ fn lsp_tsconfig_scopes() {
     .use_temp_cwd()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("project1/deno.json", json!({}).to_string());
+  temp_dir.write("project1/oden.json", json!({}).to_string());
   temp_dir.write(
     "project1/tsconfig.json",
     json!({
@@ -19642,7 +19642,7 @@ fn lsp_tsconfig_scopes() {
     .to_string(),
   );
   let file1 = temp_dir.source_file("project1/file.ts", "Deno;\ndocument;\n");
-  temp_dir.write("project2/deno.json", json!({}).to_string());
+  temp_dir.write("project2/oden.json", json!({}).to_string());
   temp_dir.write(
     "project2/tsconfig.json",
     json!({
@@ -19706,7 +19706,7 @@ fn lsp_tsconfig_include_global_roots() {
     .use_temp_cwd()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   temp_dir.write(
     "tsconfig.json",
     json!({
@@ -19735,7 +19735,7 @@ fn lsp_tsconfig_references_extends_include() {
     .use_temp_cwd()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   temp_dir.write(
     "tsconfig.json",
     json!({
@@ -19771,7 +19771,7 @@ fn lsp_tsconfig_references_extends_include() {
   let file1 = temp_dir.source_file("file1.ts", "Deno;\ndocument;\n");
   // This file is scoped for `tsconfig.dom.json`.
   let file2 = temp_dir.source_file("file2.ts", "Deno;\ndocument;\n");
-  // This file is scoped for `deno.json`. Since no compiler options are
+  // This file is scoped for `oden.json`. Since no compiler options are
   // specified, it will use the default. Since there are tsconfigs in the
   // workspace, the defaults will be tsc-compatible (`[ "deno.window", "dom"]`).
   let file3 = temp_dir.source_file("file2.ts", "Deno;\ndocument;\n");
@@ -19830,7 +19830,7 @@ fn lsp_tsconfig_node_modules_dts_diagnostics() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "nodeModulesDir": "manual",
     })
@@ -19889,7 +19889,7 @@ fn lsp_tsconfig_module_resolution_bundler_dir_import() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "nodeModulesDir": "manual",
     })
@@ -19961,7 +19961,7 @@ fn lsp_tsconfig_root_dirs() {
     .use_temp_cwd()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   temp_dir.write(
     "tsconfig.json",
     json!({
@@ -20012,7 +20012,7 @@ fn lsp_tsconfig_root_dirs() {
 fn lsp_tsconfig_watched() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   let file = temp_dir.source_file("main.ts", "document;\n");
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
@@ -20059,7 +20059,7 @@ fn lsp_npm_workspace() {
   // TODO(nayeemrmn): Goto definition for local npm package imports should work
   // even with byonm. Remove this when fixed.
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "nodeModulesDir": "auto",
     })
@@ -20166,13 +20166,13 @@ fn lsp_npm_workspace_npm_reqs() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "workspace": ["member"],
     })
     .to_string(),
   );
-  temp_dir.write("member/deno.json", json!({}).to_string());
+  temp_dir.write("member/oden.json", json!({}).to_string());
   temp_dir.write("member/mod.ts", "export { say } from \"npm:cowsay\";\n");
   let file = temp_dir.source_file(
     "main.ts",
@@ -20212,7 +20212,7 @@ fn lsp_import_unstable_bare_node_builtins_auto_discovered() {
 
   let contents = r#"import path from "path";"#;
   temp_dir.write("main.ts", contents);
-  temp_dir.write("deno.json", r#"{ "unstable": ["bare-node-builtins"] }"#);
+  temp_dir.write("oden.json", r#"{ "unstable": ["bare-node-builtins"] }"#);
   let main_uri = url_to_uri(&temp_dir.url().join("main.ts").unwrap()).unwrap();
 
   let mut client = context.new_lsp_command().build();
@@ -20298,7 +20298,7 @@ fn lsp_import_unstable_bare_node_builtins_auto_discovered() {
 fn lsp_byonm() {
   let context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.path().join("deno.json").write_json(&json!({
+  temp_dir.path().join("oden.json").write_json(&json!({
     "lint": {
       "rules": {
         "tags": ["recommended"]
@@ -20340,7 +20340,7 @@ fn lsp_byonm() {
         "severity": 1,
         "code": "resolver-error",
         "source": "deno",
-        "message": "Could not find a matching package for 'npm:chalk@5' in the node_modules directory. Ensure you have all your JSR and npm dependencies listed in your deno.json or package.json, then run `deno install`. Alternatively, turn on auto-install by specifying `\"nodeModulesDir\": \"auto\"` in your deno.json file.",
+        "message": "Could not find a matching package for 'npm:chalk@5' in the node_modules directory. Ensure you have all your JSR and npm dependencies listed in your oden.json or package.json, then run `oden install`. Alternatively, turn on auto-install by specifying `\"nodeModulesDir\": \"auto\"` in your oden.json file.",
       },
       {
         "range": {
@@ -20356,7 +20356,7 @@ fn lsp_byonm() {
         "severity": 1,
         "code": "resolver-error",
         "source": "deno",
-        "message": "Could not resolve \"@denotest/esm-basic\", but found it in a package.json. Deno expects the node_modules/ directory to be up to date. Did you forget to run `deno install`?",
+        "message": "Could not resolve \"@denotest/esm-basic\", but found it in a package.json. Deno expects the node_modules/ directory to be up to date. Did you forget to run `oden install`?",
       },
     ])
   );
@@ -20385,7 +20385,7 @@ fn lsp_byonm() {
         "severity": 1,
         "code": "resolver-error",
         "source": "deno",
-        "message": "Could not find a matching package for 'npm:chalk@5' in the node_modules directory. Ensure you have all your JSR and npm dependencies listed in your deno.json or package.json, then run `deno install`. Alternatively, turn on auto-install by specifying `\"nodeModulesDir\": \"auto\"` in your deno.json file.",
+        "message": "Could not find a matching package for 'npm:chalk@5' in the node_modules directory. Ensure you have all your JSR and npm dependencies listed in your oden.json or package.json, then run `oden install`. Alternatively, turn on auto-install by specifying `\"nodeModulesDir\": \"auto\"` in your oden.json file.",
       },
     ])
   );
@@ -20398,7 +20398,7 @@ fn lsp_sloppy_imports() {
   let temp_dir = context.temp_dir();
   let temp_dir = temp_dir.path();
   temp_dir
-    .join("deno.json")
+    .join("oden.json")
     .write(r#"{ "unstable": ["sloppy-imports"] }"#);
   // for sloppy imports, the file must exist on the file system
   // to be resolved correctly
@@ -20522,7 +20522,7 @@ fn lsp_sloppy_imports() {
 fn lsp_sloppy_imports_prefers_dts() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   temp_dir.write("a.js", "export const foo: number;");
   let a_dts =
     source_file(temp_dir.path().join("a.d.ts"), "export const foo = 3;");
@@ -20610,7 +20610,7 @@ fn sloppy_imports_not_enabled() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   let temp_dir = temp_dir.path();
-  temp_dir.join("deno.json").write(r#"{}"#);
+  temp_dir.join("oden.json").write(r#"{}"#);
   // The enhanced, more helpful error message is only available
   // when the file exists on the file system at the moment because
   // it's a little more complicated to hook it up otherwise.
@@ -20741,7 +20741,7 @@ fn lsp_byonm_js_import_resolves_to_dts() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "unstable": ["byonm"],
     })
@@ -20777,7 +20777,7 @@ fn lsp_open_file_in_managed_node_modules_dir() {
   let context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "nodeModulesDir": "auto",
       "imports": {
@@ -20793,7 +20793,7 @@ fn lsp_open_file_in_managed_node_modules_dir() {
   let canon_temp_dir =
     Url::from_directory_path(temp_dir.path().canonicalize()).unwrap();
   let dts_url = canon_temp_dir
-    .join("node_modules/.deno/@denotest+add@1.0.0/node_modules/@denotest/add/index.d.ts")
+    .join("node_modules/.oden/@denotest+add@1.0.0/node_modules/@denotest/add/index.d.ts")
     .unwrap();
   // Open a file from the node_modules dir directly, like go-to-definition in
   // the editor would, without anything importing it. The text contains an
@@ -20846,7 +20846,7 @@ fn lsp_open_file_in_managed_node_modules_dir() {
 fn decorators_tc39() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", r#"{}"#);
+  temp_dir.write("oden.json", r#"{}"#);
 
   let mut client = context.new_lsp_command().build();
   client.initialize_default();
@@ -20895,7 +20895,7 @@ fn decorators_ts() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{ "compilerOptions": { "experimentalDecorators": true } }"#,
   );
 
@@ -20949,7 +20949,7 @@ C.test();
 fn lsp_uses_lockfile_for_npm_initialization() {
   let context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", "{}");
+  temp_dir.write("oden.json", "{}");
   // use two npm packages here
   temp_dir.write("main.ts", "import 'npm:@denotest/esm-basic'; import 'npm:@denotest/cjs-default-export';");
   context
@@ -20982,7 +20982,7 @@ fn lsp_cjs_internal_types_default_export() {
     .add_npm_env_vars()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", r#"{}"#);
+  temp_dir.write("oden.json", r#"{}"#);
   temp_dir.write(
     "package.json",
     r#"{
@@ -21031,7 +21031,7 @@ fn lsp_cjs_import_dual() {
     .build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
   "lint": {
     "rules": {
@@ -21087,7 +21087,7 @@ fn lsp_type_commonjs() {
     .add_npm_env_vars()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", r#"{}"#);
+  temp_dir.write("oden.json", r#"{}"#);
   temp_dir.write(
     "package.json",
     r#"{
@@ -21557,18 +21557,18 @@ fn compiler_options_types() {
     "compilerOptions": { "types": ["@denotest/augments-global"] },
   });
 
-  temp.write("deno.json", deno_json.to_string());
+  temp.write("oden.json", deno_json.to_string());
 
   client.initialize_default();
 
   for node_modules_dir in ["none", "auto", "manual"] {
     let mut deno_json = deno_json.clone();
     deno_json["nodeModulesDir"] = json!(node_modules_dir);
-    temp.write("deno.json", deno_json.to_string());
+    temp.write("oden.json", deno_json.to_string());
     context.run_deno("install");
     client.did_change_watched_files(json!({
       "changes": [{
-        "uri": url_to_uri(&temp.url().join("deno.json").unwrap()).unwrap(),
+        "uri": url_to_uri(&temp.url().join("oden.json").unwrap()).unwrap(),
         "type": 2,
       }],
     }));
@@ -21630,18 +21630,18 @@ fn type_reference_import_meta() {
       "@denotest/augments-global": "npm:@denotest/augments-global@1"
     }
   });
-  temp.write("deno.json", deno_json.to_string());
+  temp.write("oden.json", deno_json.to_string());
 
   client.initialize_default();
 
   for node_modules_dir in ["none", "auto", "manual"] {
     let mut deno_json = deno_json.clone();
     deno_json["nodeModulesDir"] = json!(node_modules_dir);
-    temp.write("deno.json", deno_json.to_string());
+    temp.write("oden.json", deno_json.to_string());
     context.run_deno("install");
     client.did_change_watched_files(json!({
       "changes": [{
-        "uri": url_to_uri(&temp.url().join("deno.json").unwrap()).unwrap(),
+        "uri": url_to_uri(&temp.url().join("oden.json").unwrap()).unwrap(),
         "type": 2,
       }],
     }));
@@ -21724,18 +21724,18 @@ fn definitely_typed_fallback() {
     }
   });
 
-  temp.write("deno.json", deno_json.to_string());
+  temp.write("oden.json", deno_json.to_string());
 
   client.initialize_default();
 
   for node_modules_dir in ["none", "auto", "manual"] {
     let mut deno_json = deno_json.clone();
     deno_json["nodeModulesDir"] = json!(node_modules_dir);
-    temp.write("deno.json", deno_json.to_string());
+    temp.write("oden.json", deno_json.to_string());
     context.run_deno("install");
     client.did_change_watched_files(json!({
       "changes": [{
-        "uri": url_to_uri(&temp.url().join("deno.json").unwrap()).unwrap(),
+        "uri": url_to_uri(&temp.url().join("oden.json").unwrap()).unwrap(),
         "type": 2,
       }],
     }));
@@ -21784,17 +21784,17 @@ fn do_not_auto_import_from_definitely_typed() {
       },
       "nodeModulesDir": node_modules_dir
     });
-    temp.write("deno.json", deno_json.to_string());
+    temp.write("oden.json", deno_json.to_string());
     context.run_deno("install");
 
     client.initialize_default();
 
     let mut deno_json = deno_json.clone();
     deno_json["nodeModulesDir"] = json!(node_modules_dir);
-    temp.write("deno.json", deno_json.to_string());
+    temp.write("oden.json", deno_json.to_string());
     client.did_change_watched_files(json!({
       "changes": [{
-        "uri": url_to_uri(&temp.url().join("deno.json").unwrap()).unwrap(),
+        "uri": url_to_uri(&temp.url().join("oden.json").unwrap()).unwrap(),
         "type": 2,
       }],
     }));
@@ -21845,7 +21845,7 @@ fn lsp_skip_lib_check_graph_errors() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "compilerOptions": {
         "skipLibCheck": true,
@@ -21887,7 +21887,7 @@ fn lsp_css_side_effect_import() {
 fn lsp_import_json_module_import_attribute_variations() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir().path();
-  temp_dir.join("deno.json").write_json(&json!({
+  temp_dir.join("oden.json").write_json(&json!({
     "unstable": ["raw-imports"]
   }));
   temp_dir.join("file.json").write_json(&json!({}));
@@ -21938,7 +21938,7 @@ fn lsp_import_raw_imports() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "unstable": ["raw-imports"]
     })
@@ -22168,7 +22168,7 @@ console.log(invalid, validBytes, validText);
 fn lsp_import_raw_imports_goto_definition() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   let file = temp_dir.source_file(
     "main.ts",
     r#"
@@ -22231,7 +22231,7 @@ fn lsp_import_raw_imports_goto_definition() {
 fn lsp_will_rename_files_js_to_ts() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   let file = temp_dir.source_file("main.ts", "import \"./other.js\";\n");
   let other_file = temp_dir.source_file("other.js", "");
   let mut client = context.new_lsp_command().build();
@@ -22277,7 +22277,7 @@ fn lsp_will_rename_files_js_to_ts() {
 fn lsp_will_rename_files_move_to_different_dir() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", json!({}).to_string());
+  temp_dir.write("oden.json", json!({}).to_string());
   let file = temp_dir.source_file("main.ts", "import \"./other.ts\";\n");
   temp_dir.write("other.ts", "");
   let mut client = context.new_lsp_command().build();
@@ -22324,7 +22324,7 @@ fn lsp_will_rename_files_preserves_import_map_alias() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "imports": {
         "@b/": "./b/",
@@ -22379,7 +22379,7 @@ fn lsp_will_rename_files_preserves_import_map_scope_alias() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "scopes": {
         "./a/": { "b/": "./b/" },
@@ -22497,7 +22497,7 @@ fn lsp_push_diagnostics() {
             "severity": 1,
             "code": "import-prefix-missing",
             "source": "deno",
-            "message": "Import \"foo\" not a dependency\n  hint: If you want to use the npm package, try running `deno add npm:foo`",
+            "message": "Import \"foo\" not a dependency\n  hint: If you want to use the npm package, try running `oden add npm:foo`",
           },
         ],
         "version": 1,
@@ -22590,7 +22590,7 @@ fn lsp_force_push_based_diagnostics_setting() {
             "severity": 1,
             "code": "import-prefix-missing",
             "source": "deno",
-            "message": "Import \"foo\" not a dependency\n  hint: If you want to use the npm package, try running `deno add npm:foo`",
+            "message": "Import \"foo\" not a dependency\n  hint: If you want to use the npm package, try running `oden add npm:foo`",
           },
         ],
         "version": 1,
@@ -22617,14 +22617,14 @@ fn lsp_force_push_based_diagnostics_setting() {
 
 // Regression test for https://github.com/denoland/deno/issues/35225: a `.d.ts`
 // opened in the editor is an entrypoint, so its own unresolved bare imports must
-// be reported (as `deno check` does for `.d.ts` entrypoints, see #32794), even
+// be reported (as `oden check` does for `.d.ts` entrypoints, see #32794), even
 // under `skipLibCheck` where tsc would otherwise skip them.
 #[test(timeout = 300)]
 fn lsp_dts_entrypoint_unresolved_import() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "compilerOptions": {
         "skipLibCheck": true,
@@ -22650,7 +22650,7 @@ fn lsp_dts_entrypoint_unresolved_import() {
         "severity": 1,
         "code": "import-prefix-missing",
         "source": "deno",
-        "message": "Import \"some-non-existent-package\" not a dependency\n  hint: If you want to use the npm package, try running `deno add npm:some-non-existent-package`",
+        "message": "Import \"some-non-existent-package\" not a dependency\n  hint: If you want to use the npm package, try running `oden add npm:some-non-existent-package`",
       },
     ]),
   );
@@ -22662,7 +22662,7 @@ fn lsp_isolated_declarations() {
   let context = TestContextBuilder::new().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "deno.json",
+    "oden.json",
     json!({
       "compilerOptions": {
         "isolatedDeclarations": true,

@@ -79,7 +79,7 @@ const {
   isNativeError,
 } = core;
 // Deno.serve (00_serve.ts) chains through 23_request/23_response/22_body
-// into the 208 KB web-streams polyfill. Only loaded if `deno serve` / a
+// into the 208 KB web-streams polyfill. Only loaded if `oden serve` / a
 // declarative server export is actually used.
 let _serveMod;
 const lazyServeMod = () =>
@@ -713,7 +713,7 @@ const NOT_IMPORTED_OPS = [
   "op_set_exit_code",
   "op_napi_open",
 
-  // Related to `Deno.desktop` API (deno compile --desktop)
+  // Related to `Deno.desktop` API (oden compile --desktop)
   "BrowserWindow",
   "Dock",
   "Tray",
@@ -780,8 +780,8 @@ const userVisibleCore = ObjectFreeze(ObjectDefineProperties(
 ));
 ObjectAssign(internals, { core: userVisibleCore });
 const internalSymbol = Symbol("Deno.internal");
-// `Deno.test` and its sub-methods are no-ops outside of `deno test`, kept for
-// compatibility so they don't error under `deno run`. Mirrors the surface of
+// `Deno.test` and its sub-methods are no-ops outside of `oden test`, kept for
+// compatibility so they don't error under `oden run`. Mirrors the surface of
 // the real `Deno.test` defined in cli/js/40_test.js.
 function noopTest() {}
 noopTest.ignore = () => {};
@@ -806,13 +806,13 @@ const finalDenoNs = ObjectDefineProperties(
     [internalSymbol]: internals,
     // Deno.test, Deno.bench, Deno.lint are noops here, but kept for
     // compatibility; so that they don't cause errors when used outside of
-    // `deno test`/`deno bench`/`deno lint` contexts.
+    // `oden test`/`oden bench`/`oden lint` contexts.
     test: noopTest,
     bench: () => {},
     lint: {
       runPlugin: () => {
         throw new Error(
-          "`Deno.lint.runPlugin` is only available in `deno test` subcommand.",
+          "`Deno.lint.runPlugin` is only available in `oden test` subcommand.",
         );
       },
     },
@@ -999,7 +999,7 @@ function bootstrapMainRuntime(runtimeOptions, warmup = false) {
           // have an unrelated `export default`, so that graph was being
           // compiled for programs that will never serve anything. Hoist the
           // guard here. `dflt == null` still calls through, so the TypeError
-          // `Object.hasOwn(null, ...)` raises under `deno serve` is unchanged.
+          // `Object.hasOwn(null, ...)` raises under `oden serve` is unchanged.
           if (dflt == null || ObjectHasOwn(dflt, "fetch")) {
             try {
               serve = lazyServeMod().registerDeclarativeServer(dflt);
@@ -1016,7 +1016,7 @@ function bootstrapMainRuntime(runtimeOptions, warmup = false) {
             // Only error if main worker
             import.meta.log(
               "error",
-              `%cerror: %cdeno serve requires %cexport default { fetch }%c in the main module, did you mean to run \"deno run\"?`,
+              `%cerror: %cdeno serve requires %cexport default { fetch }%c in the main module, did you mean to run \"oden run\"?`,
               "color: yellow;",
               "color: inherit;",
               "font-weight: bold;",
@@ -1030,7 +1030,7 @@ function bootstrapMainRuntime(runtimeOptions, warmup = false) {
           if (mode === executionModes.run && !autoServe) {
             import.meta.log(
               "error",
-              `%cwarning: %cDetected %cexport default { fetch }%c, did you mean to run \"deno serve\"?`,
+              `%cwarning: %cDetected %cexport default { fetch }%c, did you mean to run \"oden serve\"?`,
               "color: yellow;",
               "color: inherit;",
               "font-weight: bold;",

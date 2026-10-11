@@ -94,7 +94,7 @@ pub async fn pack(
         });
       }
       None => {
-        bail!("No deno.json found in current directory");
+        bail!("No oden.json found in current directory");
       }
     }
   }
@@ -435,14 +435,14 @@ pub struct AssetFile {
 /// Walk the filesystem for non-module assets matched by the package's
 /// publish config (`publish.include`/`exclude`) and read their raw bytes.
 ///
-/// `deno publish` collects every file via the publish `FilePatterns`, but
-/// `deno pack` only walks the module graph, so static assets were never
+/// `oden publish` collects every file via the publish `FilePatterns`, but
+/// `oden pack` only walks the module graph, so static assets were never
 /// included. This mirrors `publish`'s `collect_paths` (ignore .git,
 /// node_modules and the vendor dir, honour .gitignore, skip non-regular
 /// files / `.DS_Store` / `.gitignore`) and then drops anything already
 /// emitted by another part of the tarball:
 ///   - source modules (they are transpiled into the tarball separately),
-///   - the generated `package.json`'s source `deno.json`/`deno.jsonc`,
+///   - the generated `package.json`'s source `oden.json`/`oden.jsonc`,
 ///   - the auto-included README/LICENSE files.
 fn collect_asset_files(
   package: &JsrPackageConfig,
@@ -497,7 +497,7 @@ fn collect_asset_files(
 
   let collected = FileCollector::new(|e| {
     if !e.metadata.file_type().is_file() {
-      // Mirror `deno publish`, which surfaces a diagnostic for non-regular
+      // Mirror `oden publish`, which surfaces a diagnostic for non-regular
       // files matched by the publish config. `pack` can't include them, so
       // warn rather than silently dropping (e.g. a symlinked asset) to
       // avoid a confusing "why is my file missing?" report.
@@ -594,11 +594,11 @@ fn split_shebang(source: &str) -> (Option<&str>, &str) {
   }
 }
 
-/// Create transpile options from deno.json compiler options
+/// Create transpile options from oden.json compiler options
 fn create_transpile_options(
   config_file: &deno_config::deno_json::ConfigFile,
 ) -> Result<deno_ast::TranspileOptions, AnyError> {
-  // Get compiler options from deno.json
+  // Get compiler options from oden.json
   let compiler_options = config_file.json.compiler_options.as_ref();
 
   // Helper to extract a string value from compiler options
@@ -680,7 +680,7 @@ fn process_modules(
 ) -> Result<Vec<ProcessedFile>, AnyError> {
   let mut processed = Vec::new();
 
-  // Get transpile options from deno.json compiler options
+  // Get transpile options from oden.json compiler options
   let transpile_options = create_transpile_options(config_file)?;
 
   for path in paths {
@@ -717,7 +717,7 @@ fn process_single_module(
   // processing. SWC's module parser rejects shebangs with "Expected
   // ident", and tools downstream don't want to deal with them either.
   // We re-prepend the shebang to the final emitted JS so executable
-  // scripts still work after `deno pack`.
+  // scripts still work after `oden pack`.
   let (shebang, source_text) = split_shebang(raw_source);
 
   let parsed = parsed_source_cache.remove_or_parse_module(
@@ -784,7 +784,7 @@ fn process_single_module(
   };
 
   // Re-prepend the shebang we stripped earlier so executable scripts
-  // (e.g. `#!/usr/bin/env -S deno run -A`) still work after pack.
+  // (e.g. `#!/usr/bin/env -S oden run -A`) still work after pack.
   let js_content = match shebang {
     Some(line) => format!("{}{}", line, js_content),
     None => js_content,

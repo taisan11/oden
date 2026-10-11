@@ -5,7 +5,7 @@ Deno.test("complex", function () {
 });
 
 Deno.test("sub process with stdin", async () => {
-  // ensure launching deno run with stdin doesn't affect coverage
+  // ensure launching oden run with stdin doesn't affect coverage
   const code = "console.log('5')";
   const command = new Deno.Command(Deno.execPath(), {
     args: ["run", "-"],
@@ -23,8 +23,8 @@ Deno.test("sub process with stdin", async () => {
   }
 });
 
-Deno.test("sub process with deno eval", () => {
-  // ensure launching deno eval doesn't affect coverage
+Deno.test("sub process with oden eval", () => {
+  // ensure launching oden eval doesn't affect coverage
   const code = "console.log('5')";
   const { stdout } = new Deno.Command(Deno.execPath(), {
     args: ["eval", code],

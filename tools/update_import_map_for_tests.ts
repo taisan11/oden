@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run -RW
+#!/usr/bin/env -S oden run --config=tools/oden.json -RW
 
 // Copyright 2018-2026 the Deno authors. MIT license.
 // deno-lint-ignore-file no-console
@@ -9,7 +9,7 @@
  * Run this script when you updated the git submodule at `tests/util/std`.
  */
 
-import denoConfig from "../tests/util/std/deno.json" with { type: "json" };
+import denoConfig from "../tests/util/std/oden.json" with { type: "json" };
 import { join } from "jsr:@std/path@1/posix/join";
 
 const rootImportMap: { imports: Record<string, string> } = { imports: {} };
@@ -18,7 +18,7 @@ const coreImportMap: { imports: Record<string, string> } = JSON.parse(
 );
 for (const workspace of denoConfig.workspace) {
   const { default: pkgDenoConfig } = await import(
-    `../tests/util/std/${workspace}/deno.json`,
+    `../tests/util/std/${workspace}/oden.json`,
     {
       with: { type: "json" },
     }

@@ -10,7 +10,7 @@
 # portably — so we compute it here at invocation time and inject it via
 # `cargo --config`, leaving .cargo/config.toml untouched.
 #
-# Usage:  tools/build_lzld.sh [extra cargo args]   (default: --release --bin deno)
+# Usage:  tools/build_lzld.sh [extra cargo args]   (default: --release --bin oden)
 set -euo pipefail
 
 if [ "$(uname -s)" != "Darwin" ] || [ "$(uname -m)" != "arm64" ]; then
@@ -36,7 +36,7 @@ link_args="-fuse-ld=$lzld_dir/lzld -Wl,--icf=safe -L$lzld_dir -llzld_$(uname -m)
 
 args=("$@")
 if [ ${#args[@]} -eq 0 ]; then
-  args=(--release --bin deno)
+  args=(--release --bin oden)
 fi
 
 exec cargo build \

@@ -373,12 +373,12 @@ mod test {
   async fn test_module_content_jsx() {
     run_test(&[
       (
-        "/deno.json",
+        "/oden.json",
         r#"{ "nodeModulesDir": "manual", "workspace": ["package-a", "package-b", "package-c", "package-d"] }"#,
         None,
       ),
       (
-        "/package-a/deno.json",
+        "/package-a/oden.json",
         r#"{ "compilerOptions": {
         "jsx": "react-jsx",
         "jsxImportSource": "react",
@@ -392,7 +392,7 @@ mod test {
         None,
       ),
       (
-        "/package-b/deno.json",
+        "/package-b/oden.json",
         r#"{
         "compilerOptions": { "jsx": "react-jsx" },
         "imports": {
@@ -403,7 +403,7 @@ mod test {
         None,
       ),
       (
-        "/package-c/deno.json",
+        "/package-c/oden.json",
         r#"{
         "compilerOptions": {
           "jsx": "precompile",
@@ -418,7 +418,7 @@ mod test {
         None,
       ),
       (
-        "/package-d/deno.json",
+        "/package-d/oden.json",
         r#"{
         "compilerOptions": { "jsx": "react" },
         "imports": {
@@ -482,7 +482,7 @@ mod test {
     in_memory_sys.fs_create_dir_all(get_path("/")).unwrap();
     in_memory_sys
       .fs_write(
-        get_path("/deno.json"),
+        get_path("/oden.json"),
         r#"{
           "compilerOptions": {
             "jsx": "react-jsx",
@@ -521,7 +521,7 @@ mod test {
     in_memory_sys.fs_create_dir_all(get_path("/")).unwrap();
     in_memory_sys
       .fs_write(
-        get_path("/deno.json"),
+        get_path("/oden.json"),
         r#"{
           "name": "@scope/pkg",
           "version": "1.0.0",

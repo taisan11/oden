@@ -164,7 +164,7 @@ declare interface Notification extends EventTarget {
 /** Web Notifications API.
  *
  * Construct a notification to display it. Only available in apps
- * compiled with `deno desktop`.
+ * compiled with `oden desktop`.
  *
  * Notification permission is checked against the OS (e.g. macOS User
  * Notifications). {@linkcode Notification.permission} reports the
@@ -242,7 +242,7 @@ declare interface Permissions {
 
 /** Read from and write plain text to the system clipboard. A subset of the
  * web [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard);
- * only the text methods are backed by `deno desktop`. */
+ * only the text methods are backed by `oden desktop`. */
 declare interface Clipboard extends EventTarget {
   /** Resolve with the clipboard's text content, or an empty string when the
    * clipboard is empty or holds no text.
@@ -267,7 +267,7 @@ declare var Clipboard: {
 };
 
 /** Extends the {@linkcode Navigator} provided by `deno.window` with the
- * Permissions and Clipboard API surface available to `deno desktop` apps. */
+ * Permissions and Clipboard API surface available to `oden desktop` apps. */
 declare interface Navigator {
   readonly permissions: Permissions;
   readonly clipboard: Clipboard;
@@ -276,14 +276,14 @@ declare interface Navigator {
 declare namespace Deno {
   export {}; // stop default export type behavior
 
-  /** The application version read from `deno.json` at compile time, or
+  /** The application version read from `oden.json` at compile time, or
    * `null` if no version was configured. Only available in apps compiled
-   * with `deno desktop`. */
+   * with `oden desktop`. */
   export const desktopVersion: string | null;
 
   export interface AutoUpdateOptions {
     /** Base URL of the release server hosting `latest.json` and patch
-     * files. Defaults to `desktop.release.baseUrl` from `deno.json` when
+     * files. Defaults to `desktop.release.baseUrl` from `oden.json` when
      * configured; required otherwise.
      *
      * Must be an `https:` URL — non-HTTPS URLs are refused. */
@@ -336,7 +336,7 @@ declare namespace Deno {
    * is invoked shortly after the next `autoUpdate` call.
    *
    * The release server URL may be passed directly, supplied via
-   * {@linkcode AutoUpdateOptions.url}, or configured once in `deno.json`
+   * {@linkcode AutoUpdateOptions.url}, or configured once in `oden.json`
    * under `desktop.release.baseUrl` (in which case it can be omitted).
    * A single check runs ~1s after the call; pass `interval` to keep
    * polling.
@@ -351,7 +351,7 @@ declare namespace Deno {
    * the failure is logged, and the update is skipped; distribute updates
    * through the system package manager instead.
    *
-   * Only available in apps compiled with `deno desktop`.
+   * Only available in apps compiled with `oden desktop`.
    *
    * ```ts
    * Deno.autoUpdate({

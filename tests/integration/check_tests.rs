@@ -30,7 +30,7 @@ fn cache_switching_config_then_no_config() {
     if with_config {
       let mut slice = vec![
         "--config".to_string(),
-        "check/cache_config_on_off/deno.json".to_string(),
+        "check/cache_config_on_off/oden.json".to_string(),
       ];
       args.append(&mut slice);
     }
@@ -213,7 +213,7 @@ async fn npm_module_check_then_error() {
     .use_http_server()
     .build();
   let temp_dir = test_context.temp_dir();
-  temp_dir.write("deno.json", "{}"); // so the lockfile gets loaded
+  temp_dir.write("oden.json", "{}"); // so the lockfile gets loaded
 
   // get the lockfiles values first (this is necessary because the test
   // server generates different tarballs based on the operating system)

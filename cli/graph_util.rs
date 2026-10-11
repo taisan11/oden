@@ -448,7 +448,7 @@ pub struct CreatePublishGraphOptions<'a> {
   /// Whether to skip exports that can't be analyzed as modules
   /// (ex. CSS files) instead of surfacing diagnostics for them.
   /// This is used when linting because validating the exports is
-  /// the responsibility of `deno publish`.
+  /// the responsibility of `oden publish`.
   /// See https://github.com/denoland/deno/issues/26308
   pub skip_unanalyzable_exports: bool,
 }
@@ -604,7 +604,7 @@ impl ModuleGraphCreator {
         is_dynamic: false,
         graph_kind: deno_graph::GraphKind::All,
         roots,
-        // do not include the tsconfig imports for `deno publish`
+        // do not include the tsconfig imports for `oden publish`
         imports: Vec::new(),
         loader: Some(&publish_loader),
         npm_caching: self.options.default_npm_caching_strategy(),
@@ -1230,7 +1230,7 @@ impl ModuleGraphBuilder {
   }
 
   fn analyze_npm_sources(&self) -> bool {
-    // only analyze npm packages with deno_graph for deno doc
+    // only analyze npm packages with deno_graph for oden doc
     matches!(self.cli_options.sub_command(), DenoSubcommand::Doc(_))
   }
 

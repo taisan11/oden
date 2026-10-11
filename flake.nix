@@ -1,6 +1,6 @@
-# This provides a Nix dev shell and Nix build for deno and denort binaries.
+# This provides a Nix dev shell and Nix build for oden and denort binaries.
 {
-  description = "Deno";
+  description = "Oden";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -92,7 +92,7 @@
       in
       {
         packages = {
-          deno = buildDenoBin { pname = "deno"; };
+          deno = buildDenoBin { pname = "deno"; binName = "oden"; };
           denort = buildDenoBin { pname = "denort"; };
 
           default = self.packages.${system}.deno;

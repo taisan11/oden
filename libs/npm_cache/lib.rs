@@ -768,7 +768,7 @@ fn write_json_property_name(
   Ok(())
 }
 
-const NPM_PACKAGE_SYNC_LOCK_FILENAME: &str = ".deno_sync_lock";
+const NPM_PACKAGE_SYNC_LOCK_FILENAME: &str = ".oden_sync_lock";
 
 #[derive(Debug, thiserror::Error, deno_error::JsError)]
 pub enum WithFolderSyncLockError {

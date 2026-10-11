@@ -190,7 +190,7 @@ fn resolve_fmt_options(
     options.semi_colons = Some(!no_semis);
   }
 
-  // `--no-editorconfig` takes precedence over the deno.json
+  // `--no-editorconfig` takes precedence over the oden.json
   // `useEditorConfig` field. When the flag is absent the config value
   // (or its `None` default of "on") is left untouched.
   if fmt_flags.no_editorconfig {
@@ -702,7 +702,7 @@ impl CliOptions {
     self.flags.eszip
   }
 
-  /// Set by `deno compile --bundle` after rewriting the bundle's absolute
+  /// Set by `oden compile --bundle` after rewriting the bundle's absolute
   /// CJS paths; signals the standalone binary writer that the npm tree
   /// must still ship alongside the bundle.
   pub fn compile_bundle_embed_node_modules(&self) -> bool {
@@ -1033,7 +1033,7 @@ impl CliOptions {
     Ok(result)
   }
 
-  /// Resolves the coverage thresholds configured in `deno.json`'s `coverage`
+  /// Resolves the coverage thresholds configured in `oden.json`'s `coverage`
   /// section. CLI flags are layered on top of this by the caller.
   pub fn resolve_coverage_thresholds(
     &self,
@@ -1045,7 +1045,7 @@ impl CliOptions {
     &self,
     test_flags: &TestFlags,
   ) -> WorkspaceTestOptions {
-    // Get sanitizer config from deno.json if available
+    // Get sanitizer config from oden.json if available
     let test_config = self
       .start_dir
       .to_test_config(FilePatterns::new_with_base(
@@ -1240,7 +1240,7 @@ impl CliOptions {
   /// empty deny list: these rules decide whether code may be loaded at all, so
   /// failing to read them has to fail the command, not quietly load the code.
   /// Callers that build options whose config cannot see the user's `-P` set
-  /// (`deno x` generates a temp `deno.json`) are responsible for carrying the
+  /// (`oden x` generates a temp `oden.json`) are responsible for carrying the
   /// resolved rules over themselves — see `x::resolve_import_deny_rules`.
   pub fn import_deny_permissions_options(
     &self,
@@ -1510,9 +1510,9 @@ impl CliOptions {
 
   /// Returns unstable feature flags as CLI arguments (e.g., "--unstable-unsafe-proto").
   /// This includes features from both CLI flags and config file. Features that
-  /// are only valid in `deno.json` (e.g. `fmt-component`, `fmt-sql`) and don't
+  /// are only valid in `oden.json` (e.g. `fmt-component`, `fmt-sql`) and don't
   /// have a registered CLI flag are filtered out, otherwise child processes
-  /// spawned with these args (e.g. via `deno x`) would reject them with
+  /// spawned with these args (e.g. via `oden x`) would reject them with
   /// "unexpected argument".
   pub fn unstable_args(&self) -> Vec<String> {
     let cli_flag_names: std::collections::HashSet<&str> =
@@ -1996,7 +1996,7 @@ mod test {
       "importMap": "import_map.json"
     }"#;
     let cwd = &resolve_cwd(None).unwrap();
-    let config_specifier = Url::parse("file:///deno/deno.jsonc").unwrap();
+    let config_specifier = Url::parse("file:///deno/oden.jsonc").unwrap();
     let config_file = ConfigFile::new(config_text, config_specifier).unwrap();
     let actual = resolve_import_map_specifier(
       Some("import-map.json"),
@@ -2014,7 +2014,7 @@ mod test {
   #[test]
   fn resolve_import_map_none() {
     let config_text = r#"{}"#;
-    let config_specifier = Url::parse("file:///deno/deno.jsonc").unwrap();
+    let config_specifier = Url::parse("file:///deno/oden.jsonc").unwrap();
     let config_file = ConfigFile::new(config_text, config_specifier).unwrap();
     let actual =
       resolve_import_map_specifier(None, Some(&config_file), Path::new("/"));
@@ -2067,7 +2067,7 @@ mod test {
     {
       let flags = PermissionFlags::default();
       let config = PermissionsObjectWithBase {
-        base: deno_path_util::url_from_file_path(&base_dir.join("deno.json"))
+        base: deno_path_util::url_from_file_path(&base_dir.join("oden.json"))
           .unwrap(),
         permissions: PermissionsObject {
           all: None,
@@ -2236,7 +2236,7 @@ mod test {
         ..Default::default()
       };
       let config = PermissionsObjectWithBase {
-        base: deno_path_util::url_from_file_path(&base_dir.join("deno.json"))
+        base: deno_path_util::url_from_file_path(&base_dir.join("oden.json"))
           .unwrap(),
         permissions: PermissionsObject {
           // will use all permissions except for the explicitly specified permissions

@@ -110,7 +110,7 @@ fn scope_has_bundler_module_resolution(
       (None, Some(_)) => continue,
       (Some(_), None) => continue,
       (Some(scope_url), Some(entry_url)) => {
-        // Match the scope itself, or any tsconfig/deno.json located inside it.
+        // Match the scope itself, or any tsconfig/oden.json located inside it.
         if entry_url.as_str().starts_with(scope_url.as_str()) {
           return true;
         }
@@ -128,7 +128,7 @@ pub struct ImportMapHover {
   pub key: String,
   /// The value the key maps to, as written in the import map.
   pub value: String,
-  /// The location of the import map (e.g. the `deno.json`).
+  /// The location of the import map (e.g. the `oden.json`).
   pub base_url: Url,
 }
 

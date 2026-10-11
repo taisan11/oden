@@ -526,7 +526,7 @@ fn lock_redirects() {
     .add_npm_env_vars()
     .build();
   let temp_dir = context.temp_dir();
-  temp_dir.write("deno.json", "{}"); // cause a lockfile to be created
+  temp_dir.write("oden.json", "{}"); // cause a lockfile to be created
   temp_dir.write(
     "main.ts",
     "import 'http://localhost:4546/run/001_hello.js';",
@@ -617,7 +617,7 @@ fn lock_deno_json_package_json_deps() {
     .add_jsr_env_vars()
     .build();
   let temp_dir = context.temp_dir().path();
-  let deno_json = temp_dir.join("deno.json");
+  let deno_json = temp_dir.join("oden.json");
   let package_json = temp_dir.join("package.json");
 
   // add a jsr and npm dependency
@@ -663,7 +663,7 @@ fn lock_deno_json_package_json_deps() {
     }
   }));
 
-  // now remove the npm dependency from the deno.json and move
+  // now remove the npm dependency from the oden.json and move
   // it to a package.json that uses an alias
   deno_json.write_json(&json!({
     "nodeModulesDir": "auto",
@@ -743,7 +743,7 @@ fn lock_deno_json_package_json_deps() {
     }
   }));
 
-  // now remove the deps from the deno.json
+  // now remove the deps from the oden.json
   deno_json.write_json(&json!({
     "nodeModulesDir": "auto"
   }));
@@ -769,8 +769,8 @@ fn lock_deno_json_package_json_deps_workspace() {
     .build();
   let temp_dir = context.temp_dir().path();
 
-  // deno.json
-  let deno_json = temp_dir.join("deno.json");
+  // oden.json
+  let deno_json = temp_dir.join("oden.json");
   deno_json.write_json(&json!({
     "nodeModulesDir": "auto"
   }));
@@ -1927,7 +1927,7 @@ fn package_json_no_node_modules_dir_created() {
     .build();
   let temp_dir = context.temp_dir();
 
-  temp_dir.write("deno.json", "{}");
+  temp_dir.write("oden.json", "{}");
   temp_dir.write("package.json", "{}");
   temp_dir.write("main.ts", "");
 
@@ -1945,7 +1945,7 @@ fn node_modules_dir_no_npm_specifiers_no_dir_created() {
     .build();
   let temp_dir = context.temp_dir();
 
-  temp_dir.write("deno.json", "{}");
+  temp_dir.write("oden.json", "{}");
   temp_dir.write("main.ts", "");
 
   context
@@ -2795,7 +2795,7 @@ async fn websocket_server_idletimeout() {
     .arg("--cert")
     .arg(root_ca)
     .arg("--config")
-    .arg(util::tests_path().join("config/deno.json"))
+    .arg(util::tests_path().join("config/oden.json"))
     .arg(script)
     .stdout_piped()
     .spawn()
@@ -2967,7 +2967,7 @@ pub fn vendor_dir_config_file() {
   let vendor_dir = temp_dir.path().join("vendor");
   let rm_vendor_dir = || std::fs::remove_dir_all(&vendor_dir).unwrap();
 
-  temp_dir.write("deno.json", r#"{ "vendor": true }"#);
+  temp_dir.write("oden.json", r#"{ "vendor": true }"#);
   temp_dir.write(
     "main.ts",
     r#"import { returnsHi } from 'http://localhost:4545/subdir/mod1.ts';
@@ -2981,7 +2981,7 @@ console.log(returnsHi());"#,
 
   assert!(vendor_dir.exists());
   rm_vendor_dir();
-  temp_dir.write("deno.json", r#"{ "vendor": false }"#);
+  temp_dir.write("oden.json", r#"{ "vendor": false }"#);
 
   deno_run_cmd.run().assert_matches_text("Hi\n");
   assert!(!vendor_dir.exists());
@@ -2992,7 +2992,7 @@ console.log(returnsHi());"#,
   assert!(vendor_dir.exists());
   rm_vendor_dir();
 
-  temp_dir.write("deno.json", r#"{ "vendor": true }"#);
+  temp_dir.write("oden.json", r#"{ "vendor": true }"#);
   let cache_command = test_context
     .new_command()
     .args("cache --allow-import --quiet main.ts");
@@ -3063,7 +3063,7 @@ fn deno_json_imports_expand() {
   let test_context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let dir = test_context.temp_dir();
   dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
     "imports": {
       "basic": "npm:@denotest/esm-basic"
@@ -3093,7 +3093,7 @@ fn deno_json_imports_expand_doesnt_overwrite_existing_entries() {
   let test_context = TestContextBuilder::for_npm().use_temp_cwd().build();
   let dir = test_context.temp_dir();
   dir.write(
-    "deno.json",
+    "oden.json",
     r#"{
     "imports": {
       "basic": "npm:@denotest/esm-basic",
@@ -3484,7 +3484,7 @@ async fn listen_tls_alpn_fail() {
     .arg("--allow-net")
     .arg("--allow-read")
     .arg("--config")
-    .arg("../config/deno.json")
+    .arg("../config/oden.json")
     .arg("./cert/listen_tls_alpn_fail.ts")
     .arg("4505")
     .stdout_piped()
