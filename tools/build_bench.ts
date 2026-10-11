@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-env --allow-read --allow-write --allow-run=git,cargo
+#!/usr/bin/env -S oden run --config=tools/oden.json --allow-env --allow-read --allow-write --allow-run=git,cargo
 // Copyright 2018-2026 the Deno authors. MIT license.
 
 import $ from "https://deno.land/x/dax@0.32.0/mod.ts";
@@ -107,12 +107,12 @@ async function buildGitCommit(progress, commit) {
 
   let file;
   if (profile === "release") {
-    file = `deno-${hash}`;
+    file = `oden-${hash}`;
   } else {
-    file = `deno-${profile}-${hash}`;
+    file = `oden-${profile}-${hash}`;
   }
   progress.message(`copy ${hash}`);
-  await tempDir.join("target").join(profile).join("deno").copyFile(file);
+  await tempDir.join("target").join(profile).join("oden").copyFile(file);
 
   progress.message(`cleanup ${hash}`);
   await tempDir.remove({ recursive: true });

@@ -1,7 +1,7 @@
 // Copyright 2018-2026 the Deno authors. MIT license.
 
 //! Automatic migration of a `pnpm-workspace.yaml` into the equivalent
-//! `deno.json` fields.
+//! `oden.json` fields.
 //!
 //! Deno deliberately does not read `pnpm-workspace.yaml` during module
 //! resolution, so a project whose workspace members (or catalog versions) live
@@ -9,7 +9,7 @@
 //! a single package manager, we detect this situation on the resolution-failure
 //! path: when an error looks like a workspace/npm resolution failure and a
 //! `pnpm-workspace.yaml` is found nearby, we convert its `packages`, `catalog`,
-//! and `catalogs` into `deno.json` and ask the user to run the command again.
+//! and `catalogs` into `oden.json` and ask the user to run the command again.
 //! The conversion preserves existing comments and formatting via the jsonc CST
 //! and never overwrites fields the user already set.
 
@@ -29,16 +29,16 @@ use yaml_parser::ast::BlockMap;
 use yaml_parser::ast::Document;
 use yaml_parser::ast::Root;
 
-/// The subset of `pnpm-workspace.yaml` that maps cleanly onto `deno.json`.
+/// The subset of `pnpm-workspace.yaml` that maps cleanly onto `oden.json`.
 #[derive(Default)]
 struct PnpmWorkspace {
-  /// `packages:` glob list -> `deno.json` `workspace`.
+  /// `packages:` glob list -> `oden.json` `workspace`.
   packages: Vec<String>,
-  /// `catalog:` map -> `deno.json` `catalog`.
+  /// `catalog:` map -> `oden.json` `catalog`.
   catalog: IndexMap<String, String>,
-  /// `catalogs:` map of maps -> `deno.json` `catalogs`.
+  /// `catalogs:` map of maps -> `oden.json` `catalogs`.
   catalogs: IndexMap<String, IndexMap<String, String>>,
-  /// Top-level keys that have no `deno.json` equivalent (e.g. `overrides`,
+  /// Top-level keys that have no `oden.json` equivalent (e.g. `overrides`,
   /// `patchedDependencies`, `registries`). We do not translate these, but we
   /// surface them so the user is not misled into thinking the migration was
   /// lossless.
@@ -56,11 +56,11 @@ const RESOLUTION_FAILURE_MARKERS: &[&str] = &[
 
 /// If `error_text` looks like a workspace/npm resolution failure and a
 /// `pnpm-workspace.yaml` exists in `cwd` or an ancestor, converts it into the
-/// equivalent `deno.json` fields (without overwriting anything the user already
+/// equivalent `oden.json` fields (without overwriting anything the user already
 /// set) and returns a note telling the user to run the command again.
 ///
 /// Returns `None` when this does not apply: the error is unrelated, no
-/// `pnpm-workspace.yaml` is found, or `deno.json` already has the fields the
+/// `pnpm-workspace.yaml` is found, or `oden.json` already has the fields the
 /// migration would add (so re-running would not change anything and there is
 /// nothing to migrate).
 ///
@@ -83,7 +83,7 @@ pub fn maybe_auto_migrate_pnpm_workspace(
 
   match auto_migrate(&yaml_path, &dir) {
     Ok(Some(message)) => Some(message),
-    // Nothing to migrate (e.g. `deno.json` already has these fields): stay
+    // Nothing to migrate (e.g. `oden.json` already has these fields): stay
     // silent and let the original error speak for itself.
     Ok(None) => None,
     // We found a `pnpm-workspace.yaml` but couldn't convert it. Point the user
@@ -147,7 +147,7 @@ fn find_pnpm_workspace(start: &Path) -> Option<PathBuf> {
 /// Which config file the migration writes into. A pnpm project already has a
 /// `package.json`, and Deno reads `workspaces`/`catalog`/`catalogs` from it
 /// natively, so we prefer keeping the project's config there rather than
-/// introducing a `deno.json`. We only fall back to `deno.json`/`deno.jsonc` when
+/// introducing a `oden.json`. We only fall back to `oden.json`/`oden.jsonc` when
 /// there is no `package.json` next to the `pnpm-workspace.yaml`.
 #[derive(Clone, Copy)]
 enum ConfigKind {
@@ -157,7 +157,7 @@ enum ConfigKind {
 
 impl ConfigKind {
   /// The key that holds the workspace member globs in this config file
-  /// (`workspaces` in `package.json`, `workspace` in `deno.json`).
+  /// (`workspaces` in `package.json`, `workspace` in `oden.json`).
   fn workspace_key(self) -> &'static str {
     match self {
       ConfigKind::PackageJson => "workspaces",
@@ -171,11 +171,11 @@ fn pick_target_config(dir: &Path) -> (PathBuf, ConfigKind) {
   if package_json.is_file() {
     return (package_json, ConfigKind::PackageJson);
   }
-  let jsonc = dir.join("deno.jsonc");
+  let jsonc = dir.join("oden.jsonc");
   if jsonc.is_file() {
     return (jsonc, ConfigKind::DenoConfig);
   }
-  (dir.join("deno.json"), ConfigKind::DenoConfig)
+  (dir.join("oden.json"), ConfigKind::DenoConfig)
 }
 
 /// Merges the parsed pnpm workspace into an existing config file (preserving
@@ -244,7 +244,7 @@ fn string_map_to_value(map: &IndexMap<String, String>) -> CstInputValue {
 
 // ===========================================================================
 // pnpm-workspace.yaml parsing (via the yaml_parser CST already used by
-// `deno fmt`, so no new YAML dependency is introduced).
+// `oden fmt`, so no new YAML dependency is introduced).
 // ===========================================================================
 
 fn parse_pnpm_workspace(text: &str) -> Result<PnpmWorkspace, AnyError> {
@@ -443,9 +443,9 @@ mod tests {
 
   #[test]
   fn apply_skips_existing_fields() {
-    // `deno.json` already declares `workspace`; nothing to add -> no-op.
+    // `oden.json` already declares `workspace`; nothing to add -> no-op.
     let dir = tempfile::tempdir().unwrap();
-    let path = dir.path().join("deno.json");
+    let path = dir.path().join("oden.json");
     std::fs::write(&path, "{ \"workspace\": [\"a\"] }\n").unwrap();
     let parsed = PnpmWorkspace {
       packages: vec!["packages/*".to_string()],
@@ -462,7 +462,7 @@ mod tests {
   fn apply_adds_only_missing_fields() {
     // `workspace` is present but `catalog` is not: only `catalog` is added.
     let dir = tempfile::tempdir().unwrap();
-    let path = dir.path().join("deno.json");
+    let path = dir.path().join("oden.json");
     std::fs::write(&path, "{ \"workspace\": [\"a\"] }\n").unwrap();
     let mut catalog = IndexMap::new();
     catalog.insert("react".to_string(), "^18.0.0".to_string());
@@ -509,7 +509,7 @@ mod tests {
   fn pick_target_prefers_package_json() {
     let dir = tempfile::tempdir().unwrap();
     std::fs::write(dir.path().join("package.json"), "{}\n").unwrap();
-    std::fs::write(dir.path().join("deno.json"), "{}\n").unwrap();
+    std::fs::write(dir.path().join("oden.json"), "{}\n").unwrap();
     let (path, kind) = pick_target_config(dir.path());
     assert!(matches!(kind, ConfigKind::PackageJson));
     assert_eq!(path, dir.path().join("package.json"));

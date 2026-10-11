@@ -1,4 +1,4 @@
-// Asserts the output of `deno sync-types` in global-cache mode.
+// Asserts the output of `oden sync-types` in global-cache mode.
 
 function fail(msg: string): never {
   throw new Error(msg);
@@ -41,13 +41,13 @@ try {
 
 // The root config's own `paths` (jsr:/npm:/http mappings) must resolve too.
 {
-  const root = JSON.parse(Deno.readTextFileSync(".deno/tsconfig.json"));
-  assertPathsResolve(".deno/tsconfig.json", root.compilerOptions?.paths ?? {});
+  const root = JSON.parse(Deno.readTextFileSync(".oden/tsconfig.json"));
+  assertPathsResolve(".oden/tsconfig.json", root.compilerOptions?.paths ?? {});
 }
 
 // A per-package referenced project is generated for every resolved npm cache
-// copy under `.deno/npm/<folder>/tsconfig.json`.
-const projectsRoot = ".deno/npm";
+// copy under `.oden/npm/<folder>/tsconfig.json`.
+const projectsRoot = ".oden/npm";
 const configs: string[] = [];
 for (const entry of Deno.readDirSync(projectsRoot)) {
   if (!entry.isDirectory) continue;

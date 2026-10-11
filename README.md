@@ -10,10 +10,24 @@ and compatibility may change as the fork develops.
 
 ## Compatibility
 
-The project brand is **oden**. The `Deno` namespace, runtime APIs, executable
-name (`deno`), command-line interface, configuration filenames, environment
+The executable is **oden**. The `Deno` namespace, runtime APIs, environment
 variables, and Rust crate names retain their existing names for compatibility.
 Existing programs do not need to rename `Deno` to `oden`.
+
+## Oden configuration
+
+Oden discovers `oden.json` and `oden.jsonc` automatically. Generated project
+files and npm dependency stores use `.oden` directories. The default global
+cache uses `oden` under the platform cache directory, or `~/.oden` as a
+fallback.
+
+Run `oden from deno` in a project's directory to rename `deno.json` to
+`oden.json`, or `deno.jsonc` to `oden.jsonc`. Configuration contents, comments,
+and formatting are preserved. The command refuses to overwrite an existing Oden
+configuration or to choose between two Deno configurations. Run it in each
+workspace member directory as well. Run `oden install` after migration to
+recreate dependency links, and `oden sync-types` to regenerate type
+configuration under `.oden`.
 
 ## Build from source
 
@@ -23,13 +37,13 @@ manager packages install Deno, not oden.
 ```sh
 git clone --recurse-submodules https://github.com/taisan11/oden.git
 cd oden
-cargo build --locked -p deno --bin deno
+cargo build --locked -p deno --bin oden
 ```
 
 See the
 [contributing instructions](.github/CONTRIBUTING.md#building-from-source) for
 the pinned Rust toolchain and native build prerequisites. The development binary
-is available at `./target/debug/deno`.
+is available at `./target/debug/oden`.
 
 ## Your first program
 
@@ -44,7 +58,7 @@ Deno.serve((_req: Request) => {
 Run it with the development binary:
 
 ```sh
-./target/debug/deno run --allow-net server.ts
+./target/debug/oden run --allow-net server.ts
 ```
 
 The server listens on port 8000 by default.

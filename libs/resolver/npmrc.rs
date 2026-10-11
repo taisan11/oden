@@ -59,7 +59,7 @@ pub struct NpmRcOptionsResolveError {
 }
 
 /// Discover `.npmrc` file - currently we only support it next to `package.json`,
-/// next to `deno.json`, or in the user's home directory.
+/// next to `oden.json`, or in the user's home directory.
 ///
 /// In the future we will need to support it in the global directory
 /// as per https://docs.npmjs.com/cli/v10/configuring-npm/npmrc#files.
@@ -209,7 +209,7 @@ fn discover_npmrc<TSys: EnvVar + EnvHomeDir + FsRead>(
     project_npmrc = Some((path, npmrc));
   }
 
-  // 3. Try `.npmrc` next to `deno.json(c)` when not found `package.json`
+  // 3. Try `.npmrc` next to `oden.json(c)` when not found `package.json`
   if project_npmrc.is_none()
     && let Some(deno_json_path) = maybe_deno_json_path
     && let Some(deno_json_dir) = deno_json_path.parent()

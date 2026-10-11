@@ -120,7 +120,7 @@ struct TargetFolderCachedRegistryApi {
 
 impl Default for TargetFolderCachedRegistryApi {
   fn default() -> Self {
-    std::fs::create_dir_all("target/.deno_npm").unwrap();
+    std::fs::create_dir_all("target/.oden_npm").unwrap();
     Self {
       data: Default::default(),
     }
@@ -166,7 +166,7 @@ impl NpmRegistryApi for TargetFolderCachedRegistryApi {
 }
 
 fn packument_cache_filepath(name: &str) -> String {
-  format!("target/.deno_npm/{}", encode_package_name(name))
+  format!("target/.oden_npm/{}", encode_package_name(name))
 }
 
 fn packument_url(name: &str) -> String {

@@ -294,7 +294,7 @@ mod tests {
   #[cfg_attr(all(target_os = "windows", target_arch = "aarch64"), ignore)]
   fn test_rebuild_async_stubs() {
     // Check for deno first
-    if let Err(e) = Command::new("deno")
+    if let Err(e) = Command::new("oden")
       .arg("--version")
       .stderr(Stdio::null())
       .stdout(Stdio::null())
@@ -305,13 +305,13 @@ mod tests {
         reason = "intentional test diagnostic output"
       )]
       {
-        eprintln!("Ignoring test because we couldn't find deno: {e:?}");
+        eprintln!("Ignoring test because we couldn't find oden: {e:?}");
       }
     }
 
     let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
       .join("rebuild_async_stubs.js");
-    let status = Command::new("deno")
+    let status = Command::new("oden")
       .args(["run", "-A", path.as_os_str().to_str().unwrap(), "--check"])
       .stderr(Stdio::null())
       .stdout(Stdio::null())

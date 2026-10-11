@@ -101,7 +101,7 @@ pub async fn publish(
       }
       None => {
         bail!(
-          "Couldn't find a deno.json, deno.jsonc, jsr.json or jsr.jsonc configuration file in {}.",
+          "Couldn't find a oden.json, oden.jsonc, jsr.json or jsr.jsonc configuration file in {}.",
           directory_path.display()
         );
       }
@@ -129,7 +129,7 @@ pub async fn publish(
   // Bail out early if the version is already published, before doing the
   // expensive type checking and tarball preparation. Already-published
   // versions are skipped with a warning (rather than erroring) so that
-  // re-running `deno publish` after a partial or concurrent publish still
+  // re-running `oden publish` after a partial or concurrent publish still
   // succeeds, matching the idempotent behavior of the publish step itself.
   if !publish_flags.dry_run {
     publish_configs = filter_out_published_packages(
@@ -1643,7 +1643,7 @@ mod tests {
           size: 0,
         }],
       },
-      config: "deno.json".to_string(),
+      config: "oden.json".to_string(),
       exports: HashMap::new(),
     };
 
@@ -1674,7 +1674,7 @@ mod tests {
           size: 0,
         }],
       },
-      config: "deno.json".to_string(),
+      config: "oden.json".to_string(),
       exports: HashMap::new(),
     };
 
@@ -1707,7 +1707,7 @@ mod tests {
           size: 0,
         }],
       },
-      config: "deno.json".to_string(),
+      config: "oden.json".to_string(),
       exports: HashMap::new(),
     };
 

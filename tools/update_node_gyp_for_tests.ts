@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run -ERNW --allow-sys
+#!/usr/bin/env -S oden run --config=tools/oden.json -ERNW --allow-sys
 
 // Copyright 2018-2026 the Deno authors. MIT license.
 

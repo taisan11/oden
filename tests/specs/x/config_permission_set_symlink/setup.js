@@ -3,9 +3,9 @@
 // file's directory).
 Deno.mkdirSync("real");
 Deno.writeTextFileSync(
-  "real/deno.json",
+  "real/oden.json",
   JSON.stringify({ permissions: { write: { write: ["."] } } }),
 );
 // Store the target with the platform separator so it resolves on Windows too.
 const sep = Deno.build.os === "windows" ? "\\" : "/";
-Deno.symlinkSync(`real${sep}deno.json`, "config.json");
+Deno.symlinkSync(`real${sep}oden.json`, "config.json");

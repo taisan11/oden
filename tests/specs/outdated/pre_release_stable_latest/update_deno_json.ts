@@ -1,5 +1,5 @@
 Deno.writeTextFileSync(
-  "deno.json",
+  "oden.json",
   JSON.stringify({
     imports: {
       "@denotest/pre-release-stable-latest":

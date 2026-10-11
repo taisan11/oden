@@ -16,10 +16,10 @@ pub fn render_help(cmd: &CommandDef) -> String {
   }
 
   // Usage line
-  if cmd.name == "deno" {
+  if cmd.name == "oden" {
     out.push_str(&format!("Usage: {} [OPTIONS]", cmd.name));
   } else {
-    out.push_str(&format!("Usage: deno {} [OPTIONS]", cmd.name));
+    out.push_str(&format!("Usage: oden {} [OPTIONS]", cmd.name));
   }
 
   let positionals: Vec<&ArgDef> =
@@ -129,7 +129,7 @@ pub fn render_help(cmd: &CommandDef) -> String {
   }
 
   // Environment variables (root help only), mirroring clap's after-help.
-  if cmd.name == "deno" {
+  if cmd.name == "oden" {
     out.push_str(&render_env_vars());
   }
 
@@ -145,7 +145,7 @@ fn has_permission_args(cmd: &CommandDef) -> bool {
     .any(|g| std::ptr::eq(g.as_ptr(), crate::defs::PERMISSION_ARGS.as_ptr()))
 }
 
-/// Render the "Environment variables" section documented in `deno --help`.
+/// Render the "Environment variables" section documented in `oden --help`.
 fn render_env_vars() -> String {
   use crate::env_vars::ENV_VARS;
   let mut out = String::from(
@@ -174,7 +174,7 @@ fn render_env_vars() -> String {
   out
 }
 
-/// Render help for the root command when called with `deno --help`.
+/// Render help for the root command when called with `oden --help`.
 pub fn render_root_help(cmd: &CommandDef) -> String {
   render_help(cmd)
 }

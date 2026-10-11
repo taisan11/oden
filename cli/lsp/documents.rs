@@ -966,7 +966,7 @@ pub struct DocumentModule {
   /// whenever the document content or the lint configuration changes, which
   /// naturally invalidates this cache.
   pub lint_diagnostics: once_cell::sync::OnceCell<Arc<Vec<lsp::Diagnostic>>>,
-  /// Cached `deno doc --lint` diagnostics. Like lint diagnostics, these are
+  /// Cached `oden doc --lint` diagnostics. Like lint diagnostics, these are
   /// derived solely from this module's own contents (a single-module graph),
   /// so they're cached per module instance.
   pub doc_diagnostics: once_cell::sync::OnceCell<Arc<Vec<lsp::Diagnostic>>>,
@@ -2383,8 +2383,8 @@ mod tests {
 
   async fn setup() -> (DocumentModules, LspCache, TempDir) {
     let temp_dir = TempDir::new();
-    temp_dir.create_dir_all(".deno_dir");
-    let cache = LspCache::new(Some(temp_dir.url().join(".deno_dir").unwrap()));
+    temp_dir.create_dir_all(".oden_dir");
+    let cache = LspCache::new(Some(temp_dir.url().join(".oden_dir").unwrap()));
     let config = Config::default();
     let resolver =
       Arc::new(LspResolver::from_config(&config, &cache, None).await);
@@ -2547,7 +2547,7 @@ const Counter = () => {
               },
             })
             .to_string(),
-            config.root_url().unwrap().join("deno.json").unwrap(),
+            config.root_url().unwrap().join("oden.json").unwrap(),
           )
           .unwrap(),
         )
@@ -2593,7 +2593,7 @@ const Counter = () => {
               },
             })
             .to_string(),
-            config.root_url().unwrap().join("deno.json").unwrap(),
+            config.root_url().unwrap().join("oden.json").unwrap(),
           )
           .unwrap(),
         )

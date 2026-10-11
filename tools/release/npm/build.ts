@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run -A --lock=tools/deno.lock.json
+#!/usr/bin/env -S oden run --config=tools/oden.json -A --lock=tools/deno.lock.json
 // Copyright 2018-2026 the Deno authors. MIT license.
 // NOTICE: This deployment/npm folder was lifted from https://github.com/dprint/dprint/blob/0ba79811cc96d2dee8e0cf766a8c8c0fc44879c2/deployment/npm/
 // with permission (Copyright 2019-2023 David Sherret)
@@ -18,28 +18,28 @@ const args = parseArgs(Deno.args, {
   boolean: ["publish", "publish-only"],
 });
 const packages: Package[] = [{
-  zipFileName: "deno-x86_64-pc-windows-msvc.zip",
+  zipFileName: "oden-x86_64-pc-windows-msvc.zip",
   os: "win32",
   cpu: "x64",
 }, {
-  zipFileName: "deno-aarch64-pc-windows-msvc.zip",
+  zipFileName: "oden-aarch64-pc-windows-msvc.zip",
   os: "win32",
   cpu: "arm64",
 }, {
-  zipFileName: "deno-x86_64-apple-darwin.zip",
+  zipFileName: "oden-x86_64-apple-darwin.zip",
   os: "darwin",
   cpu: "x64",
 }, {
-  zipFileName: "deno-aarch64-apple-darwin.zip",
+  zipFileName: "oden-aarch64-apple-darwin.zip",
   os: "darwin",
   cpu: "arm64",
 }, {
-  zipFileName: "deno-x86_64-unknown-linux-gnu.zip",
+  zipFileName: "oden-x86_64-unknown-linux-gnu.zip",
   os: "linux",
   cpu: "x64",
   libc: "glibc",
 }, {
-  zipFileName: "deno-aarch64-unknown-linux-gnu.zip",
+  zipFileName: "oden-aarch64-unknown-linux-gnu.zip",
   os: "linux",
   cpu: "arm64",
   libc: "glibc",
@@ -77,7 +77,7 @@ if (!args["publish-only"]) {
       "name": "deno",
       "version": version,
       "description": "A modern runtime for JavaScript and TypeScript.",
-      "bin": "bin.cjs",
+      "bin": { "oden": "bin.cjs" },
       "repository": {
         "type": "git",
         "url": "git+https://github.com/denoland/deno.git",
@@ -108,7 +108,7 @@ if (!args["publish-only"]) {
     rootDir.join("LICENSE.md").copyFileSync(denoDir.join("LICENSE"));
     denoDir.join("README.md").writeTextSync(markdownText);
     // ensure the test files don't get published
-    denoDir.join(".npmignore").writeTextSync("deno\ndeno.exe\n");
+    denoDir.join(".npmignore").writeTextSync("oden\noden.exe\n");
 
     // setup each binary package
     for (const pkg of packages) {
@@ -166,7 +166,7 @@ if (args.publish || args["publish-only"]) {
     const pkgDir = scopeDir.join(pkgName);
     // ensure the binary is executable in the tarball
     if (pkg.os !== "win32") {
-      await $`chmod +x ${pkgDir.join("deno")}`;
+      await $`chmod +x ${pkgDir.join("oden")}`;
     }
     await $`cd ${pkgDir} && npm publish --provenance --access public`;
   }

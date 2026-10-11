@@ -4,8 +4,8 @@
 //!
 //! After dependency resolution, this module:
 //! 1. Installs jsr: compatibility packages via npm.jsr.io
-//! 2. Mirrors http(s): modules into .deno/remote/<host><path>/...
-//! 3. Generates .deno/tsconfig.json with paths mappings for npm:/jsr:/https:
+//! 2. Mirrors http(s): modules into .oden/remote/<host><path>/...
+//! 3. Generates .oden/tsconfig.json with paths mappings for npm:/jsr:/https:
 //! 4. In global-cache mode, generates per-package referenced tsconfigs so
 //!    stock TypeScript can preserve Deno's contextual npm resolution.
 //!
@@ -54,7 +54,7 @@ pub struct InstalledJsrPackage {
 struct NpmCacheProjects {
   /// Exact npm: specifier/import-map target to its resolved package folder.
   package_paths: BTreeMap<String, PathBuf>,
-  /// Paths relative to `.deno/tsconfig.json` for the generated package
+  /// Paths relative to `.oden/tsconfig.json` for the generated package
   /// projects.
   references: Vec<String>,
 }
@@ -176,7 +176,7 @@ fn generate_npm_cache_projects(
   deno_imports: Option<&Value>,
   npm_resolver: &CliNpmResolver,
 ) -> Result<NpmCacheProjects, AnyError> {
-  let projects_root = project_root.join(".deno/npm");
+  let projects_root = project_root.join(".oden/npm");
   if projects_root.exists() {
     std::fs::remove_dir_all(&projects_root)?;
   }
@@ -385,7 +385,7 @@ pub async fn setup_npm_compat(
     .is_some_and(|managed| managed.root_node_modules_path().is_none());
 
   let jsr_packages_dir = if use_global_cache_layout {
-    project_root.join(".deno/npm-compat/@jsr")
+    project_root.join(".oden/npm-compat/@jsr")
   } else {
     project_root.join("node_modules/@jsr")
   };
@@ -393,7 +393,7 @@ pub async fn setup_npm_compat(
     install_jsr_packages(&jsr_packages_dir, deno_imports, http_client).await?;
 
   // Mirror http(s): modules (and their transitive remote/relative imports)
-  // into .deno/remote/<host><path>/...
+  // into .oden/remote/<host><path>/...
   let http_modules = match install_http_modules(
     project_root,
     deno_imports,
@@ -412,9 +412,9 @@ pub async fn setup_npm_compat(
 
   // Local `.wasm` imports (`import { x } from "./foo.wasm"`) can't be checked as
   // binaries: stock tsc reports a spurious `TS2307 Cannot find module`. Mirror
-  // each wasm module's generated typed declarations into `.deno/wasm/<rel>`
+  // each wasm module's generated typed declarations into `.oden/wasm/<rel>`
   // (renamed to `.d.wasm.ts` so `allowArbitraryExtensions` picks them up) and
-  // add `.deno/wasm` as a `rootDirs` overlay of the project root so tsc resolves
+  // add `.oden/wasm` as a `rootDirs` overlay of the project root so tsc resolves
   // the relative `./foo.wasm` specifier to the mirror. Unlike remote wasm (a
   // non-relative specifier handled via `paths`), a relative specifier is never
   // matched by tsconfig `paths`, hence the `rootDirs` overlay.
@@ -446,7 +446,7 @@ pub async fn setup_npm_compat(
     log::warn!(
       "sync-types: {} npm package(s) are not present under node_modules and \
        were left unmapped ({}). Enable a node_modules directory (e.g. set \
-       \"nodeModulesDir\": \"auto\" in deno.json) so stock TypeScript can \
+       \"nodeModulesDir\": \"auto\" in oden.json) so stock TypeScript can \
        resolve them.",
       unmaterialized.len(),
       unmaterialized.join(", "),
@@ -473,7 +473,7 @@ pub async fn setup_npm_compat(
     );
   }
 
-  // The project's own `exclude` (from deno.json) tells us which paths Deno
+  // The project's own `exclude` (from oden.json) tells us which paths Deno
   // doesn't check (test fixtures, generated output); mirror it into the tsconfig
   // so we don't surface diagnostics for files Deno itself skips.
   let mut excludes: Vec<String> = deno_json
@@ -492,7 +492,7 @@ pub async fn setup_npm_compat(
   // doesn't type-check, and their `jsr:`/`npm:` imports resolve through Deno's
   // vendor map (not ours), so type-checking them here just surfaces the deps'
   // own errors. The vendor dir is `vendor/` at the project root when `vendor`
-  // is enabled in deno.json or the directory is present.
+  // is enabled in oden.json or the directory is present.
   let vendor_enabled = deno_json
     .as_ref()
     .and_then(|d| d.get("vendor"))
@@ -502,7 +502,7 @@ pub async fn setup_npm_compat(
     excludes.push("vendor".to_string());
   }
 
-  // Generate .deno/tsconfig.json and ensure root tsconfig.json extends it
+  // Generate .oden/tsconfig.json and ensure root tsconfig.json extends it
   generate_deno_tsconfig(
     project_root,
     deno_compiler_options,
@@ -558,8 +558,8 @@ fn resolve_bare_against_import_map(
 ///
 /// If the project already installed `@types/node` under its `node_modules`, we
 /// reuse that in place. Otherwise we materialize a stock copy under
-/// `.deno/npm-compat` (which is gitignored) - never downloading into the
-/// project's real `node_modules`, so `deno check` doesn't mutate the user's tree
+/// `.oden/npm-compat` (which is gitignored) - never downloading into the
+/// project's real `node_modules`, so `oden check` doesn't mutate the user's tree
 /// (and doesn't dirty the working directory).
 async fn ensure_types_node(
   project_root: &Path,
@@ -581,8 +581,8 @@ async fn ensure_types_node(
       };
     }
   }
-  // Materialize under `.deno/npm-compat` (gitignored) in every other case.
-  let modules_dir = project_root.join(".deno/npm-compat");
+  // Materialize under `.oden/npm-compat` (gitignored) in every other case.
+  let modules_dir = project_root.join(".oden/npm-compat");
   let type_root = "./npm-compat/@types".to_string();
   let node_dir = modules_dir.join("@types/node");
   let undici_types_dir = modules_dir.join("undici-types");
@@ -712,7 +712,7 @@ fn read_referenced_import_map(
 /// (and subpath exports) to its local source files, so stock tooling resolves
 /// e.g. `@std/assert` and `@std/assert/equals` to `../assert/mod.ts` and
 /// `../assert/equals.ts` rather than a published copy. Paths are relative to
-/// the generated `.deno/tsconfig.json`.
+/// the generated `.oden/tsconfig.json`.
 fn workspace_member_paths(
   project_root: &Path,
   deno_json: &Value,
@@ -767,7 +767,7 @@ fn workspace_member_paths(
 
 /// Expand workspace member patterns into concrete member directories (relative
 /// to the project root). A trailing `/*` (e.g. `./packages/*`) enumerates the
-/// immediate subdirectories that contain a `deno.json(c)`; everything else is
+/// immediate subdirectories that contain a `oden.json(c)`; everything else is
 /// treated as a literal member path. Deno's own workspace config supports this
 /// glob form, and it's common in monorepos.
 fn expand_member_patterns(
@@ -786,7 +786,7 @@ fn expand_member_patterns(
           continue;
         }
         let dir = entry.path();
-        if (dir.join("deno.json").exists() || dir.join("deno.jsonc").exists())
+        if (dir.join("oden.json").exists() || dir.join("oden.jsonc").exists())
           && let Some(name) = entry.file_name().to_str()
         {
           out.push(format!("{parent}/{name}"));
@@ -849,8 +849,8 @@ fn add_member_alias_paths(
 }
 
 fn read_deno_json(project_root: &Path) -> Result<Option<Value>, AnyError> {
-  let deno_json_path = project_root.join("deno.json");
-  let deno_jsonc_path = project_root.join("deno.jsonc");
+  let deno_json_path = project_root.join("oden.json");
+  let deno_jsonc_path = project_root.join("oden.jsonc");
 
   if deno_json_path.exists() {
     let content = std::fs::read_to_string(&deno_json_path)?;
@@ -867,7 +867,7 @@ fn read_deno_json(project_root: &Path) -> Result<Option<Value>, AnyError> {
   }
 }
 
-/// Generate tsconfig.deno.json at the project root with paths mappings.
+/// Generate tsconfig.oden.json at the project root with paths mappings.
 #[allow(
   clippy::too_many_arguments,
   reason = "threads the independent inputs needed to generate a tsconfig"
@@ -917,7 +917,7 @@ fn generate_deno_tsconfig(
 ///
 /// Uses `HttpClient::download` directly (not `CliFileFetcher`) because we
 /// don't want each registry/tarball URL surfacing as a user-visible
-/// "Download …" line in `deno install` output — those are an
+/// "Download …" line in `oden install` output — those are an
 /// implementation detail of the stock-tsc compatibility setup. The
 /// fetcher's caching and redirect handling are unnecessary for npm.jsr.io.
 async fn install_jsr_packages(
@@ -1036,7 +1036,7 @@ async fn install_jsr_packages(
 /// `package.json` is the last thing [`extract_tarball_gz_atomic`] publishes -
 /// it only ever appears via the atomic rename of a complete staging dir - so
 /// its presence is the marker that the tree is usable. A bare `exists()` check
-/// on the destination is not: with several `deno check` processes sharing a
+/// on the destination is not: with several `oden check` processes sharing a
 /// cache, one can observe a directory the other has only started filling in,
 /// skip the download, and then fail type checking with
 /// `TS2688 Cannot find type definition file for 'node'`.
@@ -1098,7 +1098,7 @@ fn cleanup_stale_staging_dirs(
 /// half-extracted state: unpack into a sibling staging directory on the same
 /// filesystem, then `rename` it into place.
 ///
-/// Concurrent `deno check` invocations sharing a cache race to materialize the
+/// Concurrent `oden check` invocations sharing a cache race to materialize the
 /// same package. The rename makes each one either publish a complete tree or
 /// lose harmlessly to a winner that already did.
 fn extract_tarball_gz_atomic(
@@ -1232,11 +1232,11 @@ fn extract_tarball_gz(gz_bytes: &[u8], dest: &Path) -> Result<(), AnyError> {
 
 /// A resolved entry for the tsconfig `paths` table: maps a user-facing URL
 /// (whatever appears in source as `import "..."`) to the local mirror file
-/// path (relative to `.deno/`) that tsc should resolve it to.
+/// path (relative to `.oden/`) that tsc should resolve it to.
 pub type HttpModulePaths = BTreeMap<Url, String>;
 
 /// Materialize local (`file:`) `.wasm` modules' generated typed declarations
-/// under `.deno/wasm/`, mirroring their path relative to the project root and
+/// under `.oden/wasm/`, mirroring their path relative to the project root and
 /// renaming `foo.wasm` -> `foo.d.wasm.ts` so stock tsc resolves the relative
 /// `import "./foo.wasm"` via `allowArbitraryExtensions` + a `rootDirs` overlay
 /// (added by `build_tsconfig`). `dts_modules` pairs each wasm's `file:` URL with
@@ -1254,7 +1254,7 @@ fn install_local_wasm_modules(
   if dts_modules.is_empty() {
     return Ok(false);
   }
-  let wasm_root = project_root.join(".deno").join("wasm");
+  let wasm_root = project_root.join(".oden").join("wasm");
   let mut wrote_any = false;
   for (url, dts) in dts_modules {
     let Ok(path) = url.to_file_path() else {
@@ -1263,7 +1263,7 @@ fn install_local_wasm_modules(
     // Mirror the wasm file's location relative to the project root so the
     // `rootDirs` overlay resolves it to the same relative specifier the source
     // used. A wasm module outside the project root has no stable relative
-    // location under `.deno/wasm/`, so skip it (rare; tsc keeps its TS2307).
+    // location under `.oden/wasm/`, so skip it (rare; tsc keeps its TS2307).
     let Ok(rel) = path.strip_prefix(project_root) else {
       continue;
     };
@@ -1282,8 +1282,8 @@ fn install_local_wasm_modules(
   Ok(wrote_any)
 }
 
-/// Materialize http(s): modules referenced from `deno.json` `imports` (and
-/// their transitive remote/relative imports) into `.deno/remote/<host><path>`.
+/// Materialize http(s): modules referenced from `oden.json` `imports` (and
+/// their transitive remote/relative imports) into `.oden/remote/<host><path>`.
 ///
 /// Uses `CliFileFetcher`, which transparently reuses `DENO_DIR` cache, follows
 /// redirects, and exposes response headers. When a module advertises types via
@@ -1295,7 +1295,7 @@ fn install_local_wasm_modules(
 /// is acknowledged tech debt; a deno_graph walk is the production answer.
 ///
 /// Returns a map from user-facing URL to the local mirror path (relative to
-/// `.deno/`), suitable for direct use as tsconfig `paths` values.
+/// `.oden/`), suitable for direct use as tsconfig `paths` values.
 pub async fn install_http_modules(
   project_root: &Path,
   deno_imports: Option<&Value>,
@@ -1326,7 +1326,7 @@ pub async fn install_http_modules(
     return Ok(paths);
   }
 
-  let remote_root = project_root.join(".deno").join("remote");
+  let remote_root = project_root.join(".oden").join("remote");
 
   while let Some(requested_url) = queue.pop_front() {
     if paths.contains_key(&requested_url) {
@@ -1346,7 +1346,7 @@ pub async fn install_http_modules(
       Ok(f) => f,
       Err(e) => {
         log::warn!(
-          "Skipping {requested_url}: {e} (try running `deno install --allow-import` to grant access)"
+          "Skipping {requested_url}: {e} (try running `oden install --allow-import` to grant access)"
         );
         continue;
       }
@@ -1468,7 +1468,7 @@ pub async fn install_http_modules(
 }
 
 /// Write `bytes` to the local mirror file for `url`, returning the path
-/// relative to `.deno/` (suitable for tsconfig `paths`).
+/// relative to `.oden/` (suitable for tsconfig `paths`).
 fn write_mirror(
   remote_root: &Path,
   url: &Url,
@@ -1486,7 +1486,7 @@ fn write_mirror(
   // dwarfs the project's own diagnostics). `@ts-nocheck` suppresses errors in
   // the file while keeping its exported and ambient types available to
   // importers, and triple-slash directives (which may follow a leading comment)
-  // still apply. Skipped under `deno check --all`, which does type-check remote
+  // still apply. Skipped under `oden check --all`, which does type-check remote
   // modules.
   let is_script = matches!(
     local_path.extension().and_then(|e| e.to_str()),

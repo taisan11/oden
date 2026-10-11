@@ -392,7 +392,7 @@ impl LanguageServer {
     }
   }
 
-  /// Similar to `deno install --entrypoint` on the command line, where modules will be cached
+  /// Similar to `oden install --entrypoint` on the command line, where modules will be cached
   /// in the Deno cache, including any of their dependencies.
   #[cfg_attr(feature = "lsp-tracing", tracing::instrument(skip_all))]
   pub async fn cache(
@@ -1096,7 +1096,7 @@ impl Inner {
       }
     }
     for root_ancestor in root_ancestors {
-      for deno_json in ["deno.json", "deno.jsonc"] {
+      for deno_json in ["oden.json", "oden.jsonc"] {
         let path = root_ancestor.join(deno_json);
         if path.exists() {
           workspace_files.insert(path);
@@ -1712,14 +1712,14 @@ impl Inner {
     let has_config_changes = changes.iter().any(|(specifier, _)| {
       let path = specifier.path();
       !path.contains("/node_modules/")
-        && (path.ends_with("/deno.json")
-          || path.ends_with("/deno.jsonc")
+        && (path.ends_with("/oden.json")
+          || path.ends_with("/oden.jsonc")
           || path.ends_with("/package.json")
           || path.ends_with("/tsconfig.json"))
         || path.ends_with("/node_modules/.package-lock.json")
         || path.ends_with("/node_modules/.yarn-integrity.json")
         || path.ends_with("/node_modules/.modules.yaml")
-        || path.ends_with("/node_modules/.deno/.setup-cache.bin")
+        || path.ends_with("/node_modules/.oden/.setup-cache.bin")
         || self.config.tree.is_watched_file(specifier)
         || self.compiler_options_resolver.is_watched_file(specifier)
     });
@@ -2348,7 +2348,7 @@ impl Inner {
             }
             Err(err) => {
               lsp_warn!(
-                "Error getting deno lint code actions: {:#}\nDiagnostic: {:#?}",
+                "Error getting oden lint code actions: {:#}\nDiagnostic: {:#?}",
                 err,
                 diagnostic
               );
@@ -2921,7 +2921,7 @@ impl Inner {
   ) -> LspResult<Option<CompletionResponse>> {
     let mark = self.performance.mark_with_args("lsp.completion", &params);
     let uri = &params.text_document_position.text_document.uri;
-    // Handle completions inside Deno configuration files (deno.json/jsonc)
+    // Handle completions inside Deno configuration files (oden.json/jsonc)
     // separately, since they're not "diagnosable" documents but still benefit
     // from registry (jsr:/npm:/node:) import-specifier completion in the
     // `imports` and `scopes` fields. Use `Enabled::Ignore` because a config
@@ -4872,7 +4872,7 @@ mod tests {
     temp_dir.write("root3/mod.ts", ""); // no, not enabled
 
     temp_dir.create_dir_all("root4_parent/root4");
-    temp_dir.write("root4_parent/deno.json", ""); // yes, enabled as deno.json above root
+    temp_dir.write("root4_parent/oden.json", ""); // yes, enabled as oden.json above root
     temp_dir.write("root4_parent/root4/main.ts", ""); // yes, enabled
 
     let mut config = Config::new_with_roots(vec![
@@ -4942,7 +4942,7 @@ mod tests {
     assert_eq!(
       json!(workspace_files),
       json!([
-        temp_dir.url().join("root4_parent/deno.json").unwrap(),
+        temp_dir.url().join("root4_parent/oden.json").unwrap(),
         temp_dir.url().join("root1/mod0.ts").unwrap(),
         temp_dir.url().join("root1/mod1.js").unwrap(),
         temp_dir.url().join("root1/mod2.tsx").unwrap(),
@@ -4971,7 +4971,7 @@ mod tests {
     let temp_dir = TempDir::new();
     temp_dir.write("repo/root.ts", ""); // no, root is disabled
     temp_dir.write(
-      "repo/apps/backend/deno.json",
+      "repo/apps/backend/oden.json",
       r#"{ "importMap": "import_map.json" }"#,
     ); // yes
     temp_dir.write(
@@ -5042,7 +5042,7 @@ mod tests {
     assert_eq!(
       json!(workspace_files),
       json!([
-        backend_url.join("deno.json").unwrap(),
+        backend_url.join("oden.json").unwrap(),
         backend_url.join("import_map.json").unwrap(),
         backend_url.join("src/run.ts").unwrap(),
       ])

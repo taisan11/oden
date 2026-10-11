@@ -164,7 +164,7 @@ pub fn root_path() -> PathRef {
 /// `tools/download_tsc.ts` materializes it under
 /// `<target>/.native_tsc/deno_dir/tsc/<version>/<platform>/lib/tsc`. The harness
 /// injects this per-test as `DENO_TSC_BIN` (see `TestContextBuilder::build`) so
-/// `deno check`/`run --check`/`cache --check` reuse it instead of downloading
+/// `oden check`/`run --check`/`cache --check` reuse it instead of downloading
 /// the compiler into every test's fresh `DENO_DIR`. Returns `None` when it
 /// hasn't been downloaded yet.
 pub fn native_tsc_bin_path() -> Option<PathRef> {
@@ -217,7 +217,7 @@ pub fn napi_tests_path() -> PathRef {
 }
 
 pub fn deno_config_path() -> PathRef {
-  root_path().join("tests").join("config").join("deno.json")
+  root_path().join("tests").join("config").join("oden.json")
 }
 
 /// Test server registry url.
@@ -295,7 +295,7 @@ pub fn deno_exe_path() -> PathRef {
     return PathRef::new(PathBuf::from(path));
   }
   // Something like /Users/rld/src/deno/target/debug/deps/deno
-  let mut p = target_dir().join("deno").to_path_buf();
+  let mut p = target_dir().join("oden").to_path_buf();
   if cfg!(windows) {
     p.set_extension("exe");
   }

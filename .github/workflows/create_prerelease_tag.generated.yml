@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
           token: '${{ secrets.DENOBOT_PAT }}'
       - name: Install deno
-        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282
+        uses: ./.github/actions/setup-oden
         with:
           deno-version: v2.x
       - name: Create release tag and check forward commit to main
@@ -35,4 +35,3 @@ jobs:
           ./tools/release/04_post_publish.ts
 
 # gagen:pin actions/checkout@v6 = de0fac2e4500dabe0009e67214ff5f5447ce83dd
-# gagen:pin denoland/setup-deno@v2 = 667a34cdef165d8d2b2e98dde39547c9daac7282

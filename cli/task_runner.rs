@@ -183,10 +183,13 @@ pub async fn run_task(
     .with_context(|| format!("Error parsing script '{}'.", opts.task_name))?;
   let env_vars =
     prepare_env_vars(opts.env_vars, opts.init_cwd, opts.node_modules_bin_dirs);
-  if !opts.custom_commands.contains_key("deno") {
-    opts
-      .custom_commands
-      .insert("deno".to_string(), Rc::new(DenoCommand::default()));
+  // Keep migrated task scripts working without installing a second executable.
+  for name in ["oden", "deno"] {
+    if !opts.custom_commands.contains_key(name) {
+      opts
+        .custom_commands
+        .insert(name.to_string(), Rc::new(DenoCommand::default()));
+    }
   }
   let state = deno_task_shell::ShellState::new(
     env_vars,
@@ -316,7 +319,7 @@ impl ShellCommand for NpmCommand {
       // we don't handle stuff like `--workspaces` properly
       && !context.args.iter().any(|s| s.to_string_lossy().starts_with('-'))
     {
-      // run with deno task instead
+      // run with oden task instead
       let mut args: Vec<OsString> = Vec::with_capacity(context.args.len());
       args.push("task".into());
       args.extend(context.args.into_iter().skip(1));
@@ -327,7 +330,7 @@ impl ShellCommand for NpmCommand {
         OsStr::new("1"),
       );
       return ExecutableCommand::new(
-        "deno".to_string(),
+        "oden".to_string(),
         std::env::current_exe()
           .and_then(|p| canonicalize_path(&p))
           .unwrap(),
@@ -358,7 +361,7 @@ pub struct DenoCommand(ExecutableCommand);
 impl Default for DenoCommand {
   fn default() -> Self {
     Self(ExecutableCommand::new(
-      "deno".to_string(),
+      "oden".to_string(),
       std::env::current_exe()
         .and_then(|p| canonicalize_path(&p))
         .unwrap(),
@@ -411,7 +414,7 @@ impl ShellCommand for NodeCommand {
       OsStr::new("1"),
     );
     ExecutableCommand::new(
-      "deno".to_string(),
+      "oden".to_string(),
       std::env::current_exe()
         .and_then(|p| canonicalize_path(&p))
         .unwrap(),
@@ -511,7 +514,7 @@ impl ShellCommand for NodeModulesFileRunCommand {
     ];
     args.extend(context.args);
     let executable_command = deno_task_shell::ExecutableCommand::new(
-      "deno".to_string(),
+      "oden".to_string(),
       std::env::current_exe()
         .and_then(|p| canonicalize_path(&p))
         .unwrap(),
@@ -617,7 +620,7 @@ fn resolve_managed_npm_commands(
   Ok(result)
 }
 
-/// Runs a deno task future forwarding any signals received
+/// Runs a oden task future forwarding any signals received
 /// to the process.
 ///
 /// Signal listeners and ctrl+c listening will be setup.

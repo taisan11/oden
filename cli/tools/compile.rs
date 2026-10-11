@@ -118,7 +118,7 @@ async fn compile_inner(
       // Write a temporary entrypoint file with a random suffix so we
       // never overwrite an existing project file.
       let entrypoint_path = dir.join(format!(
-        ".deno_compile_entry_{:08x}.ts",
+        ".oden_compile_entry_{:08x}.ts",
         rand::thread_rng().r#gen::<u32>()
       ));
       std::fs::write(&entrypoint_path, detection.entrypoint_code)?;
@@ -129,7 +129,7 @@ async fn compile_inner(
         compile_flags.output = Some(dir_name.to_string_lossy().into_owned());
       }
       // Add framework build output to includes, resolved relative to the
-      // detected app directory so `deno compile ./myapp` picks up
+      // detected app directory so `oden compile ./myapp` picks up
       // `./myapp/.next` rather than `./.next`.
       for inc in detection.include_paths {
         let resolved = dir.join(&inc).display().to_string();
@@ -188,7 +188,7 @@ async fn compile_inner(
 
   let _bundle_cleanup = if compile_flags.bundle {
     log::warn!(
-      "{} deno compile --bundle is experimental and may change.",
+      "{} oden compile --bundle is experimental and may change.",
       colors::yellow("Warning")
     );
     // Auto-include the closest `package.json` to the entrypoint, if any.
@@ -327,7 +327,7 @@ async fn run_bundle_for_compile(
     all_referenced_paths.extend(worker_rewrite.referenced_abs_paths.clone());
 
     let worker_path = initial_cwd.join(format!(
-      ".deno_compile_worker_{:08x}.mjs",
+      ".oden_compile_worker_{:08x}.mjs",
       rand::thread_rng().r#gen::<u32>()
     ));
     std::fs::write(&worker_path, &worker_rewrite.bytes).with_context(|| {
@@ -354,7 +354,7 @@ async fn run_bundle_for_compile(
   };
 
   let bundle_path = initial_cwd.join(format!(
-    ".deno_compile_bundle_{:08x}.mjs",
+    ".oden_compile_bundle_{:08x}.mjs",
     rand::thread_rng().r#gen::<u32>()
   ));
   std::fs::write(&bundle_path, final_main_src.as_bytes()).with_context(
@@ -394,7 +394,7 @@ async fn bundle_one_for_compile(
 /// then falls back to a basename search across the workspace — pi's
 /// `dist/utils/image-resize.js` does
 /// `new URL("./image-resize-worker.js", import.meta.url)` and the bundle
-/// lives at `dist/.deno_compile_bundle_*.mjs`, so basename matching is
+/// lives at `dist/.oden_compile_bundle_*.mjs`, so basename matching is
 /// what locks it onto `dist/utils/image-resize-worker.js`.
 ///
 /// Returns `(original_url_string, resolved_source_path)` pairs in source
@@ -616,7 +616,7 @@ fn rewrite_absolute_bundle_paths_inner(
     };
   }
 
-  let prefix = r#"// Injected by deno compile --bundle: resolve absolute paths emitted by
+  let prefix = r#"// Injected by oden compile --bundle: resolve absolute paths emitted by
 // esbuild's CJS-from-ESM wrapper against the bundle file's runtime
 // location instead of the build-time absolute path.
 import { fileURLToPath as __internalFileURLToPath } from "node:url";
@@ -762,7 +762,7 @@ pub async fn compile_binary(
     .await
     .with_context(|| {
       format!(
-        "Writing deno compile executable to temporary file '{}'",
+        "Writing oden compile executable to temporary file '{}'",
         temp_path.display()
       )
     });

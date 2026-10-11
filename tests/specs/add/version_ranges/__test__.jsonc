@@ -1,7 +1,7 @@
 {
   "tempDir": true,
   "tests": {
-    // `deno add` accepts the full npm range grammar on the command line and
+    // `oden add` accepts the full npm range grammar on the command line and
     // resolves it to a concrete version before writing it (issue #26587).
     // Ranges containing spaces are passed as a single argument here, the same
     // way they would need to be quoted in a shell.
@@ -14,9 +14,9 @@
         {
           "args": [
             "eval",
-            "console.log(Deno.readTextFileSync('deno.json').trim())"
+            "console.log(Deno.readTextFileSync('oden.json').trim())"
           ],
-          "output": "npm_deno.json.out"
+          "output": "npm_oden.json.out"
         }
       ]
     },
@@ -29,9 +29,9 @@
         {
           "args": [
             "eval",
-            "console.log(Deno.readTextFileSync('deno.json').trim())"
+            "console.log(Deno.readTextFileSync('oden.json').trim())"
           ],
-          "output": "npm_deno.json.out"
+          "output": "npm_oden.json.out"
         }
       ]
     },
@@ -44,9 +44,9 @@
         {
           "args": [
             "eval",
-            "console.log(Deno.readTextFileSync('deno.json').trim())"
+            "console.log(Deno.readTextFileSync('oden.json').trim())"
           ],
-          "output": "npm_deno.json.out"
+          "output": "npm_oden.json.out"
         }
       ]
     },
@@ -59,9 +59,9 @@
         {
           "args": [
             "eval",
-            "console.log(Deno.readTextFileSync('deno.json').trim())"
+            "console.log(Deno.readTextFileSync('oden.json').trim())"
           ],
-          "output": "jsr_deno.json.out"
+          "output": "jsr_oden.json.out"
         }
       ]
     }

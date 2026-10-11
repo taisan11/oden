@@ -12,7 +12,7 @@ Triage issue `$ARGUMENTS` on the `denoland/deno` repository.
 ## Step 1: Read the issue
 
 ```!
-gh issue view $ARGUMENTS --repo denoland/deno --json number,title,body,author,labels,state,comments,createdAt,url
+gh issue view $ARGUMENTS --repo denoland/oden --json number,title,body,author,labels,state,comments,createdAt,url
 ```
 
 ## Step 2: Classify the issue
@@ -33,7 +33,7 @@ go straight to Step 5.
 
 A valid bug report needs:
 
-- Deno version (`deno --version` output)
+- Deno version (`oden --version` output)
 - Operating system
 - Reproduction steps or minimal reproduction code
 - Expected behavior vs actual behavior
@@ -55,10 +55,10 @@ to a local temp directory only if Docker is unavailable.
 
 ```sh
 # Run repro with latest canary
-docker run --rm -v "$REPRO_DIR":/repro -w /repro denoland/deno:canary deno run repro.ts
+docker run --rm -v "$REPRO_DIR":/repro -w /repro denoland/deno:canary oden run repro.ts
 
 # Run repro with a specific version (e.g., 2.1.4)
-docker run --rm -v "$REPRO_DIR":/repro -w /repro denoland/deno:2.1.4 deno run repro.ts
+docker run --rm -v "$REPRO_DIR":/repro -w /repro denoland/deno:2.1.4 oden run repro.ts
 ```
 
 Use `docker run --rm` so containers are cleaned up automatically. Mount the
@@ -68,7 +68,7 @@ repro files via `-v`.
 
 ```sh
 REPRO_DIR=$(mktemp -d)
-deno run "$REPRO_DIR/repro.ts"
+oden run "$REPRO_DIR/repro.ts"
 ```
 
 ### Get Deno versions
@@ -140,16 +140,16 @@ label is sufficient. Do not over-label.
 | `lsp`                                                                                                                                  | Language server                  |
 | `runtime`                                                                                                                              | Runtime crate                    |
 | `permissions`                                                                                                                          | Permission system                |
-| `compile`                                                                                                                              | `deno compile`                   |
-| `testing`                                                                                                                              | `deno test` and coverage         |
-| `task runner`                                                                                                                          | `deno task`                      |
-| `install`                                                                                                                              | `deno install` / `deno add`      |
+| `compile`                                                                                                                              | `oden compile`                   |
+| `testing`                                                                                                                              | `oden test` and coverage         |
+| `task runner`                                                                                                                          | `oden task`                      |
+| `install`                                                                                                                              | `oden install` / `oden add`      |
 | `tsc`                                                                                                                                  | TypeScript compiler              |
 | `types`                                                                                                                                | TypeScript type issues           |
 | `config`                                                                                                                               | `deno.json` configuration        |
 | `node resolution`                                                                                                                      | Node/npm module resolution       |
-| `publish`                                                                                                                              | `deno publish`                   |
-| `lint`                                                                                                                                 | `deno lint`                      |
+| `publish`                                                                                                                              | `oden publish`                   |
+| `lint`                                                                                                                                 | `oden lint`                      |
 | `wasm`                                                                                                                                 | WebAssembly                      |
 
 ### Priority labels (add only when clearly warranted)
@@ -162,13 +162,13 @@ label is sufficient. Do not over-label.
 ### Adding labels
 
 ```sh
-gh issue edit $ARGUMENTS --repo denoland/deno --add-label "bug"
+gh issue edit $ARGUMENTS --repo denoland/oden --add-label "bug"
 ```
 
 Remove the `needs triage` or `triage required 👀` label if present:
 
 ```sh
-gh issue edit $ARGUMENTS --repo denoland/deno --remove-label "needs triage" --remove-label "triage required 👀"
+gh issue edit $ARGUMENTS --repo denoland/oden --remove-label "needs triage" --remove-label "triage required 👀"
 ```
 
 ## Step 6: Comment on the issue
@@ -204,13 +204,13 @@ This is a usage question rather than a bug. [Brief answer or pointer to docs.] C
 ### Posting the comment
 
 ```sh
-gh issue comment $ARGUMENTS --repo denoland/deno --body "comment text"
+gh issue comment $ARGUMENTS --repo denoland/oden --body "comment text"
 ```
 
 Close the issue if it's a duplicate, question, or invalid:
 
 ```sh
-gh issue close $ARGUMENTS --repo denoland/deno --reason "not planned"
+gh issue close $ARGUMENTS --repo denoland/oden --reason "not planned"
 ```
 
 ## Rules

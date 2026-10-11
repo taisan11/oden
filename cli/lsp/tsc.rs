@@ -4903,7 +4903,7 @@ impl TscSpecifierMap {
 
   /// Denormalizes a specifier while hiding `node_modules` from TypeScript.
   ///
-  /// TypeScript suppresses auto-import candidates from `node_modules/.deno`,
+  /// TypeScript suppresses auto-import candidates from `node_modules/.oden`,
   /// so direct package entry points that should be auto-importable are exposed
   /// under a synthetic `$node_modules` path. Avoid using this for every
   /// node_modules file, as that makes TypeScript treat the whole dependency
@@ -4932,7 +4932,7 @@ impl TscSpecifierMap {
     let mut specifier = original.to_string();
     if alias_node_modules && !specifier.contains("/node_modules/@types/node/") {
       // The ts server doesn't give completions from files in
-      // `node_modules/.deno/`. We work around it like this.
+      // `node_modules/.oden/`. We work around it like this.
       specifier = specifier.replace("/node_modules/", "/$node_modules/");
     }
     // If the module's media type doesn't correspond to tsc's path-inferred
@@ -5569,7 +5569,7 @@ fn insert_root_module_script_names(
       module.media_type,
       scope,
     ));
-    // The auto-import alias hides `node_modules/.deno` from tsc, but
+    // The auto-import alias hides `node_modules/.oden` from tsc, but
     // requests for open documents (diagnostics, hover, etc.) use the
     // unaliased name. Include it as a root too so they don't fail with
     // "Could not find source file". See
@@ -6312,7 +6312,7 @@ impl UserPreferences {
       provide_prefix_and_suffix_text_for_rename: Some(
         language_settings.preferences.use_aliases_for_renames,
       ),
-      // Only use workspace settings for quote style if there's no `deno.json`.
+      // Only use workspace settings for quote style if there's no `oden.json`.
       quote_preference: if config
         .tree
         .workspace_dir_for_specifier(specifier)
@@ -6770,14 +6770,14 @@ mod tests {
     sources: &[(&str, &str, i32, LanguageId)],
   ) -> (TempDir, TsJsServer, Arc<StateSnapshot>) {
     let temp_dir = TempDir::new();
-    let cache = LspCache::new(Some(temp_dir.url().join(".deno_dir").unwrap()));
+    let cache = LspCache::new(Some(temp_dir.url().join(".oden_dir").unwrap()));
     let mut config = Config::default();
     config
       .tree
       .inject_config_file(
         deno_config::deno_json::ConfigFile::new(
           &deno_json_content.to_string(),
-          temp_dir.url().join("deno.json").unwrap(),
+          temp_dir.url().join("oden.json").unwrap(),
         )
         .unwrap(),
       )
@@ -7361,7 +7361,7 @@ mod tests {
   fn test_tsc_specifier_map_node_modules_alias_is_opt_in() {
     let map = TscSpecifierMap::new();
     let specifier = ModuleSpecifier::parse(
-      "file:///project/node_modules/.deno/pkg@1.0.0/node_modules/pkg/mod.d.ts",
+      "file:///project/node_modules/.oden/pkg@1.0.0/node_modules/pkg/mod.d.ts",
     )
     .unwrap();
 
@@ -7372,7 +7372,7 @@ mod tests {
       map.denormalize_with_node_modules_alias(&specifier, MediaType::Dts);
     assert_eq!(
       aliased,
-      "file:///project/$node_modules/.deno/pkg@1.0.0/$node_modules/pkg/mod.d.ts",
+      "file:///project/$node_modules/.oden/pkg@1.0.0/$node_modules/pkg/mod.d.ts",
     );
     assert_eq!(map.normalize(&aliased).unwrap(), specifier);
   }

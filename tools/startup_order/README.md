@@ -34,7 +34,7 @@ CI retains generated orders and reports as workflow artifacts for seven days.
 For each supported release target, CI:
 
 1. Builds a baseline release executable with the default linker layout.
-2. Copies that executable to `target/release/deno-before-startup-order`.
+2. Copies that executable to `target/release/oden-before-startup-order`.
 3. Runs the target-specific function tracer three times for every workload.
 4. Writes a linker order from the first-entry sequence.
 5. Relinks `deno` with the generated order.
@@ -48,9 +48,9 @@ The trace workloads cover:
 - a small TypeScript module;
 - an active timer;
 - `Deno.serve` plus one request;
-- `deno test`;
+- `oden test`;
 - `node:crypto`; and
-- `deno fmt --check`.
+- `oden fmt --check`.
 
 Each generator creates temporary fixtures and a private `DENO_DIR`. The shared
 native runner suspends the generator while a workload executes so the
@@ -102,9 +102,9 @@ Build and preserve the baseline release executable:
 ```sh
 unset DENO_USE_STARTUP_ORDER DENO_STARTUP_ORDER_FILE
 DENO_SNAPSHOT_MINIFY_SOURCES=1 \
-  cargo build --release --locked -p deno --bin deno \
+  cargo build --release --locked -p deno --bin oden \
     --features=deno/panic-trace
-cp -p target/release/deno target/release/deno-before-startup-order
+cp -p target/release/oden target/release/oden-before-startup-order
 ```
 
 Generate the Linux order:
@@ -112,9 +112,9 @@ Generate the Linux order:
 ```sh
 TARGET="$(uname -m)-unknown-linux-gnu"
 ORDER="$PWD/target/release/startup-order-$TARGET.order"
-target/release/deno run -A \
+target/release/oden run -A \
   tools/startup_order/generate_linux_function_orderfile.ts \
-  --binary "$PWD/target/release/deno-before-startup-order" \
+  --binary "$PWD/target/release/oden-before-startup-order" \
   --output "$ORDER" \
   --repeats 3 \
   --workload-profile run-first
@@ -124,9 +124,9 @@ Generate the macOS order:
 
 ```sh
 ORDER="$PWD/target/release/startup-order-aarch64-apple-darwin.order"
-target/release/deno run -A \
+target/release/oden run -A \
   tools/startup_order/generate_macos_function_orderfile.ts \
-  --binary "$PWD/target/release/deno-before-startup-order" \
+  --binary "$PWD/target/release/oden-before-startup-order" \
   --output "$ORDER" \
   --repeats 3 \
   --workload-profile run-first
@@ -138,16 +138,16 @@ Relink `deno`:
 DENO_SNAPSHOT_MINIFY_SOURCES=1 \
 DENO_USE_STARTUP_ORDER=1 \
 DENO_STARTUP_ORDER_FILE="$ORDER" \
-  cargo build --release --locked -p deno --bin deno \
+  cargo build --release --locked -p deno --bin oden \
     --features=deno/panic-trace
 ```
 
 Verify the result before stripping the executable:
 
 ```sh
-target/release/deno run -A tools/startup_order/verify_orderfile.ts \
-  --baseline-binary target/release/deno-before-startup-order \
-  --binary target/release/deno \
+target/release/oden run -A tools/startup_order/verify_orderfile.ts \
+  --baseline-binary target/release/oden-before-startup-order \
+  --binary target/release/oden \
   --order "$ORDER" \
   --output "$ORDER.verify.json"
 ```

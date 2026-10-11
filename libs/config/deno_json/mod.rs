@@ -128,7 +128,7 @@ pub struct LintRulesConfig {
 
 #[derive(Debug, JsError, Error)]
 #[class(generic)]
-#[error("Could not find permission set '{0}' in deno.json")]
+#[error("Could not find permission set '{0}' in oden.json")]
 pub struct UndefinedPermissionError(String);
 
 #[derive(Debug, JsError, Boxed)]
@@ -425,7 +425,7 @@ pub struct FmtOptionsConfig {
   pub angular_next_control_flow_same_line: Option<bool>,
   pub sort_named_imports: Option<SortOrder>,
   pub sort_named_exports: Option<SortOrder>,
-  /// Whether `deno fmt` should read `.editorconfig` files to fill in
+  /// Whether `oden fmt` should read `.editorconfig` files to fill in
   /// options that are not otherwise set. Defaults to `true` when unset.
   pub use_editor_config: Option<bool>,
 }
@@ -801,8 +801,8 @@ impl BenchConfig {
   }
 }
 
-/// Minimum coverage percentages required for `deno coverage` and
-/// `deno test --coverage` to succeed. Modelled on Vitest's
+/// Minimum coverage percentages required for `oden coverage` and
+/// `oden test --coverage` to succeed. Modelled on Vitest's
 /// `coverage.thresholds`. A `None` value means the metric is not checked.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct CoverageThresholds {
@@ -1550,7 +1550,7 @@ pub trait DenoJsonCache {
 pub enum ConfigFileError {
   #[class(type)]
   #[error(
-    "Only file: specifiers are supported for security reasons in import maps stored in a deno.json. To use a remote import map, use the --import-map flag and \"deno.importMap\" in the language server config"
+    "Only file: specifiers are supported for security reasons in import maps stored in a oden.json. To use a remote import map, use the --import-map flag and \"deno.importMap\" in the language server config"
   )]
   OnlyFileSpecifiersSupported,
   #[class(inherit)]
@@ -1628,7 +1628,7 @@ pub enum ConfigFileExportsError {
   },
   #[class(type)]
   #[error(
-    "The path of the {key} must be a string, found invalid value '{value}'. Exports in deno.json do not support conditional exports."
+    "The path of the {key} must be a string, found invalid value '{value}'. Exports in oden.json do not support conditional exports."
   )]
   InvalidValueConditionalExports {
     key: Cow<'static, str>,
@@ -1737,7 +1737,7 @@ impl ConfigFile {
   pub(crate) fn resolve_config_file_names<'a>(
     additional_config_file_names: &[&'a str],
   ) -> Cow<'a, [&'a str]> {
-    const CONFIG_FILE_NAMES: [&str; 2] = ["deno.json", "deno.jsonc"];
+    const CONFIG_FILE_NAMES: [&str; 2] = ["oden.json", "oden.jsonc"];
     if additional_config_file_names.is_empty() {
       Cow::Borrowed(&CONFIG_FILE_NAMES)
     } else {
@@ -2932,11 +2932,11 @@ mod tests {
         "useEditorConfig": false
       },
       "tasks": {
-        "build": "deno run --allow-read --allow-write build.ts",
-        "server": "deno run --allow-net --allow-read server.ts",
+        "build": "oden run --allow-read --allow-write build.ts",
+        "server": "oden run --allow-net --allow-read server.ts",
         "client": {
           "description": "Build client project",
-          "command": "deno run -A client.js",
+          "command": "oden run -A client.js",
           "dependencies": ["build"]
         }
       },
@@ -3016,17 +3016,17 @@ mod tests {
     let tasks_config = config_file.to_tasks_config().unwrap().unwrap();
     assert_eq!(
       tasks_config["build"],
-      "deno run --allow-read --allow-write build.ts".into(),
+      "oden run --allow-read --allow-write build.ts".into(),
     );
     assert_eq!(
       tasks_config["server"],
-      "deno run --allow-net --allow-read server.ts".into(),
+      "oden run --allow-net --allow-read server.ts".into(),
     );
     assert_eq!(
       tasks_config["client"],
       TaskDefinition {
         description: Some("Build client project".to_string()),
-        command: Some("deno run -A client.js".to_string()),
+        command: Some("oden run -A client.js".to_string()),
         dependencies: vec!["build".to_string()],
         files: Vec::new(),
         output: Vec::new(),
@@ -3243,7 +3243,7 @@ mod tests {
     }
 
     fn parse(json: &str) -> MinimumDependencyAgeConfig {
-      let specifier = Url::parse("file:///deno/deno.json").unwrap();
+      let specifier = Url::parse("file:///deno/oden.json").unwrap();
       let config_file = ConfigFile::new(json, specifier).unwrap();
       config_file
         .to_minimum_dependency_age_config(&TestEnv)
@@ -3294,7 +3294,7 @@ mod tests {
     assert!(config.exclude.is_empty());
 
     // Unknown field still errors.
-    let specifier = Url::parse("file:///deno/deno.json").unwrap();
+    let specifier = Url::parse("file:///deno/oden.json").unwrap();
     let config_file = ConfigFile::new(
       r#"{ "minimumDependencyAge": { "unknown": 1 } }"#,
       specifier,
@@ -3309,7 +3309,7 @@ mod tests {
     ));
 
     // Out-of-range numeric values should return an error instead of panicking.
-    let specifier = Url::parse("file:///deno/deno.json").unwrap();
+    let specifier = Url::parse("file:///deno/oden.json").unwrap();
     let config_file =
       ConfigFile::new(r#"{ "minimumDependencyAge": 138939752218 }"#, specifier)
         .unwrap();
@@ -3329,8 +3329,8 @@ mod tests {
     run_task_error_test(
       r#"{
         "tasks": {
-          "build": "deno test",
-          "some%test": "deno bundle mod.ts"
+          "build": "oden test",
+          "some%test": "oden bundle mod.ts"
         }
       }"#,
       concat!(
@@ -3345,8 +3345,8 @@ mod tests {
     run_task_error_test(
       r#"{
         "tasks": {
-          "build": "deno test",
-          "1test": "deno bundle mod.ts"
+          "build": "oden test",
+          "1test": "oden bundle mod.ts"
         }
       }"#,
       concat!(
@@ -3361,8 +3361,8 @@ mod tests {
     run_task_error_test(
       r#"{
         "tasks": {
-          "build": "deno test",
-          "": "deno bundle mod.ts"
+          "build": "oden test",
+          "": "oden bundle mod.ts"
         }
       }"#,
       "Configuration file task names cannot be empty",
@@ -3391,7 +3391,7 @@ mod tests {
   #[test]
   fn resolve_lockfile_path_from_unix_path() {
     let config_file =
-      ConfigFile::new("{}", Url::parse("file:///root/deno.json").unwrap())
+      ConfigFile::new("{}", Url::parse("file:///root/oden.json").unwrap())
         .unwrap();
     let lockfile_path = config_file.resolve_lockfile_path().unwrap();
     let lockfile_path = lockfile_path.unwrap();
@@ -3522,7 +3522,7 @@ mod tests {
     // object key value
     run_test(
       r#"{ "exports": { "./mod": {} } }"#,
-      "The path of the './mod' export must be a string, found invalid value '{}'. Exports in deno.json do not support conditional exports.",
+      "The path of the './mod' export must be a string, found invalid value '{}'. Exports in oden.json do not support conditional exports.",
     );
     // non-map or string value
     run_test(
@@ -3622,7 +3622,7 @@ mod tests {
         "@std/test": "jsr:@std/test@0.2.0"
       }
     }"#;
-    let config_specifier = root_url().join("deno.json").unwrap();
+    let config_specifier = root_url().join("oden.json").unwrap();
     let config_file = ConfigFile::new(config_text, config_specifier).unwrap();
     let result = config_file.to_import_map_from_imports().unwrap();
 
@@ -3643,13 +3643,13 @@ mod tests {
       // will be ignored because imports and scopes takes precedence
       "importMap": "import_map.json",
     }"#;
-    let config_specifier = root_url().join("deno.json").unwrap();
+    let config_specifier = root_url().join("oden.json").unwrap();
     let config_file = ConfigFile::new(config_text, config_specifier).unwrap();
     let result = config_file.to_import_map(&UnreachableSys).unwrap().unwrap();
 
     assert_eq!(
       result.import_map.base_url(),
-      &root_url().join("deno.json").unwrap()
+      &root_url().join("oden.json").unwrap()
     );
     assert_eq!(
       json!(result.import_map.imports()),
@@ -3668,13 +3668,13 @@ mod tests {
       // will be ignored because imports and scopes takes precedence
       "importMap": "import_map.json",
     }"#;
-    let config_specifier = root_url().join("deno.json").unwrap();
+    let config_specifier = root_url().join("oden.json").unwrap();
     let config_file = ConfigFile::new(config_text, config_specifier).unwrap();
     let result = config_file.to_import_map(&UnreachableSys).unwrap().unwrap();
 
     assert_eq!(
       result.import_map.base_url(),
-      &root_url().join("deno.json").unwrap()
+      &root_url().join("oden.json").unwrap()
     );
     assert_eq!(
       json!(result.import_map),
@@ -3715,7 +3715,7 @@ mod tests {
     let config_text = r#"{
       "importMap": "import_map.json",
     }"#;
-    let config_specifier = root_url().join("deno.json").unwrap();
+    let config_specifier = root_url().join("oden.json").unwrap();
     let config_file = ConfigFile::new(config_text, config_specifier).unwrap();
     let result = config_file.to_import_map(&MockFs).unwrap().unwrap();
 
@@ -3737,14 +3737,14 @@ mod tests {
     let config_text = r#"{
       "importMap": "https://deno.land/import_map.json",
     }"#;
-    let config_specifier = root_url().join("deno.json").unwrap();
+    let config_specifier = root_url().join("oden.json").unwrap();
     let config_file = ConfigFile::new(config_text, config_specifier).unwrap();
     let err = config_file.to_import_map(&UnreachableSys).unwrap_err();
     assert_eq!(
       err.to_string(),
       concat!(
         "Only file: specifiers are supported for security reasons in ",
-        "import maps stored in a deno.json. To use a remote import map, ",
+        "import maps stored in a oden.json. To use a remote import map, ",
         "use the --import-map flag and \"deno.importMap\" in the ",
         "language server config"
       )
@@ -3764,33 +3764,33 @@ mod tests {
     let config_text = r#"{
       "tasks": {
         // dev task
-        "dev": "deno run -A --watch mod.ts",
+        "dev": "oden run -A --watch mod.ts",
         // run task
         // with multiple line comments
-        "run": "deno run -A mod.ts", // comments not supported here
+        "run": "oden run -A mod.ts", // comments not supported here
         /*
          * test task
          *
          * with multi-line comments
          */
-        "test": "deno test",
-        /* we should */ /* ignore these */ "fmt": "deno fmt",
-        "lint": "deno lint"
+        "test": "oden test",
+        /* we should */ /* ignore these */ "fmt": "oden fmt",
+        "lint": "oden lint"
         // trailing comments
       },
     }"#;
 
     let config =
-      ConfigFile::new(config_text, root_url().join("deno.jsonc").unwrap())
+      ConfigFile::new(config_text, root_url().join("oden.jsonc").unwrap())
         .unwrap();
     assert_eq!(
       config.resolve_tasks_config().unwrap(),
       IndexMap::from([
-        ("dev".into(), "deno run -A --watch mod.ts".into(),),
-        ("run".into(), "deno run -A mod.ts".into(),),
-        ("test".into(), "deno test".into(),),
-        ("fmt".into(), "deno fmt".into(),),
-        ("lint".into(), "deno lint".into(),)
+        ("dev".into(), "oden run -A --watch mod.ts".into(),),
+        ("run".into(), "oden run -A mod.ts".into(),),
+        ("test".into(), "oden test".into(),),
+        ("fmt".into(), "oden fmt".into(),),
+        ("lint".into(), "oden lint".into(),)
       ])
     );
   }
@@ -3799,7 +3799,7 @@ mod tests {
   fn resolve_import_map_url_parent() {
     let config_text = r#"{ "importMap": "../import_map.json" }"#;
     let file_path = deno_path_util::url_to_file_path(
-      &root_url().join("sub/deno.json").unwrap(),
+      &root_url().join("sub/oden.json").unwrap(),
     )
     .unwrap();
     let config_specifier =
@@ -3838,7 +3838,7 @@ mod tests {
     ];
     for (config_text, (frozen, resolved_path)) in cases {
       let config_file =
-        ConfigFile::new(config_text, root_url().join("deno.json").unwrap())
+        ConfigFile::new(config_text, root_url().join("oden.json").unwrap())
           .unwrap();
       let lock_config = config_file.to_lock_config().unwrap().unwrap();
       assert_eq!(
@@ -3873,7 +3873,7 @@ mod tests {
     fn get_result(
       text: &str,
     ) -> Result<AllowScriptsConfig, ToInvalidConfigError> {
-      let config_specifier = root_url().join("deno.json").unwrap();
+      let config_specifier = root_url().join("oden.json").unwrap();
       let config_file = ConfigFile::new(text, config_specifier).unwrap();
       config_file.to_allow_scripts_config()
     }

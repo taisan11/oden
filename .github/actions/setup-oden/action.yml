@@ -1,0 +1,18 @@
+# Copyright 2018-2026 the Deno authors. MIT license.
+name: Setup Oden bootstrap runtime
+description: Install an upstream runtime as oden for repository tooling
+inputs:
+  deno-version:
+    description: Upstream runtime version used to bootstrap builds
+    default: v2.x
+runs:
+  using: composite
+  steps:
+    - uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+    - name: Provide oden bootstrap executable
+      shell: bash
+      run: >-
+        deno eval 'const exe = Deno.execPath();
+        Deno.copyFileSync(exe, exe.replace(/deno(\.exe)?$/, "oden$1"));'

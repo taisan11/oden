@@ -62,7 +62,7 @@ fn main() {
   #[cfg(unix)]
   {
     use std::os::unix::process::CommandExt;
-    let err = process::Command::new("deno")
+    let err = process::Command::new("oden")
       .arg0(&deno_args[0])
       .args(&deno_args[1..])
       .exec();
@@ -72,7 +72,7 @@ fn main() {
 
   #[cfg(not(unix))]
   {
-    let status = process::Command::new("deno")
+    let status = process::Command::new("oden")
       .args(&deno_args[1..])
       .status()
       .expect("Failed to execute deno");

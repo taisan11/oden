@@ -49,15 +49,15 @@ pub fn resolve_deno_dir<'a, Sys: ResolveDenoDirSys>(
   let root = if let Some(root) = maybe_custom_root {
     root
   } else if let Some(xdg_cache_dir) = sys.env_var_path("XDG_CACHE_HOME") {
-    Cow::Owned(xdg_cache_dir.join("deno"))
+    Cow::Owned(xdg_cache_dir.join("oden"))
   } else if let Some(cache_dir) = sys.env_cache_dir() {
     // We use the OS cache dir because all files deno writes are cache files
     // Once that changes we need to start using different roots if DENO_DIR
     // is not set, and keep a single one if it is.
-    Cow::Owned(cache_dir.join("deno"))
+    Cow::Owned(cache_dir.join("oden"))
   } else if let Some(home_dir) = sys.env_home_dir() {
     // fallback path
-    Cow::Owned(home_dir.join(".deno"))
+    Cow::Owned(home_dir.join(".oden"))
   } else {
     return Err(DenoDirResolutionError::NoCacheOrHomeDir);
   };

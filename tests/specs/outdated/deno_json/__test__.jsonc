@@ -67,8 +67,8 @@
           "output": "./update_compatible/update.out"
         },
         {
-          "args": "-A print_file.ts ./deno.json",
-          "output": "./update_compatible/deno.json.out"
+          "args": "-A print_file.ts ./oden.json",
+          "output": "./update_compatible/oden.json.out"
         },
         {
           "args": "-A print_file.ts ./deno.lock",
@@ -87,8 +87,8 @@
           "output": "update_latest/update.out"
         },
         {
-          "args": "-A print_file.ts ./deno.json",
-          "output": "./update_latest/deno.json.out"
+          "args": "-A print_file.ts ./oden.json",
+          "output": "./update_latest/oden.json.out"
         },
         {
           "args": "-A print_file.ts ./deno.lock",
@@ -107,8 +107,8 @@
           "output": "filtered/update.out"
         },
         {
-          "args": "-A print_file.ts ./deno.json",
-          "output": "filtered/deno.json.out"
+          "args": "-A print_file.ts ./oden.json",
+          "output": "filtered/oden.json.out"
         }
       ]
     },
@@ -123,9 +123,9 @@
           "output": "update_latest_lockfile_only/update.out"
         },
         {
-          // --lockfile-only must not touch deno.json.
-          "args": "-A print_file.ts ./deno.json",
-          "output": "./update_latest_lockfile_only/deno.json.out"
+          // --lockfile-only must not touch oden.json.
+          "args": "-A print_file.ts ./oden.json",
+          "output": "./update_latest_lockfile_only/oden.json.out"
         },
         {
           "args": "-A print_file.ts ./deno.lock",

@@ -201,7 +201,7 @@ pub async fn ci_command(
   let factory = CliFactory::from_flags(flags.clone());
   if factory.maybe_lockfile().await?.is_none() {
     bail!(
-      "deno ci requires a lockfile, but none was found.\n  hint: run `deno install` to create one."
+      "oden ci requires a lockfile, but none was found.\n  hint: run `oden install` to create one."
     );
   }
   if let Some(node_modules_dir) = factory.node_modules_dir_path()?
@@ -231,19 +231,19 @@ pub async fn ci_command(
   .await
 }
 
-/// `deno sync-types`: generate a tsconfig + type mappings so stock TypeScript
+/// `oden sync-types`: generate a tsconfig + type mappings so stock TypeScript
 /// tooling can type-check the project. Assumes dependencies are already
-/// installed (run `deno install` first); materializes `jsr:`/`http(s):` types
-/// and writes `.deno/tsconfig.json`.
+/// installed (run `oden install` first); materializes `jsr:`/`http(s):` types
+/// and writes `.oden/tsconfig.json`.
 /// How `sync_types_command` should treat the root `tsconfig.json`.
 #[derive(Debug, Clone, Copy)]
 pub enum RootTsConfigMode {
-  /// Always create/update a root `tsconfig.json` extending `.deno/tsconfig.json`
-  /// (used by the standalone `deno sync-types` command, for IDE setup).
+  /// Always create/update a root `tsconfig.json` extending `.oden/tsconfig.json`
+  /// (used by the standalone `oden sync-types` command, for IDE setup).
   Always,
   /// Only manage the root `tsconfig.json` when Deno is honoring a user's
-  /// tsconfig (a deno.json/package.json is present and config isn't disabled).
-  /// Used by `deno check`, which otherwise points tsc at `.deno/tsconfig.json`
+  /// tsconfig (a oden.json/package.json is present and config isn't disabled).
+  /// Used by `oden check`, which otherwise points tsc at `.oden/tsconfig.json`
   /// directly and must not rewrite a tsconfig Deno is ignoring.
   CheckMode,
 }
@@ -263,8 +263,8 @@ pub async fn sync_types_command(
   let permissions = factory.root_permissions_container()?.clone();
 
   // Generate at the workspace/config root, not the current working directory,
-  // so running `deno sync-types` from a subdirectory still writes the config
-  // next to deno.json and picks up the root import map.
+  // so running `oden sync-types` from a subdirectory still writes the config
+  // next to oden.json and picks up the root import map.
   let project_root = cli_options
     .workspace()
     .root_dir_url()
@@ -292,13 +292,13 @@ pub async fn sync_types_command(
         include_ignored_specified: has_explicit_roots,
       },
     )?;
-    // `collect_specifiers` honors deno.json excludes and the vendor dir, but not
-    // `node_modules`, our generated `.deno/`, or the DENO_DIR cache. On a real
+    // `collect_specifiers` honors oden.json excludes and the vendor dir, but not
+    // `node_modules`, our generated `.oden/`, or the DENO_DIR cache. On a real
     // project those trees hold tens of thousands of files; feeding them as graph
     // roots makes the build choke. Keep only the project's own source so we
     // discover the external specifiers it actually imports.
     //
-    // The `node_modules`/`.deno` check is on the path RELATIVE to the project
+    // The `node_modules`/`.oden` check is on the path RELATIVE to the project
     // root, so a project that happens to live beneath an ancestor directory
     // named `node_modules` (e.g. developed in place) isn't filtered away
     // entirely. DENO_DIR is filtered by prefix when resolvable; it's normally
@@ -317,7 +317,7 @@ pub async fn sync_types_command(
         }
         let rel = path.strip_prefix(&project_root).unwrap_or(&path);
         !rel.components().any(|c| {
-          matches!(c.as_os_str().to_str(), Some("node_modules") | Some(".deno"))
+          matches!(c.as_os_str().to_str(), Some("node_modules") | Some(".oden"))
         })
       })
       .collect();
@@ -333,8 +333,8 @@ pub async fn sync_types_command(
     // *did* resolve regardless.
     let graph_creator = factory.module_graph_creator().await?;
     // Silence warn-level diagnostics during this discovery build. It's an
-    // internal step (not the user's `deno check`), and the graph the user
-    // installed was already validated by `deno install` — re-emitting e.g.
+    // internal step (not the user's `oden check`), and the graph the user
+    // installed was already validated by `oden install` — re-emitting e.g.
     // "workspace member ... was not used" warnings here is just noise.
     let prev_log_level = log::max_level();
     log::set_max_level(log::LevelFilter::Error);
@@ -420,8 +420,8 @@ pub async fn sync_types_command(
   let npm_resolver = factory.npm_resolver().await?.clone();
 
   // Deno's *resolved* compiler options for the project root. These fold in
-  // Deno's source-kind defaults (deno.json vs tsconfig.json) and CLI overrides
-  // like `--check-js`, which the raw deno.json read inside `setup_npm_compat`
+  // Deno's source-kind defaults (oden.json vs tsconfig.json) and CLI overrides
+  // like `--check-js`, which the raw oden.json read inside `setup_npm_compat`
   // can't see. Resolve against a representative file under the root so any
   // detected tsconfig `include`/`files` filter matches.
   let root_specifier = cli_options
@@ -442,18 +442,18 @@ pub async fn sync_types_command(
       .map(|opts| opts.0.clone())
   });
 
-  // Whether to manage the root `tsconfig.json`. `deno check` (CheckMode) never
+  // Whether to manage the root `tsconfig.json`. `oden check` (CheckMode) never
   // rewrites a committed tsconfig (that would dirty the working tree). When it
   // honors a user tsconfig it instead builds a throwaway overlay in a temp file
   // (see `native_check` / `build_check_root_overlay`), leaving the user's tree
-  // untouched. `deno sync-types` (Always) still sets up the root tsconfig for
+  // untouched. `oden sync-types` (Always) still sets up the root tsconfig for
   // IDEs.
   let manage_root_tsconfig = match root_tsconfig_mode {
     RootTsConfigMode::Always => true,
     RootTsConfigMode::CheckMode => false,
   };
 
-  // `deno check --all` type-checks remote modules; otherwise mirrored remote
+  // `oden check --all` type-checks remote modules; otherwise mirrored remote
   // scripts get `// @ts-nocheck` so tsc skips their internals.
   let type_check_remote =
     cli_options.type_check_mode() == crate::args::TypeCheckMode::All;
@@ -501,7 +501,7 @@ pub fn check_if_installs_a_single_package_globally(
   };
   if matches!(url.scheme(), "http" | "https") {
     bail!(
-      "Failed to install \"{}\" specifier. If you are trying to install {} globally, run again with `-g` flag:\n  deno install -g {}",
+      "Failed to install \"{}\" specifier. If you are trying to install {} globally, run again with `-g` flag:\n  oden install -g {}",
       url.scheme(),
       url.as_str(),
       url.as_str()

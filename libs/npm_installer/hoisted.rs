@@ -357,7 +357,7 @@ impl<
         .workspace_pkgs()
         .iter()
         .any(|pkg| !pkg.scripts.is_empty());
-    let deno_marker_dir = self.root_node_modules_path.join(".deno");
+    let deno_marker_dir = self.root_node_modules_path.join(".oden");
     if has_no_packages
       && (!self.clean_on_install
         || !self.sys.fs_exists_no_err(&deno_marker_dir))
@@ -374,13 +374,13 @@ impl<
     // Create the node_modules directory
     sys.fs_create_dir_all(&self.root_node_modules_path)?;
 
-    // Use a marker directory for the lock file (reuse .deno for compatibility)
+    // Use a marker directory for the lock file (reuse .oden for compatibility)
     sys.fs_create_dir_all(&deno_marker_dir)?;
 
     let bin_node_modules_dir_path = self.root_node_modules_path.join(".bin");
     let single_process_lock = LaxSingleProcessFsFlag::lock(
       sys.as_ref(),
-      deno_marker_dir.join(".deno.lock"),
+      deno_marker_dir.join(".oden.lock"),
       &self.reporter,
       "waiting for file lock on node_modules directory",
     )

@@ -37,22 +37,22 @@ use crate::util::fs::canonicalize_path;
 
 pub static UPGRADE_USAGE: &str = cstr!(
   "<g>Latest</>
-  <bold>deno upgrade</>
+  <bold>oden upgrade</>
 
 <g>Specific version</>
-  <bold>deno upgrade</> <p(245)>1.45.0</>
-  <bold>deno upgrade</> <p(245)>1.46.0-rc.1</>
-  <bold>deno upgrade</> <p(245)>9bc2dd29ad6ba334fd57a20114e367d3c04763d4</>
+  <bold>oden upgrade</> <p(245)>1.45.0</>
+  <bold>oden upgrade</> <p(245)>1.46.0-rc.1</>
+  <bold>oden upgrade</> <p(245)>9bc2dd29ad6ba334fd57a20114e367d3c04763d4</>
 
 <g>Channel</>
-  <bold>deno upgrade</> <p(245)>stable</>
-  <bold>deno upgrade</> <p(245)>alpha</>
-  <bold>deno upgrade</> <p(245)>beta</>
-  <bold>deno upgrade</> <p(245)>rc</>
-  <bold>deno upgrade</> <p(245)>canary</>
+  <bold>oden upgrade</> <p(245)>stable</>
+  <bold>oden upgrade</> <p(245)>alpha</>
+  <bold>oden upgrade</> <p(245)>beta</>
+  <bold>oden upgrade</> <p(245)>rc</>
+  <bold>oden upgrade</> <p(245)>canary</>
 
 <g>From a pull request</> <p(245)>(requires gh CLI)</>
-  <bold>deno upgrade</> <p(245)>pr 12345</>"
+  <bold>oden upgrade</> <p(245)>pr 12345</>"
 );
 
 fn join_paths(allowlist: &[String], d: &str) -> String {
@@ -85,7 +85,7 @@ pub fn resolve_file_patterns(
   })
 }
 
-/// The `--target` triple for `deno compile`, defaulting to the triple this
+/// The `--target` triple for `oden compile`, defaulting to the triple this
 /// binary was built for.
 pub fn resolve_compile_target(flags: &CompileFlags) -> String {
   flags
@@ -558,7 +558,7 @@ impl FlagsExt for Flags {
         source_file: script,
         ..
       }) => resolve_single_folder_path(script, current_dir, |p| {
-        // The desktop entrypoint is commonly a directory (e.g. `deno desktop
+        // The desktop entrypoint is commonly a directory (e.g. `oden desktop
         // .` for framework detection), in which case the config lives in that
         // directory itself — don't pop up to its parent. Only pop when the
         // entrypoint is a file.
@@ -630,7 +630,7 @@ pub fn flags_from_vec(args: Vec<OsString>) -> Result<Flags, CliError> {
 /// Strip a single trailing carriage return from an argument.
 ///
 /// When a script with CRLF line endings starts with a shebang like
-/// `#!/usr/bin/env -S deno run --allow-net`, the kernel passes the trailing
+/// `#!/usr/bin/env -S oden run --allow-net`, the kernel passes the trailing
 /// `\r` as part of the final argument (e.g. `--allow-net\r`), which then
 /// fails clap parsing with a confusing "isn't valid in this context" error.
 /// Trimming a trailing CR here makes such scripts run as the author intended.
@@ -648,7 +648,7 @@ fn strip_trailing_cr(arg: OsString) -> OsString {
   }
 }
 
-/// Fast path for `deno run <file> [script args...]` with no deno-level flags
+/// Fast path for `oden run <file> [script args...]` with no deno-level flags
 /// before the file. Building the parse tree / walking the parser costs a couple
 /// microseconds; for the overwhelmingly common bare-run case we skip it and
 /// build `RunFlags` directly. Any deno flag before the file (anything starting
@@ -718,7 +718,7 @@ pub fn flags_from_vec_with_initial_cwd(
     args
   };
 
-  // Fast path for the overwhelmingly common `deno run <file> [args...]` with no
+  // Fast path for the overwhelmingly common `oden run <file> [args...]` with no
   // deno-level flags before the file: build `RunFlags` directly and skip the
   // parser entirely. `bare_run_fast_path` produces output identical to the full
   // parse (asserted by `fast_path_matches_full_parse`).
@@ -753,14 +753,14 @@ pub fn flags_from_vec_with_initial_cwd(
   }
 }
 
-/// Render the text printed by `deno --version` (`long`) and `deno -V` (short).
+/// Render the text printed by `oden --version` (`long`) and `oden -V` (short).
 /// Both forms are prefixed with the binary name and terminated by a newline,
 /// matching what clap's `render_long_version` / `render_version` used to emit.
 pub fn render_version(long: bool) -> String {
   if long {
     debug_assert_eq!(DENO_VERSION_INFO.typescript, deno_snapshots::TS_VERSION);
     format!(
-      "deno {} ({}, {}, {})\nv8 {}\ntypescript {}\n",
+      "oden {} ({}, {}, {})\nv8 {}\ntypescript {}\n",
       DENO_VERSION_INFO.deno,
       DENO_VERSION_INFO.release_channel.name(),
       env!("PROFILE"),
@@ -769,7 +769,7 @@ pub fn render_version(long: bool) -> String {
       DENO_VERSION_INFO.typescript,
     )
   } else {
-    format!("deno {}\n", DENO_VERSION_INFO.deno)
+    format!("oden {}\n", DENO_VERSION_INFO.deno)
   }
 }
 
@@ -795,7 +795,7 @@ where
 /// Handle a dynamic-completion callback: the shell invoked us with
 /// `COMPLETE=<shell>` set and the words being completed passed after a `--`
 /// separator. Candidates are computed from the hand-written command tree via
-/// `deno_cli_parser::completions` (no clap), with `deno task` names supplied by
+/// `deno_cli_parser::completions` (no clap), with `oden task` names supplied by
 /// [`dynamic_task_completer`].
 pub fn handle_shell_completion(_cwd: &Path) -> Result<(), AnyError> {
   let shell = std::env::var("COMPLETE").unwrap_or_default();
@@ -818,12 +818,12 @@ pub fn handle_dynamic_shell_completion(shell: &str) -> Result<(), AnyError> {
   let completer = std::env::args_os()
     .next()
     .map(|s| s.to_string_lossy().into_owned())
-    .unwrap_or_else(|| "deno".to_string());
+    .unwrap_or_else(|| "oden".to_string());
   let completer = shlex::try_quote(&completer)
     .map(|c| c.into_owned())
     .unwrap_or(completer);
   let script =
-    deno_cli_parser::completions::generate_dynamic(shell, "deno", &completer);
+    deno_cli_parser::completions::generate_dynamic(shell, "oden", &completer);
   deno_print::drop_write_stdout(&script);
   Ok(())
 }
@@ -845,7 +845,7 @@ fn shell_completion_words() -> Vec<String> {
 }
 
 /// Positional-argument completer injected into the parser's completion engine.
-/// Completes `deno task <TAB>` with the available task names read from the
+/// Completes `oden task <TAB>` with the available task names read from the
 /// resolved config (the only dynamic completion Deno offers). Kept CLI-side
 /// because the parser crate has no config/workspace access.
 fn dynamic_task_completer(
@@ -873,7 +873,7 @@ fn dynamic_task_completer(
 }
 
 /// Best-effort parse of the completion command line into `Flags`, used to pick
-/// up `deno task`'s `--config`/`--recursive`/`--filter` for task resolution.
+/// up `oden task`'s `--config`/`--recursive`/`--filter` for task resolution.
 fn task_flags_for_completion() -> Option<Flags> {
   let words = shell_completion_words();
   // The last word is the partial being completed; if the full line doesn't
@@ -914,11 +914,11 @@ mod tests {
     // Cases where the fast path SHOULD fire; its output must equal the full
     // parse (neither sets `initial_cwd`, so both default to `None`).
     let fires: &[&[&str]] = &[
-      &["deno", "run", "script.ts"],
-      &["deno", "run", "./path/to/mod.ts"],
-      &["deno", "run", "script.ts", "a", "b"],
-      &["deno", "run", "script.ts", "--", "--foo", "-x"],
-      &["deno", "run", "https://example.com/mod.ts", "arg"],
+      &["oden", "run", "script.ts"],
+      &["oden", "run", "./path/to/mod.ts"],
+      &["oden", "run", "script.ts", "a", "b"],
+      &["oden", "run", "script.ts", "--", "--foo", "-x"],
+      &["oden", "run", "https://example.com/mod.ts", "arg"],
     ];
     for case in fires {
       let os_args: Vec<OsString> = case.iter().map(OsString::from).collect();
@@ -937,11 +937,11 @@ mod tests {
 
     // Cases where the fast path must decline and fall through to the parser.
     let declines: &[&[&str]] = &[
-      &["deno", "run"],                    // no script
-      &["deno", "run", "-"],               // stdin
-      &["deno", "run", "-A", "script.ts"], // flag before script
-      &["deno", "run", "--watch", "s.ts"], // flag before script
-      &["deno", "test", "script.ts"],      // not `run`
+      &["oden", "run"],                    // no script
+      &["oden", "run", "-"],               // stdin
+      &["oden", "run", "-A", "script.ts"], // flag before script
+      &["oden", "run", "--watch", "s.ts"], // flag before script
+      &["oden", "test", "script.ts"],      // not `run`
     ];
     for case in declines {
       let os_args: Vec<OsString> = case.iter().map(OsString::from).collect();
@@ -955,7 +955,7 @@ mod tests {
   #[test]
   fn install_os_arch_flags() {
     let r = flags_from_vec(svec![
-      "deno", "install", "--os", "linux", "--arch", "arm64"
+      "oden", "install", "--os", "linux", "--arch", "arm64"
     ]);
     let flags = r.unwrap();
     assert_eq!(
@@ -983,7 +983,7 @@ mod tests {
 
   #[test]
   fn install_os_only_flag() {
-    let r = flags_from_vec(svec!["deno", "install", "--os", "win32"]);
+    let r = flags_from_vec(svec!["oden", "install", "--os", "win32"]);
     let flags = r.unwrap();
     assert_eq!(
       flags.subcommand,
@@ -1008,9 +1008,9 @@ mod tests {
     // The package management subcommands that resolve versions must accept the
     // flag so users can act on the "blocked by minimum dependency age" hint.
     let cases = [
-      svec!["deno", "add", "--min-dep-age=0", "jsr:@std/path"],
-      svec!["deno", "add", "--minimum-dependency-age=0", "jsr:@std/path"],
-      svec!["deno", "remove", "--min-dep-age=0", "@std/path"],
+      svec!["oden", "add", "--min-dep-age=0", "jsr:@std/path"],
+      svec!["oden", "add", "--minimum-dependency-age=0", "jsr:@std/path"],
+      svec!["oden", "remove", "--min-dep-age=0", "@std/path"],
     ];
     for args in cases {
       let flags = flags_from_vec(args.clone())
@@ -1025,12 +1025,12 @@ mod tests {
 
   #[test]
   fn test_config_path_args() {
-    let flags = flags_from_vec(svec!["deno", "run", "foo.js"]).unwrap();
+    let flags = flags_from_vec(svec!["oden", "run", "foo.js"]).unwrap();
     let cwd = resolve_cwd(None).unwrap().into_owned();
 
     assert_eq!(flags.config_path_args(&cwd), Some(vec![cwd.clone()]));
 
-    let flags = flags_from_vec(svec!["deno", "run", "sub_dir/foo.js"]).unwrap();
+    let flags = flags_from_vec(svec!["oden", "run", "sub_dir/foo.js"]).unwrap();
     let cwd = resolve_cwd(None).unwrap().into_owned();
     assert_eq!(
       flags.config_path_args(&cwd),
@@ -1038,38 +1038,38 @@ mod tests {
     );
 
     let flags =
-      flags_from_vec(svec!["deno", "https://example.com/foo.js"]).unwrap();
+      flags_from_vec(svec!["oden", "https://example.com/foo.js"]).unwrap();
     assert_eq!(flags.config_path_args(&cwd), None);
 
-    let flags = flags_from_vec(svec!["deno", "run", "jsr:@scope/foo"]).unwrap();
+    let flags = flags_from_vec(svec!["oden", "run", "jsr:@scope/foo"]).unwrap();
     assert_eq!(flags.config_path_args(&cwd), Some(vec![cwd.clone()]));
 
-    let flags = flags_from_vec(svec!["deno", "run", "npm:@scope/foo"]).unwrap();
+    let flags = flags_from_vec(svec!["oden", "run", "npm:@scope/foo"]).unwrap();
     assert_eq!(flags.config_path_args(&cwd), Some(vec![cwd.clone()]));
 
     let flags =
-      flags_from_vec(svec!["deno", "lint", "dir/a/a.js", "dir/b/b.js"])
+      flags_from_vec(svec!["oden", "lint", "dir/a/a.js", "dir/b/b.js"])
         .unwrap();
     assert_eq!(
       flags.config_path_args(&cwd),
       Some(vec![cwd.join("dir/a/a.js"), cwd.join("dir/b/b.js")])
     );
 
-    let flags = flags_from_vec(svec!["deno", "lint"]).unwrap();
+    let flags = flags_from_vec(svec!["oden", "lint"]).unwrap();
     assert_eq!(flags.config_path_args(&cwd), Some(vec![cwd.clone()]));
 
-    let flags = flags_from_vec(svec!["deno", "cache", "sub/test.js"]).unwrap();
+    let flags = flags_from_vec(svec!["oden", "cache", "sub/test.js"]).unwrap();
     assert_eq!(flags.config_path_args(&cwd), Some(vec![cwd.join("sub")]));
 
-    let flags = flags_from_vec(svec!["deno", "cache", "."]).unwrap();
+    let flags = flags_from_vec(svec!["oden", "cache", "."]).unwrap();
     assert_eq!(flags.config_path_args(&cwd), Some(vec![cwd.clone()]));
 
     let flags =
-      flags_from_vec(svec!["deno", "install", "-e", "sub/test.js"]).unwrap();
+      flags_from_vec(svec!["oden", "install", "-e", "sub/test.js"]).unwrap();
     assert_eq!(flags.config_path_args(&cwd), Some(vec![cwd.join("sub")]));
 
     let flags = flags_from_vec(svec![
-      "deno",
+      "oden",
       "fmt",
       "dir/a/a.js",
       "dir/a/a2.js",
@@ -1085,21 +1085,21 @@ mod tests {
       ])
     );
 
-    // `deno desktop .` (and bare `deno desktop`) runs framework detection on
+    // `oden desktop .` (and bare `oden desktop`) runs framework detection on
     // the current directory, so config discovery must start in that directory
     // rather than its parent. See issue #35653.
-    let flags = flags_from_vec(svec!["deno", "desktop", "."]).unwrap();
+    let flags = flags_from_vec(svec!["oden", "desktop", "."]).unwrap();
     assert_eq!(flags.config_path_args(&cwd), Some(vec![cwd.clone()]));
 
-    let flags = flags_from_vec(svec!["deno", "desktop"]).unwrap();
+    let flags = flags_from_vec(svec!["oden", "desktop"]).unwrap();
     assert_eq!(flags.config_path_args(&cwd), Some(vec![cwd.clone()]));
 
     // An explicit file entrypoint resolves to its containing directory.
     let flags =
-      flags_from_vec(svec!["deno", "desktop", "sub/main.ts"]).unwrap();
+      flags_from_vec(svec!["oden", "desktop", "sub/main.ts"]).unwrap();
     assert_eq!(flags.config_path_args(&cwd), Some(vec![cwd.join("sub")]));
   }
-  /// `deno <sub> --help`, `deno <sub> -h` and `deno help <sub>` must all render
+  /// `deno <sub> --help`, `deno <sub> -h` and `oden help <sub>` must all render
   /// the same text for every subcommand.
   #[test]
   fn equal_help_output() {
@@ -1117,9 +1117,9 @@ mod tests {
           _ => unreachable!("{} did not render help", command.name),
         };
 
-      let long_flag = render(svec!["deno", command.name, "--help"]);
-      let short_flag = render(svec!["deno", command.name, "-h"]);
-      let subcommand = render(svec!["deno", "help", command.name]);
+      let long_flag = render(svec!["oden", command.name, "--help"]);
+      let short_flag = render(svec!["oden", command.name, "-h"]);
+      let subcommand = render(svec!["oden", "help", command.name]);
 
       assert_eq!(long_flag, short_flag, "{} subcommand", command.name);
       assert_eq!(long_flag, subcommand, "{} subcommand", command.name);
@@ -1128,7 +1128,7 @@ mod tests {
 
   /// When `deno <subcommand>` is spawned via `node:child_process`, the args are
   /// passed through unchanged only if node_shim recognizes the subcommand.
-  /// Otherwise it is misinterpreted as a script for `deno run` (see #35591).
+  /// Otherwise it is misinterpreted as a script for `oden run` (see #35591).
   /// This test fails if a subcommand is added to the CLI without also adding it
   /// to `DENO_SUBCOMMANDS` in `libs/node_shim/lib.rs`.
   ///

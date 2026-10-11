@@ -59,7 +59,7 @@ Tests are run in parallel across CPU cores, partitioned by top-level directory.
 ### Flags
 
 - `--all` — Run all tests (required if no filters are specified)
-- `--release` — Use `./target/release/deno` instead of `./target/debug/deno`
+- `--release` — Use `./target/release/oden` instead of `./target/debug/oden`
 - `--binary=<path>` — Use a specific Deno binary (skips `cargo build`)
 - `--quiet` — Only print failing test cases
 - `--json=<file>` — Write test results as JSON

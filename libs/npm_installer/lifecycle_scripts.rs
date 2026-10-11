@@ -50,7 +50,7 @@ pub struct LifecycleScriptsExecutorOptions<'a> {
   /// Resolves the on-disk folder of a package for the node_modules layout
   /// being installed, so the executor can locate the dependency bins that
   /// lifecycle scripts invoke. When `None`, the executor falls back to its
-  /// own npm resolver, which assumes the isolated (`.deno`) layout — the
+  /// own npm resolver, which assumes the isolated (`.oden`) layout — the
   /// hoisted installer must provide this to map packages to their hoisted
   /// locations.
   pub resolve_pkg_folder: Option<ResolvePkgFolderFn<'a>>,
@@ -139,7 +139,7 @@ pub trait LifecycleScriptsStrategy {
 /// that workspace-aware scripts such as `@sveltejs/kit`'s `postinstall` operate
 /// on each member.
 ///
-/// When `deno install` runs in a workspace whose root is a `deno.json` (no root
+/// When `oden install` runs in a workspace whose root is a `oden.json` (no root
 /// `package.json`), tools that read the root `package.json` `workspaces` field
 /// (as npm/svelte-kit do) cannot discover the members. Running the script per
 /// member with the member as `INIT_CWD` reproduces what those tools would do in

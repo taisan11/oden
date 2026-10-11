@@ -65,7 +65,7 @@ export class DenoWorkspace {
 
   async runFormatter() {
     await this.#repo.command(
-      "deno run --allow-write --allow-read --allow-net --allow-run ./tools/format.js",
+      "oden run --allow-write --allow-read --allow-net --allow-run ./tools/format.js",
     );
   }
 }

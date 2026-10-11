@@ -1,6 +1,6 @@
 // Copyright 2018-2026 the Deno authors. MIT license.
 
-//! Desktop window management ops for `deno compile --desktop`.
+//! Desktop window management ops for `oden compile --desktop`.
 //!
 //! These ops are included in the V8 snapshot so their external references
 //! are stable. When `DesktopApi` is not present in OpState (non-desktop
@@ -708,7 +708,7 @@ pub enum PermissionState {
 /// window; subsequent constructors create new windows.
 pub struct InitialWindowId(pub std::sync::Mutex<Option<u32>>);
 
-/// The compiled app's name (from deno.json `desktop.app.name`, falling back to
+/// The compiled app's name (from oden.json `desktop.app.name`, falling back to
 /// the output file name). Used as the default window title so a window the app
 /// doesn't explicitly title shows the app name instead of the backend's
 /// internal default (`laufey_webview`).
@@ -1125,7 +1125,7 @@ pub enum MenuItem {
 pub struct AutoUpdateState {
   /// Path to the currently running dylib on disk.
   pub dylib_path: std::path::PathBuf,
-  /// App version from metadata (deno.json `version` field).
+  /// App version from metadata (oden.json `version` field).
   pub app_version: Option<String>,
   /// Whether we rolled back from a failed update on this launch.
   pub rolled_back: bool,
@@ -1602,7 +1602,7 @@ fn op_desktop_send_error_report(state: &mut OpState, #[string] body: &str) {
   // (`https://`) primitive that bypasses the `--allow-write`/`--allow-net`
   // permission checks every other fs/net op performs.
   let Some((url, _)) = error_report_config() else {
-    // No reporting URL configured (e.g. plain `deno run`, or a desktop app
+    // No reporting URL configured (e.g. plain `oden run`, or a desktop app
     // that didn't set one) — there is nowhere to send, so do nothing.
     return;
   };
@@ -2905,7 +2905,7 @@ mod tests {
   fn verify_ed25519_accepts_real_signature() {
     use ed25519_dalek::Signer;
     let (sk, vk) = keypair_from_seed(&[1u8; 32]);
-    let message = b"deno desktop update v1.2.3";
+    let message = b"oden desktop update v1.2.3";
     let sig = sk.sign(message);
     let ok =
       verify_ed25519_b64(&b64(&vk.to_bytes()), &b64(&sig.to_bytes()), message);
@@ -2916,10 +2916,10 @@ mod tests {
   fn verify_ed25519_rejects_tampered_message() {
     use ed25519_dalek::Signer;
     let (sk, vk) = keypair_from_seed(&[1u8; 32]);
-    let original = b"deno desktop update v1.2.3";
+    let original = b"oden desktop update v1.2.3";
     let sig = sk.sign(original);
     // Flip a single byte of the message — a correct verifier must reject.
-    let tampered = b"deno desktop update v1.2.4";
+    let tampered = b"oden desktop update v1.2.4";
     let ok =
       verify_ed25519_b64(&b64(&vk.to_bytes()), &b64(&sig.to_bytes()), tampered);
     assert!(!ok, "tampered message must fail verification");

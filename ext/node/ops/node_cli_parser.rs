@@ -260,7 +260,7 @@ mod tests {
     let result = translate_to_deno_args(parsed, false, true);
     // Eval code should be wrapped for child_process
     assert!(result.deno_args.contains(&"eval".to_string()));
-    // Note: deno eval has implicit permissions, so -A is not added
+    // Note: oden eval has implicit permissions, so -A is not added
     // The wrapped code should contain process.getBuiltinModule("vm").runInThisContext
     assert!(result.deno_args.iter().any(|a| {
       a.contains(r#"process.getBuiltinModule("vm").runInThisContext"#)
@@ -391,7 +391,7 @@ mod tests {
   #[test]
   fn test_translate_subcommand_passthrough() {
     // Deno subcommands spawned via node:child_process should be passed through
-    // unchanged rather than being treated as a script for `deno run`. See
+    // unchanged rather than being treated as a script for `oden run`. See
     // #35591.
     for subcommand in ["bundle", "serve", "fmt", "compile", "lint"] {
       let parsed =

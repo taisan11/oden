@@ -405,7 +405,7 @@ impl<
   /// snapshot, regardless of whether the referrer's `package.json` declares
   /// it.
   ///
-  /// `deno compile --bundle` follows `new Worker(new URL(...))` and similar
+  /// `oden compile --bundle` follows `new Worker(new URL(...))` and similar
   /// references into modules that can live outside the entrypoint's package
   /// scope (e.g. a worker authored in a sibling source tree, pulled in
   /// alongside a `dist/`-rooted entrypoint). A bare npm import from such a
@@ -789,7 +789,7 @@ pub fn enhanced_resolution_error_message(
     get_import_prefix_missing_error(error).map(|specifier| {
       // If the specifier looks like a workspace member or linked package whose
       // declared name is scoped (e.g. importing "foo" when "@scope/foo" is
-      // linked), point at the real name instead of suggesting `deno add`.
+      // linked), point at the real name instead of suggesting `oden add`.
       if let Some(name) =
         maybe_matching_bare_pkg_name(specifier, bare_importable_pkg_names)
       {
@@ -798,17 +798,17 @@ pub fn enhanced_resolution_error_message(
         )
       } else if specifier.starts_with("@std/") {
         format!(
-          "If you want to use the JSR package, try running `deno add jsr:{}`",
+          "If you want to use the JSR package, try running `oden add jsr:{}`",
           specifier
         )
       } else if specifier.starts_with('@') {
         format!(
-          "If you want to use a JSR or npm package, try running `deno add jsr:{0}` or `deno add npm:{0}`",
+          "If you want to use a JSR or npm package, try running `oden add jsr:{0}` or `oden add npm:{0}`",
           specifier
         )
       } else {
         format!(
-          "If you want to use the npm package, try running `deno add npm:{0}`",
+          "If you want to use the npm package, try running `oden add npm:{0}`",
           specifier
         )
       }
@@ -877,7 +877,7 @@ pub fn enhanced_integrity_error_message(err: &ModuleError) -> Option<String> {
         "  Expected: {}\n\n",
         "If you modified your global cache, run again with the --reload flag to restore ",
         "its state. If you want to modify dependencies locally run again with the ",
-        "--vendor flag or specify `\"vendor\": true` in a deno.json then modify the contents ",
+        "--vendor flag or specify `\"vendor\": true` in a oden.json then modify the contents ",
         "of the vendor/ folder."
       ),
       specifier, checksum_err.actual, checksum_err.expected,
@@ -1049,7 +1049,7 @@ fn get_import_prefix_missing_error(error: &ResolutionError) -> Option<&str> {
 
   if let Some(specifier) = maybe_specifier {
     // NOTE(bartlomieju): For now, return None if a specifier contains a dot or a space. This is because
-    // suggesting to `deno add bad-module.ts` makes no sense and is worse than not providing
+    // suggesting to `oden add bad-module.ts` makes no sense and is worse than not providing
     // a suggestion at all. This should be improved further in the future
     if specifier.contains('.') || specifier.contains(' ') {
       return None;
@@ -1129,7 +1129,7 @@ mod test {
     let cases = vec![("fs", Some("fs")), ("other", None)];
     for (input, output) in cases {
       let import_map =
-        import_map::ImportMap::new(Url::parse("file:///deno.json").unwrap());
+        import_map::ImportMap::new(Url::parse("file:///oden.json").unwrap());
       let specifier = Url::parse("file:///file.ts").unwrap();
       let err = import_map.resolve(input, &specifier).err().unwrap();
       let err = ResolutionError::ResolverError {

@@ -176,7 +176,7 @@ fn load_single_config(
   version_flags: &VersionFlags,
 ) -> Result<ConfigUpdater, AnyError> {
   // Explicit --config takes precedence over auto-detection. May point at a
-  // deno.json/.jsonc or a package.json.
+  // oden.json/.jsonc or a package.json.
   if let Some(path) = &version_flags.config {
     let abs = if Path::new(path).is_absolute() {
       PathBuf::from(path)
@@ -194,12 +194,12 @@ fn load_single_config(
   let pkg_json = start_dir.member_pkg_json();
 
   // Prefer the manifest that actually carries a `version` field. When both
-  // deno.json and package.json are present (common when a JSR/npm dual-published
-  // package uses deno.json purely for toolchain config), this lets users bump
-  // package.json's version even though deno.json is also present.
+  // oden.json and package.json are present (common when a JSR/npm dual-published
+  // package uses oden.json purely for toolchain config), this lets users bump
+  // package.json's version even though oden.json is also present.
   if let Some(deno_json) = deno_json {
     let path = deno_path_util::url_to_file_path(&deno_json.specifier)
-      .context("Failed to convert deno.json URL to path")?;
+      .context("Failed to convert oden.json URL to path")?;
     if deno_json.json.version.is_some() {
       return ConfigUpdater::new(path);
     }
@@ -208,7 +208,7 @@ fn load_single_config(
     {
       return ConfigUpdater::new(pkg_json.path.clone());
     }
-    // Neither has a version; default to deno.json so we can write/initialize.
+    // Neither has a version; default to oden.json so we can write/initialize.
     return ConfigUpdater::new(path);
   }
 
@@ -216,7 +216,7 @@ fn load_single_config(
     return ConfigUpdater::new(pkg_json.path.clone());
   }
 
-  bail!("No deno.json or package.json found in the current directory")
+  bail!("No oden.json or package.json found in the current directory")
 }
 
 #[allow(clippy::print_stdout, reason = "user-facing output")]
@@ -393,7 +393,7 @@ fn collect_workspace_packages(
     })?;
     let config_path =
       deno_path_util::url_to_file_path(&pkg.config_file.specifier)
-        .context("Failed to convert deno.json URL to path")?;
+        .context("Failed to convert oden.json URL to path")?;
     let config_path_relative = config_path
       .strip_prefix(root_dir)
       .unwrap_or(&config_path)
@@ -948,7 +948,7 @@ fn apply_conventional_bump(
 // Git
 // ---------------------------------------------------------------------------
 
-/// Read the `"version"` field from a deno.json at a given git ref.
+/// Read the `"version"` field from a oden.json at a given git ref.
 /// Returns `None` if the file doesn't exist at that ref or has no version.
 fn read_version_at_ref(
   cwd: &Path,
@@ -957,7 +957,7 @@ fn read_version_at_ref(
 ) -> Option<Version> {
   let refspec = format!("{}:{}", git_ref, relative_path);
   let content = run_git(cwd, &["show", &refspec]).ok()?;
-  // Parse as JSONC since deno.json may contain comments/trailing commas.
+  // Parse as JSONC since oden.json may contain comments/trailing commas.
   let value: serde_json::Value =
     jsonc_parser::parse_to_serde_value(&content, &Default::default())
       .ok()
@@ -1033,9 +1033,9 @@ fn rewrite_import_map(
 
   // Collect every file we'd like to rewrite jsr: refs in.
   // - The explicit --import-map argument, if provided.
-  // - Otherwise, the root deno.json's importMap target (if any) AND the root
-  //   deno.json itself (since users sometimes inline imports there).
-  // - Always also rewrite each member's deno.json so internal cross-package
+  // - Otherwise, the root oden.json's importMap target (if any) AND the root
+  //   oden.json itself (since users sometimes inline imports there).
+  // - Always also rewrite each member's oden.json so internal cross-package
   //   `jsr:` references stay consistent.
   let mut files: Vec<PathBuf> = Vec::new();
 
@@ -1048,7 +1048,7 @@ fn rewrite_import_map(
     files.push(path);
   } else if let Some(root_deno_json) = workspace.root_deno_json() {
     let root_path = deno_path_util::url_to_file_path(&root_deno_json.specifier)
-      .context("Failed to convert root deno.json URL to path")?;
+      .context("Failed to convert root oden.json URL to path")?;
     files.push(root_path.clone());
     if let Some(target) = root_deno_json.json.import_map.as_ref() {
       let parent = root_path.parent().unwrap_or(&root_dir);
@@ -1059,7 +1059,7 @@ fn rewrite_import_map(
     }
   }
 
-  // Always rewrite each member deno.json.
+  // Always rewrite each member oden.json.
   for (_, _, _, member_path) in updates {
     if !files.iter().any(|f| f == member_path) {
       files.push(member_path.clone());

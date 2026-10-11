@@ -11,7 +11,7 @@ let cachedIsMusl = undefined;
 module.exports = {
   replaceBinEntry,
   runInstall() {
-    const denoFileName = os.platform() === "win32" ? "deno.exe" : "deno";
+    const denoFileName = os.platform() === "win32" ? "oden.exe" : "oden";
     const targetExecutablePath = path.join(
       __dirname,
       denoFileName,
@@ -173,17 +173,17 @@ function replaceBinEntry(exePath) {
   if (os.platform() === "win32") {
     // Rewrite .cmd and .ps1 wrappers to invoke the native binary directly
     fs.writeFileSync(
-      path.join(binDir, "deno.cmd"),
+      path.join(binDir, "oden.cmd"),
       '@"%~dp0' + relative + '" %*\r\n',
     );
     fs.writeFileSync(
-      path.join(binDir, "deno.ps1"),
+      path.join(binDir, "oden.ps1"),
       '& "$PSScriptRoot/' + relative.replace(/\\/g, "/") +
         '" $args\r\nexit $LASTEXITCODE\r\n',
     );
   } else {
     // Replace symlink to point directly at the native binary
-    const binDeno = path.join(binDir, "deno");
+    const binDeno = path.join(binDir, "oden");
     fs.unlinkSync(binDeno);
     fs.symlinkSync(relative, binDeno);
   }
@@ -228,13 +228,13 @@ function isBinDirForThisPackage(binDir) {
     if (os.platform() === "win32") {
       // Verify the .cmd wrapper references our bin.cjs
       const content = fs.readFileSync(
-        path.join(binDir, "deno.cmd"),
+        path.join(binDir, "oden.cmd"),
         "utf8",
       );
       return content.includes("bin.cjs");
     } else {
       // Verify the symlink points into our package directory
-      const linkTarget = fs.readlinkSync(path.join(binDir, "deno"));
+      const linkTarget = fs.readlinkSync(path.join(binDir, "oden"));
       const resolved = path.resolve(binDir, linkTarget);
       return resolved.endsWith("bin.cjs");
     }

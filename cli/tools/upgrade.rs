@@ -44,10 +44,10 @@ static CANARY_URL: &str = "https://dl.deno.land/canary";
 static DL_RELEASE_URL: &str = "https://dl.deno.land/release";
 
 pub static ARCHIVE_NAME: Lazy<String> =
-  Lazy::new(|| format!("deno-{}.zip", env!("TARGET")));
+  Lazy::new(|| format!("oden-{}.zip", env!("TARGET")));
 
 static DELTA_TARGET_NAME: Lazy<String> =
-  Lazy::new(|| format!("deno-{}", env!("TARGET")));
+  Lazy::new(|| format!("oden-{}", env!("TARGET")));
 
 // How often query server for new version. In hours.
 const UPGRADE_CHECK_INTERVAL: i64 = 24;
@@ -371,21 +371,21 @@ pub fn check_for_upgrades(
           colors::green("A new release of Deno is available:"),
           colors::cyan(version::DENO_VERSION_INFO.deno),
           colors::cyan(&upgrade_version),
-          colors::italic_gray("Run `deno upgrade` to install it.")
+          colors::italic_gray("Run `oden upgrade` to install it.")
         );
       }
       ReleaseChannel::Canary => {
         log::info!(
           "{} {}",
           colors::green("A new canary release of Deno is available."),
-          colors::italic_gray("Run `deno upgrade canary` to install it.")
+          colors::italic_gray("Run `oden upgrade canary` to install it.")
         );
       }
       ReleaseChannel::Rc => {
         log::info!(
           "{} {}",
           colors::green("A new release candidate of Deno is available."),
-          colors::italic_gray("Run `deno upgrade rc` to install it.")
+          colors::italic_gray("Run `oden upgrade rc` to install it.")
         );
       }
       ReleaseChannel::Lts => {
@@ -394,7 +394,7 @@ pub fn check_for_upgrades(
           colors::green("A new LTS release of Deno is available:"),
           colors::cyan(version::DENO_VERSION_INFO.deno),
           colors::cyan(&upgrade_version),
-          colors::italic_gray("Run `deno upgrade lts` to install it.")
+          colors::italic_gray("Run `oden upgrade lts` to install it.")
         );
       }
       ReleaseChannel::Alpha => {
@@ -403,7 +403,7 @@ pub fn check_for_upgrades(
           colors::green("A new alpha release of Deno is available:"),
           colors::cyan(version::DENO_VERSION_INFO.deno),
           colors::cyan(&upgrade_version),
-          colors::italic_gray("Run `deno upgrade alpha` to install it.")
+          colors::italic_gray("Run `oden upgrade alpha` to install it.")
         );
       }
       ReleaseChannel::Beta => {
@@ -412,7 +412,7 @@ pub fn check_for_upgrades(
           colors::green("A new beta release of Deno is available:"),
           colors::cyan(version::DENO_VERSION_INFO.deno),
           colors::cyan(&upgrade_version),
-          colors::italic_gray("Run `deno upgrade beta` to install it.")
+          colors::italic_gray("Run `oden upgrade beta` to install it.")
         );
       }
     }
@@ -766,7 +766,7 @@ fn upgrade_from_pr(
   }
 
   // Find the downloaded binary
-  let exe_name = if cfg!(windows) { "deno.exe" } else { "deno" };
+  let exe_name = if cfg!(windows) { "oden.exe" } else { "oden" };
   let new_exe_path = download_dir.join(exe_name);
 
   if !new_exe_path.exists() {
@@ -933,7 +933,7 @@ fn upgrade_from_branch(
     );
   }
 
-  let exe_name = if cfg!(windows) { "deno.exe" } else { "deno" };
+  let exe_name = if cfg!(windows) { "oden.exe" } else { "oden" };
   let new_exe_path = download_dir.join(exe_name);
 
   if !new_exe_path.exists() {
@@ -1083,7 +1083,7 @@ pub async fn upgrade(
       ))
     );
 
-    let exe_name = if cfg!(windows) { "deno.exe" } else { "deno" };
+    let exe_name = if cfg!(windows) { "oden.exe" } else { "oden" };
     let new_exe_path = temp_dir.path().join(exe_name);
     std::fs::write(&new_exe_path, &delta_binary).with_context(|| {
       format!(
@@ -1138,7 +1138,7 @@ pub async fn upgrade(
     );
 
     archive::unpack_into_dir(archive::UnpackArgs {
-      exe_name: if cfg!(windows) { "deno.exe" } else { "deno" },
+      exe_name: if cfg!(windows) { "oden.exe" } else { "oden" },
       archive_name: &ARCHIVE_NAME,
       archive_data: &archive_data,
       dest_path: temp_dir.path(),
@@ -1959,7 +1959,7 @@ fn check_windows_access_denied_error(
       concat!(
         "Could not replace the deno executable. This may be because an ",
         "existing deno process is running. Please ensure there are no ",
-        "running deno processes (ex. Stop-Process -Name deno ; deno {}), ",
+        "running oden processes (ex. Stop-Process -Name oden ; oden {}), ",
         "close any editors before upgrading, and ensure you have ",
         "sufficient permission to '{}'."
       ),
@@ -1972,7 +1972,7 @@ fn check_windows_access_denied_error(
 
 #[cfg(windows)]
 fn kill_running_deno_lsp_processes() {
-  // limit this to `deno lsp` invocations to avoid killing important programs someone might be running
+  // limit this to `oden lsp` invocations to avoid killing important programs someone might be running
   let is_debug = log::log_enabled!(log::Level::Debug);
   let get_pipe = || {
     if is_debug {
@@ -1985,7 +1985,7 @@ fn kill_running_deno_lsp_processes() {
     .args([
       "-Command",
       r#"Get-WmiObject Win32_Process | Where-Object {
-    $_.Name -eq 'deno.exe' -and
+    $_.Name -eq 'oden.exe' -and
     $_.CommandLine -match '^(?:\"[^\"]+\"|\S+)\s+lsp\b'
 } | ForEach-Object {
   if ($_.Terminate()) {
@@ -2027,7 +2027,7 @@ fn set_exe_permissions(
       concat!(
         "You don't have write permission to {} because it's owned by root.\n",
         "Consider updating deno through your package manager if its installed from it.\n",
-        "Otherwise run `deno upgrade` as root.",
+        "Otherwise run `oden upgrade` as root.",
       ),
       output_exe_path.display()
     );

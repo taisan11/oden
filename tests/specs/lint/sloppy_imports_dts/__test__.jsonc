@@ -16,7 +16,7 @@
       "output": "lint.out",
       "exitCode": 1
     },
-    // try fixing the lint issues and then ensure deno check and run still work
+    // try fixing the lint issues and then ensure oden check and run still work
     "lint_fix": {
       // ignored: the embedded `check --sloppy-imports` step hits the same
       // sloppy-imports .d.ts resolution gap as the `check` test above.

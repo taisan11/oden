@@ -55,7 +55,7 @@ static HAS_DENO_JSON_IN_WORKING_DIR_ERR: once_cell::sync::Lazy<Option<String>> =
   once_cell::sync::Lazy::new(|| {
     let testdata_path = testdata_path();
     let mut current_dir = testdata_path.as_path();
-    let deno_json_names = ["deno.json", "deno.jsonc"];
+    let deno_json_names = ["oden.json", "oden.jsonc"];
     loop {
       for name in deno_json_names {
         let deno_json_path = current_dir.join(name);
@@ -63,7 +63,7 @@ static HAS_DENO_JSON_IN_WORKING_DIR_ERR: once_cell::sync::Lazy<Option<String>> =
           return Some(format!(
             concat!(
               "Found deno configuration file at {}. The test suite relies on ",
-              "a deno.json not existing in any ancestor directory. Please ",
+              "a oden.json not existing in any ancestor directory. Please ",
               "delete this file so the tests won't auto-discover it.",
             ),
             deno_json_path.display(),
@@ -285,7 +285,7 @@ impl TestContextBuilder {
       None => cwd,
     };
 
-    // Point `deno check` at a pre-downloaded native compiler so each test's
+    // Point `oden check` at a pre-downloaded native compiler so each test's
     // fresh temp `DENO_DIR` doesn't re-download it. `tools/download_tsc.ts`
     // materializes it under `<target>/.native_tsc/deno_dir`; the harness resolves
     // that path itself and injects `DENO_TSC_BIN` per-test (like `JSR_URL`),
@@ -367,7 +367,7 @@ impl TestContext {
   pub fn run_deno(&self, args: impl AsRef<str>) {
     self
       .new_command()
-      .name("deno")
+      .name("oden")
       .args(args)
       .run()
       .skip_output_check();
@@ -503,7 +503,7 @@ impl TestCommandBuilder {
       envs: Default::default(),
       envs_remove: Default::default(),
       env_clear: false,
-      command_name: "deno".to_string(),
+      command_name: "oden".to_string(),
       args_text: "".to_string(),
       args_vec: Default::default(),
       show_output: false,
@@ -752,7 +752,7 @@ impl TestCommandBuilder {
 
     fn sanitize_output(text: String, args: &[OsString]) -> String {
       let mut text = strip_ansi_codes(&text).to_string();
-      // deno test's output capturing flushes with a zero-width space in order to
+      // oden test's output capturing flushes with a zero-width space in order to
       // synchronize the output pipes. Occasionally this zero width space
       // might end up in the output so strip it from the output comparison here.
       if args.first().and_then(|s| s.to_str()) == Some("test") {
@@ -904,7 +904,7 @@ impl TestCommandBuilder {
     } else {
       &self.command_name
     };
-    if command_name == "deno" {
+    if command_name == "oden" {
       deno_exe_path()
     } else if command_name.starts_with("./") && self.cwd.is_some() {
       self.cwd.as_ref().unwrap().join(command_name)

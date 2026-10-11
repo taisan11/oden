@@ -387,10 +387,10 @@ fn typescript_decorators() {
   let context = TestContextBuilder::default().use_temp_cwd().build();
   let temp_dir = context.temp_dir();
   temp_dir.write(
-    "./deno.json",
+    "./oden.json",
     r#"{ "compilerOptions": { "experimentalDecorators": true } }"#,
   );
-  let config_path = temp_dir.target_path().join("./deno.json");
+  let config_path = temp_dir.target_path().join("./oden.json");
   util::with_pty(
     &["repl", "--config", config_path.to_string_lossy().as_ref()],
     |mut console| {
@@ -1104,7 +1104,7 @@ fn package_json_uncached_no_error() {
     .env("RUST_BACKTRACE", "1")
     .build();
   let temp_dir = test_context.temp_dir();
-  temp_dir.write("deno.json", "{ \"nodeModulesDir\": \"auto\" }");
+  temp_dir.write("oden.json", "{ \"nodeModulesDir\": \"auto\" }");
   temp_dir.write(
     "package.json",
     r#"{
@@ -1267,7 +1267,7 @@ server.on("exit", () => process.exit(0));
 #[test(flaky)]
 fn pty_lint_run_plugin_disabled() {
   // Regression test for https://github.com/denoland/deno/issues/28264
-  // `Deno.lint.runPlugin` is not available outside of `deno test`, so calling
+  // `Deno.lint.runPlugin` is not available outside of `oden test`, so calling
   // it in the REPL should throw a helpful error instead of a cryptic
   // "op_lint_create_serialized_ast is not a function".
   util::with_pty(&["repl"], |mut console| {
@@ -1275,7 +1275,7 @@ fn pty_lint_run_plugin_disabled() {
       "Deno.lint.runPlugin({ name: \"x\", rules: {} }, \"x.ts\", \"\");",
     );
     console.expect(
-      "`Deno.lint.runPlugin` is only available in `deno test` subcommand.",
+      "`Deno.lint.runPlugin` is only available in `oden test` subcommand.",
     );
   });
 }

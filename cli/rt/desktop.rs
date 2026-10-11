@@ -1,6 +1,6 @@
 // Copyright 2018-2026 the Deno authors. MIT license.
 
-//! Desktop window management for `deno compile --desktop`.
+//! Desktop window management for `oden compile --desktop`.
 //!
 //! The ops are defined in `deno_runtime::ops::desktop` and included in the
 //! V8 snapshot. This module re-exports the key types and provides the JS
@@ -594,7 +594,7 @@ pub const DESKTOP_JS: &str = r#"
       }),
     });
   } catch (e) {
-    console.error("[deno desktop] failed to install Notification permission API:", e);
+    console.error("[oden desktop] failed to install Notification permission API:", e);
   }
 
   internals.defineEventHandler(NotificationPrototype, "show");
@@ -695,7 +695,7 @@ pub const DESKTOP_JS: &str = r#"
       configurable: true,
     });
   } catch (e) {
-    console.error("[deno desktop] failed to install navigator.permissions:", e);
+    console.error("[oden desktop] failed to install navigator.permissions:", e);
   }
 
   // --- navigator.clipboard (text only) ---
@@ -764,7 +764,7 @@ pub const DESKTOP_JS: &str = r#"
       configurable: true,
     });
   } catch (e) {
-    console.error("[deno desktop] failed to install navigator.clipboard:", e);
+    console.error("[oden desktop] failed to install navigator.clipboard:", e);
   }
 
   // Start polling loops immediately. Use core.unrefOpPromise so these
@@ -1078,7 +1078,7 @@ pub fn desktop_auto_update_js(
     }}
 
     if (!_version) {{
-      console.warn("Deno.autoUpdate: no version in deno.json, skipping");
+      console.warn("Deno.autoUpdate: no version in oden.json, skipping");
       return;
     }}
     if (typeof url !== "string" || url.length === 0) {{

@@ -18,7 +18,7 @@
       "steps": [{
         "args": [
           "eval",
-          "Deno.removeSync('deno.json')"
+          "Deno.removeSync('oden.json')"
         ],
         "output": ""
       }, {

@@ -62,10 +62,10 @@ pub async fn why(
 ) -> Result<(), AnyError> {
   let factory = CliFactory::from_flags(flags);
   let lockfile = factory.maybe_lockfile().await?.cloned().ok_or_else(|| {
-    deno_core::anyhow::anyhow!("No lockfile found. Run `deno install` first.")
+    deno_core::anyhow::anyhow!("No lockfile found. Run `oden install` first.")
   })?;
 
-  // Workspace-declared root dependency requirements (from deno.json `imports`,
+  // Workspace-declared root dependency requirements (from oden.json `imports`,
   // `scopes`, `jsxImportSource`, etc., and from package.json
   // `dependencies`/`devDependencies`). These are matched against the lockfile's
   // `specifiers` map to decide which entries are user-imported roots vs.
@@ -186,7 +186,7 @@ pub async fn why(
   }
 
   // A lockfile specifier is a root iff it matches a req the user declared in
-  // a deno.json or package.json. JSR transitive deps also appear in
+  // a oden.json or package.json. JSR transitive deps also appear in
   // `specifiers` (the lockfile normalizes JSR deps through the specifiers
   // map), so we can't treat every entry as a root the way the original
   // npm-only implementation did.
@@ -224,7 +224,7 @@ pub async fn why(
 
     if paths.is_empty() && !root_specifier_to_pkg.contains_key(*id) {
       log::info!(
-        "  (no dependency path found -- try running `deno install` to refresh the lockfile)"
+        "  (no dependency path found -- try running `oden install` to refresh the lockfile)"
       );
     }
 

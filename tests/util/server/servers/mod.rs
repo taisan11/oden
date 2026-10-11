@@ -1153,7 +1153,7 @@ console.log("imported", import.meta.url);
         .body(string_body("bda3850f84f24b71e02512c1ba2d6bf2e3daa2fd"))
         .unwrap(),
     ),
-    // for testing deno upgrade
+    // for testing oden upgrade
     (&Method::GET, path)
       if path.starts_with("/deno-upgrade/download/")
         && path.ends_with(".zip") =>
@@ -1172,7 +1172,7 @@ console.log("imported", import.meta.url);
           .compression_method(zip::CompressionMethod::Stored);
 
         let exe_name = if path.contains("windows") {
-          "deno.exe"
+          "oden.exe"
         } else {
           "deno"
         };
@@ -1191,7 +1191,7 @@ console.log("imported", import.meta.url);
           .unwrap(),
       )
     }
-    // for testing deno upgrade -- uncompressed binary SHA-256
+    // for testing oden upgrade -- uncompressed binary SHA-256
     (&Method::GET, path)
       if path.starts_with("/deno-upgrade/download/")
         && path.ends_with(".sha256sum")
@@ -1215,7 +1215,7 @@ console.log("imported", import.meta.url);
           .unwrap(),
       )
     }
-    // for testing deno upgrade -- bsdiff delta patch
+    // for testing oden upgrade -- bsdiff delta patch
     (&Method::GET, path)
       if path.starts_with("/deno-upgrade/download/")
         && path.ends_with(".bsdiff") =>
@@ -1224,7 +1224,7 @@ console.log("imported", import.meta.url);
         .strip_prefix("/deno-upgrade/download/v")
         .and_then(|s| s.split('/').next())
         .unwrap_or("unknown");
-      // Extract source version from filename: deno-{target}.from-{src}.bsdiff
+      // Extract source version from filename: oden-{target}.from-{src}.bsdiff
       let filename = path.rsplit('/').next().unwrap_or("");
       let src_version = filename
         .rsplit(".from-")
@@ -1246,7 +1246,7 @@ console.log("imported", import.meta.url);
           .unwrap(),
       )
     }
-    // for testing deno upgrade -- bsdiff delta patch SHA-256
+    // for testing oden upgrade -- bsdiff delta patch SHA-256
     (&Method::GET, path)
       if path.starts_with("/deno-upgrade/download/")
         && path.ends_with(".bsdiff.sha256sum") =>

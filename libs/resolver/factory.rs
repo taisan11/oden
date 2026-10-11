@@ -218,7 +218,7 @@ pub struct WorkspaceFactoryOptions {
   pub no_lock: bool,
   pub no_npm: bool,
   /// When no `deno.lock` exists, attempt to seed one by translating a
-  /// sibling `package-lock.json`. Currently set by `deno install`.
+  /// sibling `package-lock.json`. Currently set by `oden install`.
   pub import_npm_lockfile: bool,
   /// The process state if using ext/node and the current process was "forked".
   /// This value is found at `deno_lib::args::NPM_PROCESS_STATE`
@@ -429,7 +429,7 @@ impl<TSys: WorkspaceFactorySys> WorkspaceFactory<TSys> {
           if dir_mode != NodeModulesDirMode::Manual {
             bail!(
               "The hoisted node_modules linker requires --node-modules-dir=manual. \
-               Add \"nodeModulesDir\": \"manual\" to your deno.json or pass \
+               Add \"nodeModulesDir\": \"manual\" to your oden.json or pass \
                --node-modules-dir=manual on the command line."
             );
           }
@@ -694,7 +694,7 @@ impl<TSys: WorkspaceFactorySys> WorkspaceFactory<TSys> {
           workspace_dir.workspace.as_ref(),
         );
         if !npm_packages.0.is_empty() && !matches!(self.node_modules_dir_mode()?, NodeModulesDirMode::Auto | NodeModulesDirMode::Manual) {
-          bail!("Linking npm packages requires using a node_modules directory. Ensure you have a package.json or set the \"nodeModulesDir\" option to \"auto\" or \"manual\" in your workspace root deno.json.")
+          bail!("Linking npm packages requires using a node_modules directory. Ensure you have a package.json or set the \"nodeModulesDir\" option to \"auto\" or \"manual\" in your workspace root oden.json.")
         } else {
           Ok(npm_packages)
         }
@@ -1377,7 +1377,7 @@ fn apply_minimum_dependency_age_fallbacks(
     return;
   }
 
-  // Fall back to .npmrc's `min-release-age` when not configured in deno.json.
+  // Fall back to .npmrc's `min-release-age` when not configured in oden.json.
   config.age = Some(if let Some(days) = npmrc_min_release_age_days {
     if days == 0 {
       NewestDependencyDate::Disabled

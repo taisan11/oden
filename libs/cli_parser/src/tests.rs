@@ -6,7 +6,26 @@
 use pretty_assertions::assert_eq;
 
 use crate::convert::flags_from_vec;
+use crate::flags::ConfigFlag;
+use crate::flags::DenoSubcommand;
 use crate::*;
+
+#[test]
+fn from_deno_command() {
+  let flags =
+    flags_from_vec(vec!["oden".into(), "from".into(), "deno".into()]).unwrap();
+  assert_eq!(flags.subcommand, DenoSubcommand::FromDeno);
+  assert_eq!(flags.config_flag, ConfigFlag::Disabled);
+  for args in [
+    vec!["oden", "from"],
+    vec!["oden", "from", "node"],
+    vec!["oden", "from", "deno", "extra"],
+  ] {
+    assert!(
+      flags_from_vec(args.into_iter().map(str::to_string).collect()).is_err()
+    );
+  }
+}
 
 /// Helper: create Vec<String> from string literals.
 macro_rules! svec {
@@ -692,7 +711,7 @@ const SERVE_ARGS: &[ArgDef] = &[
 ];
 
 static TEST_ROOT: CommandDef = CommandDef {
-  name: "deno",
+  name: "oden",
   about: "A modern JavaScript and TypeScript runtime",
   aliases: &[],
   args: GLOBAL_ARGS,
@@ -805,7 +824,7 @@ static TEST_ROOT: CommandDef = CommandDef {
 
 #[test]
 fn basic_run() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "run", "script.ts"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "run", "script.ts"]).unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("run"));
   assert_eq!(r.get_one("script_arg"), Some("script.ts"));
   assert!(!r.get_bool("allow-all"));
@@ -813,7 +832,7 @@ fn basic_run() {
 
 #[test]
 fn run_with_allow_all() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "run", "-A", "script.ts"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "run", "-A", "script.ts"]).unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("run"));
   assert!(r.get_bool("allow-all"));
   assert_eq!(r.get_one("script_arg"), Some("script.ts"));
@@ -824,7 +843,7 @@ fn run_with_permission_values() {
   let r = parse(
     &TEST_ROOT,
     &svec![
-      "deno",
+      "oden",
       "run",
       "--allow-read=/etc,/var",
       "--allow-net=localhost:8080",
@@ -848,7 +867,7 @@ fn run_with_bare_permission_flags() {
   // --allow-read without =value means "allow all reads"
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--allow-read", "--allow-write", "script.ts"],
+    &svec!["oden", "run", "--allow-read", "--allow-write", "script.ts"],
   )
   .unwrap();
   assert!(r.get_bool("allow-read"));
@@ -862,7 +881,7 @@ fn run_with_bare_permission_flags() {
 fn run_trailing_args() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "script.ts", "arg1", "--flag", "arg2"],
+    &svec!["oden", "run", "script.ts", "arg1", "--flag", "arg2"],
   )
   .unwrap();
   assert_eq!(r.get_one("script_arg"), Some("script.ts"));
@@ -873,7 +892,7 @@ fn run_trailing_args() {
 fn run_double_dash_trailing() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "script.ts", "--", "arg1", "--flag"],
+    &svec!["oden", "run", "script.ts", "--", "arg1", "--flag"],
   )
   .unwrap();
   assert_eq!(r.get_one("script_arg"), Some("script.ts"));
@@ -885,7 +904,7 @@ fn run_double_dash_trailing() {
 #[test]
 fn run_double_dash_before_script() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "run", "--", "-echo.ts", "arg1"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "run", "--", "-echo.ts", "arg1"]).unwrap();
   assert_eq!(r.get_one("script_arg"), Some("-echo.ts"));
   assert_eq!(r.trailing, vec!["arg1"]);
 }
@@ -894,7 +913,7 @@ fn run_double_dash_before_script() {
 fn run_double_dash_before_script_keeps_second_separator() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--", "-echo.ts", "--", "--flag"],
+    &svec!["oden", "run", "--", "-echo.ts", "--", "--flag"],
   )
   .unwrap();
   assert_eq!(r.get_one("script_arg"), Some("-echo.ts"));
@@ -906,7 +925,7 @@ fn global_flags_before_subcommand() {
   let r = parse(
     &TEST_ROOT,
     &svec![
-      "deno",
+      "oden",
       "--log-level",
       "debug",
       "--quiet",
@@ -926,7 +945,7 @@ fn global_flags_after_subcommand() {
   let r = parse(
     &TEST_ROOT,
     &svec![
-      "deno",
+      "oden",
       "run",
       "--log-level",
       "debug",
@@ -944,7 +963,7 @@ fn global_flags_after_subcommand() {
 fn upgrade_subcommand() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "upgrade", "--dry-run", "--force"],
+    &svec!["oden", "upgrade", "--dry-run", "--force"],
   )
   .unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("upgrade"));
@@ -954,7 +973,7 @@ fn upgrade_subcommand() {
 
 #[test]
 fn upgrade_with_positional() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "upgrade", "canary"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "upgrade", "canary"]).unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("upgrade"));
   assert_eq!(r.get_one("version-or-hash-or-channel"), Some("canary"));
 }
@@ -962,7 +981,7 @@ fn upgrade_with_positional() {
 #[test]
 fn run_reload() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "run", "--reload", "script.ts"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "run", "--reload", "script.ts"]).unwrap();
   assert!(r.get_bool("reload"));
   assert_eq!(r.get_one("script_arg"), Some("script.ts"));
 }
@@ -972,7 +991,7 @@ fn run_reload_with_values() {
   let r = parse(
     &TEST_ROOT,
     &svec![
-      "deno",
+      "oden",
       "run",
       "--reload=http://example.com,http://foo.com",
       "script.ts"
@@ -995,7 +1014,7 @@ fn run_reload_with_values() {
 #[test]
 fn run_watch() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "run", "--watch", "script.ts"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "run", "--watch", "script.ts"]).unwrap();
   assert!(r.get_bool("watch"));
   assert_eq!(r.get_one("script_arg"), Some("script.ts"));
 }
@@ -1004,7 +1023,7 @@ fn run_watch() {
 fn run_watch_with_paths() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--watch=src/,lib/", "script.ts"],
+    &svec!["oden", "run", "--watch=src/,lib/", "script.ts"],
   )
   .unwrap();
   assert!(r.get_bool("watch"));
@@ -1019,7 +1038,7 @@ fn run_v8_flags() {
   let r = parse(
     &TEST_ROOT,
     &svec![
-      "deno",
+      "oden",
       "run",
       "--v8-flags=--max-old-space-size=4096,--expose-gc",
       "script.ts"
@@ -1042,7 +1061,7 @@ fn run_v8_flags() {
 fn run_seed() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--seed", "42", "script.ts"],
+    &svec!["oden", "run", "--seed", "42", "script.ts"],
   )
   .unwrap();
   assert_eq!(r.get_one("seed"), Some("42"));
@@ -1052,26 +1071,26 @@ fn run_seed() {
 fn run_config() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--config", "deno.json", "script.ts"],
+    &svec!["oden", "run", "--config", "oden.json", "script.ts"],
   )
   .unwrap();
-  assert_eq!(r.get_one("config"), Some("deno.json"));
+  assert_eq!(r.get_one("config"), Some("oden.json"));
 }
 
 #[test]
 fn run_config_short() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "-c", "deno.json", "script.ts"],
+    &svec!["oden", "run", "-c", "oden.json", "script.ts"],
   )
   .unwrap();
-  assert_eq!(r.get_one("config"), Some("deno.json"));
+  assert_eq!(r.get_one("config"), Some("oden.json"));
 }
 
 #[test]
 fn fmt_basic() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "fmt", "file1.ts", "file2.ts"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "fmt", "file1.ts", "file2.ts"]).unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("fmt"));
   assert_eq!(
     r.get_many("files"),
@@ -1082,7 +1101,7 @@ fn fmt_basic() {
 #[test]
 fn fmt_check() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "fmt", "--check", "file.ts"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "fmt", "--check", "file.ts"]).unwrap();
   assert!(r.get_bool("check"));
 }
 
@@ -1091,7 +1110,7 @@ fn fmt_options() {
   let r = parse(
     &TEST_ROOT,
     &svec![
-      "deno",
+      "oden",
       "fmt",
       "--use-tabs",
       "--line-width",
@@ -1115,7 +1134,7 @@ fn fmt_options() {
 
 #[test]
 fn lint_basic() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "lint", "file.ts"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "lint", "file.ts"]).unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("lint"));
   assert_eq!(
     r.get_many("files"),
@@ -1127,7 +1146,7 @@ fn lint_basic() {
 fn lint_rules_include() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "lint", "--rules-include=no-var,no-eval"],
+    &svec!["oden", "lint", "--rules-include=no-var,no-eval"],
   )
   .unwrap();
   assert_eq!(
@@ -1138,53 +1157,53 @@ fn lint_rules_include() {
 
 #[test]
 fn test_basic() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "test"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "test"]).unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("test"));
 }
 
 #[test]
 fn test_with_filter() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "test", "--filter", "my_test"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "test", "--filter", "my_test"]).unwrap();
   assert_eq!(r.get_one("filter"), Some("my_test"));
 }
 
 #[test]
 fn test_fail_fast_no_value() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "test", "--fail-fast"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "test", "--fail-fast"]).unwrap();
   assert!(r.get_bool("fail-fast"));
   assert_eq!(r.get_one("fail-fast"), None);
 }
 
 #[test]
 fn test_fail_fast_with_value() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "test", "--fail-fast=3"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "test", "--fail-fast=3"]).unwrap();
   assert!(r.get_bool("fail-fast"));
   assert_eq!(r.get_one("fail-fast"), Some("3"));
 }
 
 #[test]
 fn test_shuffle_no_value() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "test", "--shuffle"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "test", "--shuffle"]).unwrap();
   assert!(r.get_bool("shuffle"));
 }
 
 #[test]
 fn test_shuffle_with_value() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "test", "--shuffle=42"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "test", "--shuffle=42"]).unwrap();
   assert_eq!(r.get_one("shuffle"), Some("42"));
 }
 
 #[test]
 fn test_reporter() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "test", "--reporter", "dot"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "test", "--reporter", "dot"]).unwrap();
   assert_eq!(r.get_one("reporter"), Some("dot"));
 }
 
 #[test]
 fn test_watch() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "test", "--watch"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "test", "--watch"]).unwrap();
   assert!(r.get_bool("watch"));
 }
 
@@ -1192,7 +1211,7 @@ fn test_watch() {
 fn test_watch_with_no_clear_screen() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "test", "--watch", "--no-clear-screen"],
+    &svec!["oden", "test", "--watch", "--no-clear-screen"],
   )
   .unwrap();
   assert!(r.get_bool("watch"));
@@ -1202,14 +1221,14 @@ fn test_watch_with_no_clear_screen() {
 #[test]
 fn eval_basic() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "eval", "console.log('hello')"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "eval", "console.log('hello')"]).unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("eval"));
   assert_eq!(r.get_one("code_arg"), Some("console.log('hello')"));
 }
 
 #[test]
 fn eval_print() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "eval", "-p", "1+1"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "eval", "-p", "1+1"]).unwrap();
   assert!(r.get_bool("print"));
   assert_eq!(r.get_one("code_arg"), Some("1+1"));
 }
@@ -1218,7 +1237,7 @@ fn eval_print() {
 fn eval_double_dash_before_code() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "eval", "--", "-1; console.log(0)", "arg1"],
+    &svec!["oden", "eval", "--", "-1; console.log(0)", "arg1"],
   )
   .unwrap();
   assert_eq!(r.get_one("code_arg"), Some("-1; console.log(0)"));
@@ -1229,9 +1248,9 @@ fn eval_double_dash_before_code() {
 fn eval_double_dash_before_code_keeps_second_separator() {
   // Only the first `--` is special (mirrors clap): it was consumed to make
   // the positional literal, so a later `--` is forwarded as-is even though
-  // eval strips the separator in `deno eval code -- a`.
+  // eval strips the separator in `oden eval code -- a`.
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "eval", "--", "code", "--", "a"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "eval", "--", "code", "--", "a"]).unwrap();
   assert_eq!(r.get_one("code_arg"), Some("code"));
   assert_eq!(r.trailing, vec!["--", "a"]);
 }
@@ -1241,7 +1260,7 @@ fn upgrade_double_dash_stays_trailing() {
   // Commands without trailing var args don't enter positional-only mode:
   // `--` still starts (unused) trailing args, as before.
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "upgrade", "--", "v1", "v2"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "upgrade", "--", "v1", "v2"]).unwrap();
   assert_eq!(r.get_one("version-or-hash-or-channel"), None);
   assert_eq!(r.trailing, vec!["v1", "v2"]);
 }
@@ -1251,7 +1270,7 @@ fn test_double_dash_stays_trailing() {
   // Commands with a multi-value positional (test/bench) mirror clap's
   // `.last(true)`: args after `--` are script args, not files.
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "test", "--", "arg1", "--flag"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "test", "--", "arg1", "--flag"]).unwrap();
   assert_eq!(r.get_many("files"), None);
   assert_eq!(r.trailing, vec!["arg1", "--flag"]);
 }
@@ -1260,7 +1279,7 @@ fn test_double_dash_stays_trailing() {
 fn unknown_flag_error() {
   let err = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--unknown-flag", "script.ts"],
+    &svec!["oden", "run", "--unknown-flag", "script.ts"],
   )
   .unwrap_err();
   assert_eq!(err.kind, CliErrorKind::UnknownFlag);
@@ -1271,7 +1290,7 @@ fn unknown_flag_error() {
 fn unknown_flag_suggestion() {
   let err = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--alow-read", "script.ts"],
+    &svec!["oden", "run", "--alow-read", "script.ts"],
   )
   .unwrap_err();
   assert_eq!(err.kind, CliErrorKind::UnknownFlag);
@@ -1281,7 +1300,7 @@ fn unknown_flag_suggestion() {
 
 #[test]
 fn missing_value_error() {
-  let err = parse(&TEST_ROOT, &svec!["deno", "run", "--seed"]).unwrap_err();
+  let err = parse(&TEST_ROOT, &svec!["oden", "run", "--seed"]).unwrap_err();
   assert_eq!(err.kind, CliErrorKind::MissingValue);
 }
 
@@ -1289,15 +1308,15 @@ fn missing_value_error() {
 fn default_subcommand_run() {
   // `deno script.ts` parses with default subcommand args but subcommand is None
   // (the convert layer handles this as bare run)
-  let r = parse(&TEST_ROOT, &svec!["deno", "script.ts"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "script.ts"]).unwrap();
   assert_eq!(r.subcommand.as_deref(), None);
   assert_eq!(r.get_one("script_arg"), Some("script.ts"));
 }
 
 #[test]
 fn default_subcommand_with_flags() {
-  // `deno -A script.ts` parses with default subcommand args but subcommand is None
-  let r = parse(&TEST_ROOT, &svec!["deno", "-A", "script.ts"]).unwrap();
+  // `oden -A script.ts` parses with default subcommand args but subcommand is None
+  let r = parse(&TEST_ROOT, &svec!["oden", "-A", "script.ts"]).unwrap();
   assert_eq!(r.subcommand.as_deref(), None);
   assert!(r.get_bool("allow-all"));
   assert_eq!(r.get_one("script_arg"), Some("script.ts"));
@@ -1307,7 +1326,7 @@ fn default_subcommand_with_flags() {
 fn default_subcommand_double_dash_before_script() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "--", "-echo.ts", "--", "--debug"],
+    &svec!["oden", "--", "-echo.ts", "--", "--debug"],
   )
   .unwrap();
   assert_eq!(r.subcommand.as_deref(), None);
@@ -1317,7 +1336,7 @@ fn default_subcommand_double_dash_before_script() {
 
 #[test]
 fn default_subcommand_with_allow_read_values() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "--allow-read=/tmp", "script.ts"])
+  let r = parse(&TEST_ROOT, &svec!["oden", "--allow-read=/tmp", "script.ts"])
     .unwrap();
   assert_eq!(r.subcommand.as_deref(), None);
   assert_eq!(
@@ -1330,7 +1349,7 @@ fn default_subcommand_with_allow_read_values() {
 fn passthrough_subcommand() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "deploy", "--project=myapp", "--prod"],
+    &svec!["oden", "deploy", "--project=myapp", "--prod"],
   )
   .unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("deploy"));
@@ -1340,7 +1359,7 @@ fn passthrough_subcommand() {
 #[test]
 fn combined_short_flags() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "run", "-RWNE", "script.ts"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "run", "-RWNE", "script.ts"]).unwrap();
   assert!(r.get_bool("allow-read"));
   assert!(r.get_bool("allow-write"));
   assert!(r.get_bool("allow-net"));
@@ -1349,7 +1368,7 @@ fn combined_short_flags() {
 
 #[test]
 fn upgrade_alias() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "upgrade", "--rc"]).unwrap();
+  let r = parse(&TEST_ROOT, &svec!["oden", "upgrade", "--rc"]).unwrap();
   assert!(r.get_bool("release-candidate"));
 }
 
@@ -1357,7 +1376,7 @@ fn upgrade_alias() {
 fn serve_basic() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "serve", "--port", "3000", "server.ts"],
+    &svec!["oden", "serve", "--port", "3000", "server.ts"],
   )
   .unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("serve"));
@@ -1369,7 +1388,7 @@ fn serve_basic() {
 fn serve_with_permissions() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "serve", "-A", "--port", "8080", "server.ts"],
+    &svec!["oden", "serve", "-A", "--port", "8080", "server.ts"],
   )
   .unwrap();
   assert!(r.get_bool("allow-all"));
@@ -1379,7 +1398,7 @@ fn serve_with_permissions() {
 #[test]
 fn run_inspect() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "run", "--inspect", "script.ts"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "run", "--inspect", "script.ts"]).unwrap();
   assert!(r.get_bool("inspect"));
 }
 
@@ -1387,7 +1406,7 @@ fn run_inspect() {
 fn run_inspect_with_port() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--inspect=127.0.0.1:9229", "script.ts"],
+    &svec!["oden", "run", "--inspect=127.0.0.1:9229", "script.ts"],
   )
   .unwrap();
   assert_eq!(r.get_one("inspect"), Some("127.0.0.1:9229"));
@@ -1397,7 +1416,7 @@ fn run_inspect_with_port() {
 fn run_inspect_brk() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--inspect-brk", "script.ts"],
+    &svec!["oden", "run", "--inspect-brk", "script.ts"],
   )
   .unwrap();
   assert!(r.get_bool("inspect-brk"));
@@ -1405,7 +1424,7 @@ fn run_inspect_brk() {
 
 #[test]
 fn no_check() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "run", "--no-check", "script.ts"])
+  let r = parse(&TEST_ROOT, &svec!["oden", "run", "--no-check", "script.ts"])
     .unwrap();
   assert!(r.get_bool("no-check"));
 }
@@ -1414,7 +1433,7 @@ fn no_check() {
 fn no_check_remote() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--no-check=remote", "script.ts"],
+    &svec!["oden", "run", "--no-check=remote", "script.ts"],
   )
   .unwrap();
   assert_eq!(r.get_one("no-check"), Some("remote"));
@@ -1425,7 +1444,7 @@ fn run_import_map() {
   let r = parse(
     &TEST_ROOT,
     &svec![
-      "deno",
+      "oden",
       "run",
       "--import-map",
       "import_map.json",
@@ -1440,7 +1459,7 @@ fn run_import_map() {
 fn run_no_remote() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--no-remote", "script.ts"],
+    &svec!["oden", "run", "--no-remote", "script.ts"],
   )
   .unwrap();
   assert!(r.get_bool("no-remote"));
@@ -1450,7 +1469,7 @@ fn run_no_remote() {
 fn run_lock() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--lock=lock.json", "script.ts"],
+    &svec!["oden", "run", "--lock=lock.json", "script.ts"],
   )
   .unwrap();
   assert_eq!(r.get_one("lock"), Some("lock.json"));
@@ -1459,7 +1478,7 @@ fn run_lock() {
 #[test]
 fn run_lock_bare() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "run", "--lock", "script.ts"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "run", "--lock", "script.ts"]).unwrap();
   // --lock with require_equals and no = means present but no value
   assert!(r.get_bool("lock"));
   assert_eq!(r.get_one("lock"), None);
@@ -1468,7 +1487,7 @@ fn run_lock_bare() {
 #[test]
 fn run_no_lock() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "run", "--no-lock", "script.ts"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "run", "--no-lock", "script.ts"]).unwrap();
   assert!(r.get_bool("no-lock"));
 }
 
@@ -1477,7 +1496,7 @@ fn watch_exclude() {
   let r = parse(
     &TEST_ROOT,
     &svec![
-      "deno",
+      "oden",
       "run",
       "--watch",
       "--watch-exclude=node_modules/,dist/",
@@ -1495,7 +1514,7 @@ fn watch_exclude() {
 #[test]
 fn test_with_allow_flags() {
   let r =
-    parse(&TEST_ROOT, &svec!["deno", "test", "-A", "test_file.ts"]).unwrap();
+    parse(&TEST_ROOT, &svec!["oden", "test", "-A", "test_file.ts"]).unwrap();
   assert_eq!(r.subcommand.as_deref(), Some("test"));
   assert!(r.get_bool("allow-all"));
   assert_eq!(
@@ -1506,7 +1525,7 @@ fn test_with_allow_flags() {
 
 #[test]
 fn run_env_file() {
-  let r = parse(&TEST_ROOT, &svec!["deno", "run", "--env-file", "script.ts"])
+  let r = parse(&TEST_ROOT, &svec!["oden", "run", "--env-file", "script.ts"])
     .unwrap();
   assert!(r.get_bool("env-file"));
   assert_eq!(r.get_one("script_arg"), Some("script.ts"));
@@ -1516,7 +1535,7 @@ fn run_env_file() {
 fn run_env_file_with_value() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--env-file=.env.local", "script.ts"],
+    &svec!["oden", "run", "--env-file=.env.local", "script.ts"],
   )
   .unwrap();
   assert_eq!(r.get_one("env-file"), Some(".env.local"));
@@ -1526,7 +1545,7 @@ fn run_env_file_with_value() {
 fn run_coverage() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--coverage=./cov", "script.ts"],
+    &svec!["oden", "run", "--coverage=./cov", "script.ts"],
   )
   .unwrap();
   assert_eq!(r.get_one("coverage"), Some("./cov"));
@@ -1536,7 +1555,7 @@ fn run_coverage() {
 fn run_no_config() {
   let r = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--no-config", "script.ts"],
+    &svec!["oden", "run", "--no-config", "script.ts"],
   )
   .unwrap();
   assert!(r.get_bool("no-config"));
@@ -1547,7 +1566,7 @@ fn levenshtein_basics() {
   // Verify the suggestion engine works
   let err = parse(
     &TEST_ROOT,
-    &svec!["deno", "run", "--allow-raed", "script.ts"],
+    &svec!["oden", "run", "--allow-raed", "script.ts"],
   )
   .unwrap_err();
   assert!(err.suggestion.as_ref().unwrap().contains("--allow-read"));
@@ -1598,7 +1617,7 @@ fn args_have_help_text() {
   }
 
   let mut missing = Vec::new();
-  walk(&defs::DENO_ROOT, "deno", &mut missing);
+  walk(&defs::DENO_ROOT, "oden", &mut missing);
   missing.sort();
   missing.dedup();
   assert!(
@@ -1640,7 +1659,7 @@ fn graph_only_commands_take_only_import_permissions() {
 
     assert!(
       names.contains(&"allow-import") && names.contains(&"deny-import"),
-      "`deno {cmd}` should accept the import permissions"
+      "`oden {cmd}` should accept the import permissions"
     );
     for denied in [
       "allow-all",
@@ -1656,7 +1675,7 @@ fn graph_only_commands_take_only_import_permissions() {
     ] {
       assert!(
         !names.contains(&denied),
-        "`deno {cmd}` should not accept --{denied}"
+        "`oden {cmd}` should not accept --{denied}"
       );
     }
   }
@@ -1668,7 +1687,7 @@ fn graph_only_commands_take_only_import_permissions() {
 /// them here.
 #[test]
 fn post_fork_flag_wiring() {
-  // #36149: `deno fmt --ext` gained xml/svg.
+  // #36149: `oden fmt --ext` gained xml/svg.
   let fmt = defs::DENO_ROOT.find_subcommand("fmt").unwrap();
   let ext = fmt.all_args().find(|a| a.name == "ext").unwrap();
   let ValueParser::Choices(choices) = ext.value_parser.as_ref().unwrap() else {
@@ -1677,13 +1696,13 @@ fn post_fork_flag_wiring() {
   assert!(choices.contains(&"xml"));
   assert!(choices.contains(&"svg"));
 
-  // #35748: `deno task --members` conflicts with --recursive and --filter.
+  // #35748: `oden task --members` conflicts with --recursive and --filter.
   let task = defs::DENO_ROOT.find_subcommand("task").unwrap();
   let members = task.all_args().find(|a| a.name == "members").unwrap();
   assert!(members.conflicts.contains(&"recursive"));
   assert!(members.conflicts.contains(&"filter"));
   let err =
-    flags_from_vec(svec!["deno", "task", "--members", "--recursive", "dev"])
+    flags_from_vec(svec!["oden", "task", "--members", "--recursive", "dev"])
       .unwrap_err();
   assert!(
     err
@@ -1695,15 +1714,15 @@ fn post_fork_flag_wiring() {
   // #36099: --minimum-dependency-age reaches add/remove/info, not just the
   // runtime subcommands.
   for args in [
-    svec!["deno", "add", "--min-dep-age=0", "jsr:@std/path"],
-    svec!["deno", "remove", "--min-dep-age=0", "@std/path"],
-    svec!["deno", "info", "--min-dep-age=0", "main.ts"],
+    svec!["oden", "add", "--min-dep-age=0", "jsr:@std/path"],
+    svec!["oden", "remove", "--min-dep-age=0", "@std/path"],
+    svec!["oden", "info", "--min-dep-age=0", "main.ts"],
   ] {
     let cmd = args[1].clone();
     let flags = flags_from_vec(args).unwrap();
     assert!(
       flags.minimum_dependency_age.is_some(),
-      "`deno {cmd}` dropped --min-dep-age"
+      "`oden {cmd}` dropped --min-dep-age"
     );
   }
 }
