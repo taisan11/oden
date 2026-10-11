@@ -2,7 +2,6 @@
 
 use std::env::current_exe;
 use std::ffi::OsString;
-use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -15,10 +14,6 @@ use deno_core::serde_json::json;
 use crate::util::fs::canonicalize_path;
 
 static TEST_ENV_VAR_NAME: &str = "DENO_TEST_JUPYTER_PATH";
-
-const DENO_ICON_32: &[u8] = include_bytes!("./resources/deno-logo-32x32.png");
-const DENO_ICON_64: &[u8] = include_bytes!("./resources/deno-logo-64x64.png");
-const DENO_ICON_SVG: &[u8] = include_bytes!("./resources/deno-logo-svg.svg");
 
 /// Resolves the most stable path to the current Deno executable to embed in
 /// the generated Jupyter kernelspec's `argv`.
@@ -101,7 +96,7 @@ pub fn status(maybe_name: Option<&str>) -> Result<(), AnyError> {
 
   if kernel_spec_path.exists() {
     log::info!(
-      "✅ Deno kernel already installed at {}",
+      "✅ oden kernel already installed at {}",
       kernel_spec_dir_path.display()
     );
     Ok(())
@@ -112,22 +107,11 @@ pub fn status(maybe_name: Option<&str>) -> Result<(), AnyError> {
       install_cmd.push_str(name);
     }
     log::warn!(
-      "ℹ️ Deno kernel is not yet installed, run `{}` to set it up",
+      "ℹ️ oden kernel is not yet installed, run `{}` to set it up",
       install_cmd
     );
     Ok(())
   }
-}
-
-fn install_icon(
-  dir_path: &Path,
-  filename: &str,
-  icon_data: &[u8],
-) -> Result<(), AnyError> {
-  let path = dir_path.join(filename);
-  let mut file = std::fs::File::create(path)?;
-  file.write_all(icon_data)?;
-  Ok(())
 }
 
 pub fn install(
@@ -150,12 +134,12 @@ pub fn install(
 
   if kernel_spec_path.exists() && !force {
     bail!(
-      "Deno kernel already exists at {}, run again with `--force` to overwrite it",
+      "oden kernel already exists at {}, run again with `--force` to overwrite it",
       kernel_spec_dir_path.display()
     );
   }
 
-  let display_name = maybe_display_name.unwrap_or("Deno");
+  let display_name = maybe_display_name.unwrap_or("oden");
   let current_exe_path = kernel_exe_path()?.to_string_lossy().into_owned();
 
   // TODO(bartlomieju): add remaining fields as per
@@ -178,17 +162,8 @@ pub fn install(
       kernel_spec_path.display()
     )
   })?;
-  let failed_icon_fn =
-    || format!("Failed to copy icon to {}", kernel_spec_dir_path.display());
-  install_icon(&kernel_spec_dir_path, "logo-32x32.png", DENO_ICON_32)
-    .with_context(failed_icon_fn)?;
-  install_icon(&kernel_spec_dir_path, "logo-64x64.png", DENO_ICON_64)
-    .with_context(failed_icon_fn)?;
-  install_icon(&kernel_spec_dir_path, "logo-svg.svg", DENO_ICON_SVG)
-    .with_context(failed_icon_fn)?;
-
   log::info!(
-    "✅ Deno kernelspec installed successfully at {}.",
+    "✅ oden kernelspec installed successfully at {}.",
     kernel_spec_dir_path.display()
   );
   Ok(())

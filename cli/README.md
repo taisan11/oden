@@ -1,7 +1,7 @@
-# Deno CLI Crate
+# oden CLI crate
 
-[![crates](https://img.shields.io/crates/v/deno.svg)](https://crates.io/crates/deno)
+This crate provides the `deno` executable for oden, an experimental fork of
+Deno. The executable and Rust crate names remain unchanged for compatibility.
 
-This provides the actual deno executable and the user-facing APIs.
-
-The deno crate uses the deno_core to provide the executable.
+The CLI uses `deno_core` to provide the runtime and user-facing APIs, including
+the existing `Deno` namespace.

@@ -1,4 +1,7 @@
-# Contributing Guidelines
+# Contributing to oden
+
+oden is an experimental fork of Deno. The `Deno` namespace and existing
+programmatic names are preserved for compatibility.
 
 > **AI-assisted contributions:** If you use AI tools (e.g. Copilot, ChatGPT,
 > Claude, Cursor, etc.) to help write your contribution, **you must disclose
@@ -9,7 +12,8 @@
 > multiple comments on issue or PRs that look AI generated, that are not
 > substantial, your account may be banned.
 
-This is the main repository that provides the `deno` CLI.
+This repository provides the oden experimental fork through the compatible
+`deno` CLI.
 
 If you want to fix a bug or add a new feature to `deno`, this is the repository
 to contribute to.
@@ -101,9 +105,8 @@ JS/TS linting in one step.
 
 ## Building from source
 
-Below are instructions on how to build Deno from source. If you just want to use
-Deno you can download a prebuilt executable (more information in the
-[`Getting Started`](https://docs.deno.com/runtime) chapter).
+Below are instructions on how to build oden from source. Upstream Deno
+installers install Deno rather than this experimental fork.
 
 ### Cloning the Repository
 
@@ -113,7 +116,7 @@ Deno you can download a prebuilt executable (more information in the
 **Linux(Debian)**/**Mac**/**WSL**:
 
 ```shell
-git clone --recurse-submodules https://github.com/denoland/deno.git
+git clone --recurse-submodules https://github.com/taisan11/oden.git
 ```
 
 **Windows**:
@@ -125,7 +128,7 @@ git clone --recurse-submodules https://github.com/denoland/deno.git
 
    ```shell
    git config --global core.symlinks true
-   git clone --recurse-submodules https://github.com/denoland/deno.git
+   git clone --recurse-submodules https://github.com/taisan11/oden.git
    ```
 
 ### Prerequisites

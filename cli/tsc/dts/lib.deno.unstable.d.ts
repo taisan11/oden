@@ -1393,7 +1393,7 @@ declare namespace Deno {
      *
      * ```typescript
      * const { md } = Deno.jupyter;
-     * md`# Notebooks in TypeScript via Deno ![Deno logo](https://github.com/denoland.png?size=32)
+     * md`# Notebooks in TypeScript via oden
      *
      * * TypeScript ${Deno.version.typescript}
      * * V8 ${Deno.version.v8}
