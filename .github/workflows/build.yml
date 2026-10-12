@@ -26,7 +26,7 @@ jobs:
       BUILD_PROFILE: ${{ inputs.profile }}
       CARGO_TERM_COLOR: always
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Fetch only the standard library submodule
         run: git submodule update --init --depth=1 tests/util/std
       - name: Install pinned Rust toolchain
