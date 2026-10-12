@@ -1,36 +1,25 @@
 # Contributing to oden
 
-oden is an experimental fork of Deno. The `Deno` namespace and existing
-programmatic names are preserved for compatibility.
+oden is an experimental and independent fork of Deno. The `oden` executable
+and `oden.json` configuration are specific to this fork. The `Deno`
+namespace and many internal Rust crate names are retained for compatibility.
 
-> **AI-assisted contributions:** If you use AI tools (e.g. Copilot, ChatGPT,
-> Claude, Cursor, etc.) to help write your contribution, **you must disclose
-> this in your PR description**. There is no penalty for using AI tools, but PRs
-> will be rejected if there is suspicion of undisclosed AI usage.
+Small, focused bug reports and pull requests are welcome. For major changes,
+consider opening an issue first so the approach can be discussed.
 
-> **Spamming issues or PRs:** If you create multiple issues or PRs or create
-> multiple comments on issue or PRs that look AI generated, that are not
-> substantial, your account may be banned.
+Before opening a pull request:
 
-This repository provides the oden experimental fork through the compatible
-`deno` CLI.
+1. Explain what changed and why.
+2. Run `./x fmt` and `./x lint-js` where applicable.
+3. Run the relevant tests, or explain what you could not test.
+4. Review all submitted code, including AI-assisted code, for correctness and
+   licensing.
 
-If you want to fix a bug or add a new feature to `deno`, this is the repository
-to contribute to.
-
-Some systems, including a large part of the Node.js compatibility layer, are
-implemented in JavaScript and TypeScript modules. These are a good place to
-start if you are looking to make your first contribution.
-
-[Here](https://node-test-viewer.deno.deno.net/results/latest) is a list of
-Node.js test cases, including both successful and failing ones. Reviewing these
-can provide valuable insight into how the compatibility layer works in practice,
-and where improvements might be needed. They can also serve as a useful guide
-for identifying areas where contributions are most impactful.
+See [CI and release automation](WORKFLOWS.md) for GitHub checks.
 
 ## The `./x` tool
 
-Deno uses the `./x` developer CLI for common development tasks like building,
+oden uses the `./x` developer CLI for common development tasks like building,
 testing, formatting, and linting. Run `./x --help` to see all available
 commands.
 
@@ -220,7 +209,7 @@ brew install llvm lld
 > tests. Ensure that a suffix-less `python`/`python.exe` exists in your `PATH`
 > and it refers to Python 3.
 
-### Building Deno
+### Building oden
 
 _For WSL, make sure you have sufficient memory allocated in `.wslconfig`. It is
 recommended that you allocate at least 16GB._

@@ -63,6 +63,14 @@ Run it with the development binary:
 
 The server listens on port 8000 by default.
 
+## CI and releases
+
+Default CI checks formatting, JavaScript/TypeScript lint and Cargo workspace
+metadata. Full Rust builds are manual, and releases are drafted by a separate
+manual workflow. Oden does not use Deno's publishing infrastructure.
+
+See [workflow documentation](.github/WORKFLOWS.md) for commands and limitations.
+
 ## Documentation and contributing
 
 - [Contributor guide](.github/CONTRIBUTING.md)

@@ -1,0 +1,51 @@
+name: Build Oden
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Cargo build profile
+        type: choice
+        options: [debug, release]
+        default: debug
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ inputs.profile }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  linux-x64:
+    name: Linux x86_64 (${{ inputs.profile }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      BUILD_PROFILE: ${{ inputs.profile }}
+      CARGO_TERM_COLOR: always
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch only the standard library submodule
+        run: git submodule update --init --depth=1 tests/util/std
+      - name: Install pinned Rust toolchain
+        uses: dsherret/rust-toolchain-file@v1
+      - name: Build executable
+        run: |
+          case "$BUILD_PROFILE" in
+            debug) cargo build --locked -p deno --bin oden ;;
+            release) cargo build --locked --release -p deno --bin oden ;;
+            *) echo "Unsupported profile: $BUILD_PROFILE" >&2; exit 1 ;;
+          esac
+      - name: Smoke test the built Oden binary
+        run: |
+          ./target/$BUILD_PROFILE/oden --version
+          test "$(./target/$BUILD_PROFILE/oden eval 'console.log(1 + 2)')" = "3"
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: oden-linux-x86_64-${{ inputs.profile }}
+          path: target/${{ inputs.profile }}/oden
+          if-no-files-found: error
+          retention-days: 7

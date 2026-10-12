@@ -36,7 +36,6 @@ if (js) {
   promises.push(lintJS());
   promises.push(lintBootstraps());
   promises.push(lintNodePolyfillDenoApis());
-  promises.push(ensureWorkflowYmlsUpToDate());
   promises.push(ensureNoUnusedOutFiles());
   promises.push(ensureNoNewTopLevelEntries());
 
@@ -520,40 +519,7 @@ async function clippy() {
   }
 }
 
-async function ensureWorkflowYmlsUpToDate() {
-  const generators = [
-    ".github/workflows/ci.ts",
-    ".github/workflows/create_prerelease_tag.ts",
-    ".github/workflows/pr.ts",
-    ".github/workflows/cargo_publish.ts",
-    ".github/workflows/ecosystem_compat_test.ts",
-    ".github/workflows/node_compat_test.ts",
-    ".github/workflows/npm_publish.ts",
-    ".github/workflows/post_publish.ts",
-    ".github/workflows/promote_to_release.ts",
-    ".github/workflows/start_release.ts",
-    ".github/workflows/version_bump.ts",
-  ];
-
-  for (const gen of generators) {
-    const cmd = new Deno.Command("oden", {
-      cwd: ROOT_PATH,
-      args: ["run", "--allow-read=.", "--allow-net=jsr.io", gen, "--lint"],
-      stderr: "piped",
-      stdout: "piped",
-    });
-    const { code, stderr } = await cmd.output();
-    if (code !== 0) {
-      const ymlFile = gen.replace(".ts", ".generated.yml");
-      const decoder = new TextDecoder();
-      throw new Error(
-        `${ymlFile} is out of date. Run: ${gen}\n${decoder.decode(stderr)}`,
-      );
-    }
-  }
-}
-
-/**
+async /**
  * When short permission flags were being proposed, a concern that was raised was that
  * it would degrade the permission system by making the flags obscure. To address this
  * concern, we decided to make uppercase short flags ONLY relate to permissions. That
