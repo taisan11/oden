@@ -52,6 +52,12 @@ tokio.workspace = true
 url.workspace = true
 v8_valueserializer = "0.1.2"
 
+[target.'cfg(windows)'.dependencies]
+windows-sys = { workspace = true, features = ["Wdk_Foundation"] }
+
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { workspace = true, features = ["Win32_System_Ioctl", "Win32_System_SystemServices"] }
+
 [[example]]
 name = "kv_bench"
 path = "examples/kv_bench.rs"

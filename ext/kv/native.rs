@@ -4,7 +4,7 @@ use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::fs::File;
-#[cfg(any(test, not(unix)))]
+#[cfg(test)]
 use std::fs::OpenOptions;
 use std::io::Read;
 use std::io::Seek;
@@ -482,34 +482,20 @@ fn open_file(path: &std::path::Path) -> Result<File, JsErrorBox> {
   unreachable!()
 }
 
-#[cfg(not(unix))]
-#[allow(
-  clippy::disallowed_methods,
-  reason = "database uses the real filesystem"
-)]
+#[cfg(windows)]
+#[path = "native_windows.rs"]
+mod windows_file;
+
+#[cfg(windows)]
 fn open_file(path: &std::path::Path) -> Result<File, JsErrorBox> {
-  let mut prefix = PathBuf::new();
-  for part in path.components() {
-    prefix.push(part);
-    #[allow(clippy::disallowed_methods, reason = "real database path")]
-    if std::fs::symlink_metadata(&prefix)
-      .is_ok_and(|m| m.file_type().is_symlink())
-    {
-      return Err(error("KV database path cannot contain symlinks"));
-    }
-  }
-  let mut options = OpenOptions::new();
-  options.read(true).write(true).create(true).truncate(false);
-  #[cfg(windows)]
-  {
-    use std::os::windows::fs::OpenOptionsExt;
-    options.custom_flags(0x00200000); // FILE_FLAG_OPEN_REPARSE_POINT
-  }
-  let file = options.open(path).map_err(io_error)?;
-  if !file.metadata().map_err(io_error)?.is_file() {
-    return Err(error("KV database must be a regular file"));
-  }
-  Ok(file)
+  windows_file::open(path)
+}
+
+#[cfg(not(any(unix, windows)))]
+fn open_file(_path: &std::path::Path) -> Result<File, JsErrorBox> {
+  Err(error(
+    "Native KV file storage is unsupported on this platform",
+  ))
 }
 
 pub struct NativeDbHandler {

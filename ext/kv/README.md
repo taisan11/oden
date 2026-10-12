@@ -48,7 +48,12 @@ frames. Unchanged files need no replay. A commit writes only touched keys and
 queue messages, and failed mutations undo only those changes. An ordered TTL
 index avoids scanning all keys on reads. In-memory operations avoid copying the
 database or dispatching to a blocking worker when the mutex is available.
-Persistent file I/O and locking run on Tokio blocking workers.
+Persistent file I/O and locking run on Tokio blocking workers. On Unix, path
+components are opened through held descriptors with `O_NOFOLLOW`. On Windows,
+components are opened with `NtCreateFile` relative to validated parent handles,
+reparse points are refused, and all ancestor handles deny write/delete sharing
+until the final file has been opened. Other platforms support the in-memory
+backend but refuse Native file storage.
 
 Existing `DENOKV01` snapshot journals remain readable and can receive new delta
 frames; older binaries cannot read those new frames. Each transaction has a 256
