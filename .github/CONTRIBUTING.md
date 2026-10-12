@@ -1,8 +1,8 @@
 # Contributing to oden
 
-oden is an experimental and independent fork of Deno. The `oden` executable
-and `oden.json` configuration are specific to this fork. The `Deno`
-namespace and many internal Rust crate names are retained for compatibility.
+oden is an experimental and independent fork of Deno. The `oden` executable and
+`oden.json` configuration are specific to this fork. The `Deno` namespace and
+many internal Rust crate names are retained for compatibility.
 
 Small, focused bug reports and pull requests are welcome. For major changes,
 consider opening an issue first so the approach can be discussed.

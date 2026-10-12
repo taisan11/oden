@@ -519,7 +519,7 @@ async function clippy() {
   }
 }
 
-async /**
+/**
  * When short permission flags were being proposed, a concern that was raised was that
  * it would degrade the permission system by making the flags obscure. To address this
  * concern, we decided to make uppercase short flags ONLY relate to permissions. That

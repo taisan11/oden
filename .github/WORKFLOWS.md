@@ -8,16 +8,16 @@ Slack, npm, or crates.io.
 
 Runs for pull requests and pushes to `main`, and can be started manually:
 
-- **Format:** dprint checks the repository using `.dprint.json`, including
-  the Rust formatting integration. The pinned Rust toolchain is installed.
+- **Format:** dprint checks the repository using `.dprint.json`, including the
+  Rust formatting integration. The pinned Rust toolchain is installed.
 - **JavaScript and TypeScript lint:** runs `tools/lint.js --js` with upstream
-  Deno as a *tooling bootstrap*, not as an Oden runtime test.
-- **Cargo workspace metadata:** checks that the Cargo manifest and lockfile
-  are consistent without compiling Rust crates.
+  Deno as a _tooling bootstrap_, not as an Oden runtime test.
+- **Cargo workspace metadata:** checks that the Cargo manifest and lockfile are
+  consistent without compiling Rust crates.
 
 These are fast structural checks, **not runtime compatibility or build
-verification**. The `tools/lint.js` workflow-generator check was removed
-because workflows are plain YAML.
+verification**. The `tools/lint.js` workflow-generator check was removed because
+workflows are plain YAML.
 
 ## Build: `build.yml`
 
@@ -40,8 +40,8 @@ The release workflow is **manual-only** and **Linux x86_64-only**:
 1. Create and push an appropriately versioned Git tag, e.g. `v0.1.0`.
 2. Use **Actions → Draft Oden Release → Run workflow**.
 3. Supply the existing tag and run the workflow.
-4. The workflow checks out that tag, builds and smoke-tests `oden`, generates
-   a tarball and SHA-256 checksum, and creates a **draft** GitHub Release.
+4. The workflow checks out that tag, builds and smoke-tests `oden`, generates a
+   tarball and SHA-256 checksum, and creates a **draft** GitHub Release.
 5. Review the draft assets and notes before publishing it manually.
 
 The workflow does not publish packages, create version tags, sign binaries,
@@ -60,6 +60,6 @@ require more runner resources than a standard GitHub-hosted machine provides.
 
 If branch protection or repository rulesets require the former `ci status`
 check, switch them to the new `Format`, `JavaScript and TypeScript lint`, and
-`Cargo workspace metadata` jobs. Also review any existing self-hosted
-runners, release environments, secrets, and stale scheduled workflow runs.
-GitHub settings cannot be changed by editing this repository's files.
+`Cargo workspace metadata` jobs. Also review any existing self-hosted runners,
+release environments, secrets, and stale scheduled workflow runs. GitHub
+settings cannot be changed by editing this repository's files.
