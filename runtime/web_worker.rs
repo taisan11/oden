@@ -587,6 +587,7 @@ impl WebWorker {
             proxy: None,
           },
         )),
+        Box::new(deno_kv::native::NativeDbHandler::new(None, options.seed)),
         deno_kv::KvConfig::builder().build(),
       ),
       deno_cron::deno_cron::init(Box::new(CronHandlerImpl::create_from_env())),

@@ -110,6 +110,7 @@ const messagePort = core.loadExtScript("ext:deno_web/13_message_port.js");
 import {
   denoNs,
   denoNsUnstableById,
+  odenNsKv,
   unstableIds,
 } from "ext:runtime/90_deno_ns.js";
 const { errors } = core.loadExtScript("ext:runtime/01_errors.js");
@@ -649,6 +650,14 @@ function exposeUnstableFeaturesForWindowOrWorkerGlobalScope(unstableFeatures) {
   }
 }
 
+function exposeOdenNamespace(unstableFeatures) {
+  const ns = { __proto__: null };
+  if (ArrayPrototypeIncludes(unstableFeatures, unstableIds.kv)) {
+    ObjectDefineProperties(ns, getSafeOwnPropertyDescriptors(odenNsKv));
+  }
+  ObjectDefineProperty(globalThis, "Oden", core.propReadOnly(ns));
+}
+
 // NOTE(bartlomieju): remove all the ops that have already been imported using
 // "virtual op module" (`ext:core/ops`).
 const NOT_IMPORTED_OPS = [
@@ -1155,6 +1164,7 @@ function bootstrapMainRuntime(runtimeOptions, warmup = false) {
     // Setup `Deno` global - we're actually overriding already existing global
     // `Deno` with `Deno` namespace from "./deno.ts".
     ObjectDefineProperty(globalThis, "Deno", core.propReadOnly(finalDenoNs));
+    exposeOdenNamespace(unstableFeatures);
 
     const nodeBootstrapArgs = {
       usesLocalNodeModulesDir: hasNodeModulesDir,
@@ -1318,6 +1328,7 @@ function bootstrapWorkerRuntime(
     // Setup `Deno` global - we're actually overriding already existing global
     // `Deno` with `Deno` namespace from "./deno.ts".
     ObjectDefineProperty(globalThis, "Deno", core.propReadOnly(finalDenoNs));
+    exposeOdenNamespace(unstableFeatures);
 
     const workerMetadata = maybeWorkerMetadata
       ? messagePort.deserializeJsMessageData(maybeWorkerMetadata)

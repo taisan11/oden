@@ -338,6 +338,26 @@ denoNsUnstableById[unstableIds.kv] = {
   },
 };
 
+// Oden uses the same public KV objects with its own native open operation.
+const odenNsKv = {
+  __proto__: null,
+  get openKv() {
+    return lazyKv().openNativeKv;
+  },
+  get AtomicOperation() {
+    return lazyKv().AtomicOperation;
+  },
+  get Kv() {
+    return lazyKv().Kv;
+  },
+  get KvU64() {
+    return lazyKv().KvU64;
+  },
+  get KvListIterator() {
+    return lazyKv().KvListIterator;
+  },
+};
+
 denoNsUnstableById[unstableIds.net] = {
   listenDatagram: net.createListenDatagram(
     op_net_listen_udp,
@@ -385,4 +405,4 @@ core.defineGlobalProperties(denoNsUnstableById[unstableIds.webgpu], {
 
 // denoNsUnstableById[unstableIds.workerOptions] = { __proto__: null }
 
-export { denoNs, denoNsUnstableById, unstableIds };
+export { denoNs, denoNsUnstableById, odenNsKv, unstableIds };

@@ -10,6 +10,10 @@ readme = "README.md"
 repository.workspace = true
 description = "Implementation of the Deno database API"
 
+[features]
+default = []
+sqlite = ["dep:denokv_sqlite", "dep:rusqlite"]
+
 [lib]
 path = "lib.rs"
 
@@ -17,6 +21,7 @@ path = "lib.rs"
 anyhow.workspace = true
 async-trait.workspace = true
 base64.workspace = true
+bincode.workspace = true
 boxed_error.workspace = true
 bytes.workspace = true
 chrono = { workspace = true, features = ["now"] }
@@ -29,17 +34,30 @@ deno_permissions.workspace = true
 deno_tls.workspace = true
 denokv_proto.workspace = true
 denokv_remote.workspace = true
-denokv_sqlite.workspace = true
+denokv_sqlite = { workspace = true, optional = true }
 faster-hex.workspace = true
 http.workspace = true
 http-body-util.workspace = true
+libc.workspace = true
 log.workspace = true
 num-bigint.workspace = true
 rand.workspace = true
-rusqlite.workspace = true
+rusqlite = { workspace = true, optional = true }
 serde.workspace = true
 serde_json.workspace = true
+sha2.workspace = true
 sys_traits = { features = ["real"], workspace = true }
 thiserror.workspace = true
 tokio.workspace = true
 url.workspace = true
+v8_valueserializer = "0.1.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { workspace = true, features = ["Wdk_Foundation"] }
+
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { workspace = true, features = ["Win32_System_Ioctl", "Win32_System_SystemServices"] }
+
+[[example]]
+name = "kv_bench"
+path = "examples/kv_bench.rs"

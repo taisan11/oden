@@ -2679,6 +2679,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "base64 0.22.1",
+ "bincode",
  "boxed_error",
  "bytes",
  "chrono",
@@ -2695,16 +2696,20 @@ dependencies = [
  "faster-hex",
  "http",
  "http-body-util",
+ "libc",
  "log",
  "num-bigint",
  "rand 0.8.5",
  "rusqlite",
  "serde",
  "serde_json",
+ "sha2",
  "sys_traits",
  "thiserror 2.0.12",
  "tokio",
  "url",
+ "v8_valueserializer",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

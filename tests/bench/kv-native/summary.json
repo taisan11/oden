@@ -1,0 +1,727 @@
+{
+  "metadata": {
+    "kind": "metadata",
+    "debug_assertions": false,
+    "profile": "release",
+    "os": "linux",
+    "arch": "x86_64",
+    "iterations": 1000,
+    "repeats": 5,
+    "value_bytes": 256,
+    "seed_batch": 1000,
+    "counts": [
+      100,
+      1000,
+      10000
+    ],
+    "comparison": true,
+    "backend_order": "alternated per repeat",
+    "io": "OS file locks and fsync, warm OS cache; temporary overlay filesystem",
+    "cargo_profile": "release-lite"
+  },
+  "workloads": [
+    {
+      "entries": 100,
+      "mode": "disk",
+      "operation": "cas",
+      "p50_ms": 0.038248,
+      "p95_ms": 0.061973,
+      "ops_per_s": 23252.62023313728,
+      "initial_bytes": 29680,
+      "final_bytes": 397680,
+      "sqlite_relative_p50_speedup": 1.7080108763856934,
+      "sqlite_relative_p95_speedup": 1.7693995772352475,
+      "paired_repeat_p50_speedups": [
+        1.6823603428841065,
+        1.6907511388918317,
+        1.6959475471996208,
+        1.9449423815620999,
+        1.6797952884691483
+      ]
+    },
+    {
+      "entries": 100,
+      "mode": "disk",
+      "operation": "get",
+      "p50_ms": 0.015364000000000001,
+      "p95_ms": 0.021963,
+      "ops_per_s": 58457.509749835765,
+      "initial_bytes": 29680,
+      "final_bytes": 29680,
+      "sqlite_relative_p50_speedup": 1.7501952616506116,
+      "sqlite_relative_p95_speedup": 2.244911897281792,
+      "paired_repeat_p50_speedups": [
+        1.7875836480487646,
+        1.7835949973390102,
+        1.7754413806784366,
+        1.7147599591419815,
+        1.7160517428152682
+      ]
+    },
+    {
+      "entries": 100,
+      "mode": "disk",
+      "operation": "list_100",
+      "p50_ms": 0.032688999999999996,
+      "p95_ms": 0.048714,
+      "ops_per_s": 28100.73089158027,
+      "initial_bytes": 29680,
+      "final_bytes": 29680,
+      "sqlite_relative_p50_speedup": 1.976414084248524,
+      "sqlite_relative_p95_speedup": 1.8891694379439175,
+      "paired_repeat_p50_speedups": [
+        2.020598668243201,
+        1.980141668471032,
+        1.8203599581838217,
+        2.0150849488463543,
+        1.9440170940170944
+      ]
+    },
+    {
+      "entries": 100,
+      "mode": "disk",
+      "operation": "overwrite",
+      "p50_ms": 0.022554,
+      "p95_ms": 0.033791,
+      "ops_per_s": 40544.31883273879,
+      "initial_bytes": 29680,
+      "final_bytes": 397680,
+      "sqlite_relative_p50_speedup": 1.2326859980491265,
+      "sqlite_relative_p95_speedup": 1.3301766742623773,
+      "paired_repeat_p50_speedups": [
+        1.2740652163914825,
+        1.2739372726016673,
+        1.298617852355198,
+        1.1272476356699273,
+        1.1268526414098348
+      ]
+    },
+    {
+      "entries": 100,
+      "mode": "memory",
+      "operation": "cas",
+      "p50_ms": 0.001142,
+      "p95_ms": 0.001372,
+      "ops_per_s": 808110.1939060411,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 47.16374781085814,
+      "sqlite_relative_p95_speedup": 69.76239067055393,
+      "paired_repeat_p50_speedups": [
+        62.87435456110155,
+        60.8485856905158,
+        49.76657329598507,
+        44.63476070528967,
+        49.14972273567468
+      ]
+    },
+    {
+      "entries": 100,
+      "mode": "memory",
+      "operation": "get",
+      "p50_ms": 0.00045,
+      "p95_ms": 0.000511,
+      "ops_per_s": 1944106.9258809236,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 79.58666666666666,
+      "sqlite_relative_p95_speedup": 124.84540117416829,
+      "paired_repeat_p50_speedups": [
+        77.69160997732426,
+        79.32150776053214,
+        81.82727272727273,
+        79.47671840354766,
+        80.32150776053214
+      ]
+    },
+    {
+      "entries": 100,
+      "mode": "memory",
+      "operation": "list_100",
+      "p50_ms": 0.008914,
+      "p95_ms": 0.009104,
+      "ops_per_s": 108595.63795213387,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 7.110724702714831,
+      "sqlite_relative_p95_speedup": 11.646528998242532,
+      "paired_repeat_p50_speedups": [
+        7.059253429278167,
+        7.041773707137272,
+        7.329618372171564,
+        7.080525606469003,
+        7.058856377038195
+      ]
+    },
+    {
+      "entries": 100,
+      "mode": "memory",
+      "operation": "overwrite",
+      "p50_ms": 0.0006209999999999999,
+      "p95_ms": 0.0008110000000000001,
+      "ops_per_s": 1425667.1409386022,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 36.23832528180355,
+      "sqlite_relative_p95_speedup": 51.24784217016029,
+      "paired_repeat_p50_speedups": [
+        49.04470938897168,
+        50.028526148969895,
+        36.97670549084858,
+        35.70531400966184,
+        37.568527918781726
+      ]
+    },
+    {
+      "entries": 1000,
+      "mode": "disk",
+      "operation": "cas",
+      "p50_ms": 0.054542,
+      "p95_ms": 0.077978,
+      "ops_per_s": 17052.455741203747,
+      "initial_bytes": 296080,
+      "final_bytes": 664080,
+      "sqlite_relative_p50_speedup": 1.537090682409886,
+      "sqlite_relative_p95_speedup": 1.590666598271307,
+      "paired_repeat_p50_speedups": [
+        1.4352246809547853,
+        1.2988905547226386,
+        1.7635281385281387,
+        1.4325807243277355,
+        1.569671186741115
+      ]
+    },
+    {
+      "entries": 1000,
+      "mode": "disk",
+      "operation": "get",
+      "p50_ms": 0.020210000000000002,
+      "p95_ms": 0.028733,
+      "ops_per_s": 43076.414112522485,
+      "initial_bytes": 296080,
+      "final_bytes": 296080,
+      "sqlite_relative_p50_speedup": 1.7601682335477484,
+      "sqlite_relative_p95_speedup": 1.7741273100616015,
+      "paired_repeat_p50_speedups": [
+        1.7131023144049573,
+        1.487753751103266,
+        1.449556319449996,
+        1.5052200785099807,
+        1.5128972435303043
+      ]
+    },
+    {
+      "entries": 1000,
+      "mode": "disk",
+      "operation": "list_100",
+      "p50_ms": 0.061653,
+      "p95_ms": 0.087632,
+      "ops_per_s": 17609.98111188646,
+      "initial_bytes": 296080,
+      "final_bytes": 296080,
+      "sqlite_relative_p50_speedup": 1.3614422655831835,
+      "sqlite_relative_p95_speedup": 1.3621736352017528,
+      "paired_repeat_p50_speedups": [
+        1.360420388521398,
+        1.3798735167557699,
+        1.0274483720779326,
+        1.6734989344915654,
+        0.9243809660518193
+      ]
+    },
+    {
+      "entries": 1000,
+      "mode": "disk",
+      "operation": "overwrite",
+      "p50_ms": 0.023215,
+      "p95_ms": 0.038688,
+      "ops_per_s": 38983.06287274143,
+      "initial_bytes": 296080,
+      "final_bytes": 664080,
+      "sqlite_relative_p50_speedup": 1.279517553306052,
+      "sqlite_relative_p95_speedup": 1.3417080231596359,
+      "paired_repeat_p50_speedups": [
+        1.2913182707703255,
+        1.3113366404223366,
+        1.3118211153024588,
+        0.8813346020442616,
+        1.1628183840345878
+      ]
+    },
+    {
+      "entries": 1000,
+      "mode": "memory",
+      "operation": "cas",
+      "p50_ms": 0.001522,
+      "p95_ms": 0.001683,
+      "ops_per_s": 623472.8811118266,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 35.7503285151117,
+      "sqlite_relative_p95_speedup": 48.272727272727266,
+      "paired_repeat_p50_speedups": [
+        35.74608355091384,
+        34.33333333333333,
+        35.730998017184405,
+        36.12734584450402,
+        36.615435795076515
+      ]
+    },
+    {
+      "entries": 1000,
+      "mode": "memory",
+      "operation": "get",
+      "p50_ms": 0.000531,
+      "p95_ms": 0.000661,
+      "ops_per_s": 1612367.5037003835,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 48.64218455743879,
+      "sqlite_relative_p95_speedup": 58.878971255673214,
+      "paired_repeat_p50_speedups": [
+        51.30131826741996,
+        50.24482109227872,
+        45.434937611408195,
+        49.53742802303263,
+        49.19193857965452
+      ]
+    },
+    {
+      "entries": 1000,
+      "mode": "memory",
+      "operation": "list_100",
+      "p50_ms": 0.009183,
+      "p95_ms": 0.011708,
+      "ops_per_s": 84523.33025640238,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 7.094413590329957,
+      "sqlite_relative_p95_speedup": 8.9698496754356,
+      "paired_repeat_p50_speedups": [
+        7.007140503130835,
+        9.159243374023976,
+        7.014923735323164,
+        7.159781761496492,
+        5.452851447391229
+      ]
+    },
+    {
+      "entries": 1000,
+      "mode": "memory",
+      "operation": "overwrite",
+      "p50_ms": 0.000891,
+      "p95_ms": 0.001072,
+      "ops_per_s": 1024472.6015047453,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 35.37261503928171,
+      "sqlite_relative_p95_speedup": 35.99720149253731,
+      "paired_repeat_p50_speedups": [
+        25.867346938775512,
+        25.166481687014425,
+        36.68641114982579,
+        35.34201954397394,
+        35.71365149833519
+      ]
+    },
+    {
+      "entries": 10000,
+      "mode": "disk",
+      "operation": "cas",
+      "p50_ms": 0.045087999999999996,
+      "p95_ms": 0.066601,
+      "ops_per_s": 20744.51611974407,
+      "initial_bytes": 2960728,
+      "final_bytes": 3328728,
+      "sqlite_relative_p50_speedup": 1.4733410220014196,
+      "sqlite_relative_p95_speedup": 1.6117025269890846,
+      "paired_repeat_p50_speedups": [
+        1.4304235090751944,
+        1.7136626794868528,
+        0.8075199310493429,
+        1.65038272146653,
+        1.52736205249511
+      ]
+    },
+    {
+      "entries": 10000,
+      "mode": "disk",
+      "operation": "get",
+      "p50_ms": 0.018948,
+      "p95_ms": 0.026699999999999998,
+      "ops_per_s": 46921.02586066417,
+      "initial_bytes": 2960728,
+      "final_bytes": 2960728,
+      "sqlite_relative_p50_speedup": 1.60048553937091,
+      "sqlite_relative_p95_speedup": 2.0277902621722848,
+      "paired_repeat_p50_speedups": [
+        1.758244437671442,
+        2.0283375616294097,
+        1.3927597914972982,
+        2.0174051395786123,
+        1.3838572317114013
+      ]
+    },
+    {
+      "entries": 10000,
+      "mode": "disk",
+      "operation": "list_100",
+      "p50_ms": 0.041232,
+      "p95_ms": 0.09352999999999999,
+      "ops_per_s": 22741.721473267844,
+      "initial_bytes": 2960728,
+      "final_bytes": 2960728,
+      "sqlite_relative_p50_speedup": 1.7532256499805976,
+      "sqlite_relative_p95_speedup": 1.394376135999145,
+      "paired_repeat_p50_speedups": [
+        1.6843971631205674,
+        1.8284769522086872,
+        1.436014395714764,
+        1.3355871054817277,
+        1.5514403292181072
+      ]
+    },
+    {
+      "entries": 10000,
+      "mode": "disk",
+      "operation": "overwrite",
+      "p50_ms": 0.026971,
+      "p95_ms": 0.038088,
+      "ops_per_s": 35091.53627236647,
+      "initial_bytes": 2960728,
+      "final_bytes": 3328728,
+      "sqlite_relative_p50_speedup": 1.1132327314523007,
+      "sqlite_relative_p95_speedup": 1.2716078554925438,
+      "paired_repeat_p50_speedups": [
+        1.0462836536778348,
+        1.0309742291600745,
+        1.1538114907998496,
+        1.1901131719585036,
+        1.0489744221229287
+      ]
+    },
+    {
+      "entries": 10000,
+      "mode": "memory",
+      "operation": "cas",
+      "p50_ms": 0.001852,
+      "p95_ms": 0.0025239999999999998,
+      "ops_per_s": 428615.39226452087,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 31.007559395248386,
+      "sqlite_relative_p95_speedup": 35.19175911251981,
+      "paired_repeat_p50_speedups": [
+        27.144135657089027,
+        31.023745277927684,
+        34.495490078171976,
+        28.96383087111564,
+        33.9338061465721
+      ]
+    },
+    {
+      "entries": 10000,
+      "mode": "memory",
+      "operation": "get",
+      "p50_ms": 0.0007419999999999999,
+      "p95_ms": 0.001162,
+      "ops_per_s": 1099686.5893220433,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 36.03773584905661,
+      "sqlite_relative_p95_speedup": 47.54130808950086,
+      "paired_repeat_p50_speedups": [
+        37.12685560053981,
+        40.43716433941998,
+        34.1621271076524,
+        37.32051282051282,
+        43.6
+      ]
+    },
+    {
+      "entries": 10000,
+      "mode": "memory",
+      "operation": "list_100",
+      "p50_ms": 0.011698,
+      "p95_ms": 0.012238,
+      "ops_per_s": 79853.54221529377,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 5.665925799281927,
+      "sqlite_relative_p95_speedup": 10.06005883314267,
+      "paired_repeat_p50_speedups": [
+        5.66905615292712,
+        5.589255210112744,
+        5.570625319475209,
+        5.708884688090738,
+        9.407597535934292
+      ]
+    },
+    {
+      "entries": 10000,
+      "mode": "memory",
+      "operation": "overwrite",
+      "p50_ms": 0.001232,
+      "p95_ms": 0.001792,
+      "ops_per_s": 721846.0201380603,
+      "initial_bytes": 0,
+      "final_bytes": 0,
+      "sqlite_relative_p50_speedup": 19.46185064935065,
+      "sqlite_relative_p95_speedup": 20.661830357142858,
+      "paired_repeat_p50_speedups": [
+        20.474402730375427,
+        18.597484276729556,
+        23.08848715509039,
+        16.864942528735632,
+        19.03792569659442
+      ]
+    }
+  ],
+  "growth": [
+    {
+      "kind": "growth",
+      "backend": "native",
+      "entries": 1000,
+      "updates": 0,
+      "file_bytes": 296080,
+      "read_latency_ms": [
+        0.03335,
+        0.017667,
+        0.02016,
+        0.016295,
+        0.016705,
+        0.016555,
+        0.016305,
+        0.016184,
+        0.016345000000000002,
+        0.016014
+      ],
+      "reopen_ms": 5.262869,
+      "read_p50_ms": 0.016345000000000002,
+      "read_p95_ms": 0.03335
+    },
+    {
+      "kind": "growth",
+      "backend": "native",
+      "entries": 1000,
+      "updates": 10,
+      "file_bytes": 299760,
+      "read_latency_ms": [
+        0.017767,
+        0.018167,
+        0.016676,
+        0.015864,
+        0.015954,
+        0.015974,
+        0.015744,
+        0.015824,
+        0.015753999999999997,
+        0.016194
+      ],
+      "reopen_ms": 16.470629,
+      "read_p50_ms": 0.015954,
+      "read_p95_ms": 0.018167
+    },
+    {
+      "kind": "growth",
+      "backend": "native",
+      "entries": 1000,
+      "updates": 50,
+      "file_bytes": 314480,
+      "read_latency_ms": [
+        0.019528999999999998,
+        0.018147,
+        0.016895,
+        0.016836,
+        0.016324,
+        0.015894000000000002,
+        0.016364,
+        0.016064000000000002,
+        0.016084,
+        0.016175000000000002
+      ],
+      "reopen_ms": 5.961691,
+      "read_p50_ms": 0.016324,
+      "read_p95_ms": 0.019528999999999998
+    },
+    {
+      "kind": "growth",
+      "backend": "native",
+      "entries": 1000,
+      "updates": 100,
+      "file_bytes": 332880,
+      "read_latency_ms": [
+        0.021442,
+        0.017316,
+        0.016455,
+        0.017136,
+        0.016024,
+        0.015954,
+        0.015923999999999997,
+        0.016174,
+        0.015804,
+        0.016685000000000002
+      ],
+      "reopen_ms": 10.678363,
+      "read_p50_ms": 0.016174,
+      "read_p95_ms": 0.021442
+    }
+  ],
+  "api": {
+    "metadata": {
+      "kind": "metadata",
+      "api": true,
+      "iterations": 1000,
+      "repeats": 5,
+      "entries": 1000,
+      "value_bytes": 256,
+      "runtime": {
+        "deno": "2.9.7",
+        "v8": "15.0.245.2-rusty",
+        "typescript": "6.0.3"
+      },
+      "build": "debug CLI",
+      "comparison": true,
+      "backend_order": "alternated per repeat"
+    },
+    "workloads": [
+      {
+        "entries": 1000,
+        "mode": "disk",
+        "operation": "cas",
+        "p50_ms": 0.3721709999990708,
+        "p95_ms": 0.49324300000080257,
+        "ops_per_s": 2569.539426220242,
+        "sqlite_relative_p50_speedup": 1.1136923618396075,
+        "sqlite_relative_p95_speedup": 1.1546803502509144,
+        "paired_repeat_p50_speedups": [
+          1.1701615295521102,
+          1.072359441598502,
+          1.1228837268857894,
+          0.9909907167147349,
+          1.129622763171533
+        ]
+      },
+      {
+        "entries": 1000,
+        "mode": "disk",
+        "operation": "get",
+        "p50_ms": 0.147581999997783,
+        "p95_ms": 0.2207029999990482,
+        "ops_per_s": 6043.534138860684,
+        "sqlite_relative_p50_speedup": 1.3417489937940434,
+        "sqlite_relative_p95_speedup": 1.4204700434621769,
+        "paired_repeat_p50_speedups": [
+          1.0264434425724516,
+          1.1941711252122698,
+          1.374365420214022,
+          1.2717746775338739,
+          1.3706065549325763
+        ]
+      },
+      {
+        "entries": 1000,
+        "mode": "disk",
+        "operation": "list_100",
+        "p50_ms": 0.7564789999996719,
+        "p95_ms": 0.9643729999988864,
+        "ops_per_s": 1259.6734211249852,
+        "sqlite_relative_p50_speedup": 1.2260591503552358,
+        "sqlite_relative_p95_speedup": 1.1904107643021666,
+        "paired_repeat_p50_speedups": [
+          1.0706293544789596,
+          1.1990949557088035,
+          1.2942373895266963,
+          1.3140411461174393,
+          1.281541828056695
+        ]
+      },
+      {
+        "entries": 1000,
+        "mode": "disk",
+        "operation": "overwrite",
+        "p50_ms": 0.14765299999999115,
+        "p95_ms": 0.2690259999981208,
+        "ops_per_s": 5904.676020405651,
+        "sqlite_relative_p50_speedup": 1.1578362783176714,
+        "sqlite_relative_p95_speedup": 1.0766840379846387,
+        "paired_repeat_p50_speedups": [
+          1.4409322019916264,
+          1.2839714628894867,
+          1.620713128803814,
+          0.8808273710171052,
+          0.9611129303719911
+        ]
+      },
+      {
+        "entries": 1000,
+        "mode": "memory",
+        "operation": "cas",
+        "p50_ms": 0.0859889999992447,
+        "p95_ms": 0.14822300000014366,
+        "ops_per_s": 10279.463983929425,
+        "sqlite_relative_p50_speedup": 4.311702659679306,
+        "sqlite_relative_p95_speedup": 3.870951201902904,
+        "paired_repeat_p50_speedups": [
+          4.335408798607867,
+          4.2164399488465945,
+          4.331078700773673,
+          4.363602246999831,
+          4.260482451606776
+        ]
+      },
+      {
+        "entries": 1000,
+        "mode": "memory",
+        "operation": "get",
+        "p50_ms": 0.025577999999995882,
+        "p95_ms": 0.05925999999999476,
+        "ops_per_s": 30870.351592621584,
+        "sqlite_relative_p50_speedup": 7.052232387209233,
+        "sqlite_relative_p95_speedup": 5.29654066824309,
+        "paired_repeat_p50_speedups": [
+          6.2511748969714604,
+          6.73269093504952,
+          7.676308869247538,
+          7.418397626084652,
+          6.960606534323514
+        ]
+      },
+      {
+        "entries": 1000,
+        "mode": "memory",
+        "operation": "list_100",
+        "p50_ms": 0.6036000000003696,
+        "p95_ms": 0.9028999999991356,
+        "ops_per_s": 1541.480002944104,
+        "sqlite_relative_p50_speedup": 1.5381013916491835,
+        "sqlite_relative_p95_speedup": 1.2867205670633235,
+        "paired_repeat_p50_speedups": [
+          1.43832280882176,
+          1.6213104713198294,
+          1.6052333456265262,
+          1.6221130311259486,
+          1.4385642572471267
+        ]
+      },
+      {
+        "entries": 1000,
+        "mode": "memory",
+        "operation": "overwrite",
+        "p50_ms": 0.015482999999903768,
+        "p95_ms": 0.02240299999994022,
+        "ops_per_s": 55586.02905192722,
+        "sqlite_relative_p50_speedup": 9.47691015959163,
+        "sqlite_relative_p95_speedup": 12.380395482793231,
+        "paired_repeat_p50_speedups": [
+          9.332109162275785,
+          9.040508958846544,
+          15.635532079444307,
+          8.011331261280484,
+          8.548981318520497
+        ]
+      }
+    ],
+    "growth": []
+  }
+}

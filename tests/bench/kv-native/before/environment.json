@@ -1,0 +1,28 @@
+{
+  "recorded_at_utc": "2026-10-11T05:16:46.028471+00:00",
+  "kernel": "6.18.44",
+  "architecture": "x86_64",
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "visible_cpus": 3,
+  "filesystem": "overlay (/tmp and /workspace)",
+  "rustc": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "git_head": "ef051560e2dea559c153c0a5b0ae8a2156491ab5",
+  "worktree_dirty": true,
+  "cargo_profile": "dev",
+  "deno_kv_opt_level": 0,
+  "sha2_opt_level": 3,
+  "features": [
+    "sqlite",
+    "deno_core/v8"
+  ],
+  "source_sha256": {
+    "ext/kv/native.rs": "bb0a671cad288f1947a30e9e80d993ad3b9e1adf68e32c795b30887ec6fce87b",
+    "ext/kv/native_sum.rs": "e2d7860afe9627ea18c03bbeeb01e497f08295df2ddb4f600551b06f0dcf37b1",
+    "ext/kv/sqlite.rs": "f13ca15a01777f3a272ecb8a710a701cfab1d869f68c2339b5537f4ee3b64647",
+    "ext/kv/examples/kv_bench.rs": "a3af7adf2a91db4c1542a7f8227c5368a6792a31d7185aeba9462a3bcdbaa892",
+    "ext/kv/Cargo.toml": "a52aee65692c6556f08d1aff71674133b5e774d1454e636a54f3a85154d1ebd5",
+    "Cargo.lock": "9cc9e6ce921b03c49d309ad081a4c905cd1826d1391edd120a872453dcbd5dcb"
+  },
+  "binary_sha256": "62d09d0c3acfa06e08236e656ad23e399ee9aa37a93db52356a7a394390bb7b0",
+  "result_scope": "Native backend only; exposed as Oden.openKv. Original backend timings are retained; this is not a new API-level measurement."
+}

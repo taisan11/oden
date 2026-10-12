@@ -5098,3 +5098,21 @@ declare var CSSStyleSheet: {
   readonly prototype: CSSStyleSheet;
   new (): CSSStyleSheet;
 };
+
+/** Oden's Rust native KV API. Requires --unstable-kv. */
+declare namespace Oden {
+  /** Opens a native persistent database, or an isolated :memory: database.
+   * SQLite files are incompatible. The default storage file is kv.native.
+   */
+  export function openKv(path?: string): Promise<Deno.Kv>;
+  export const Kv: typeof Deno.Kv;
+  export type Kv = Deno.Kv;
+  export const KvU64: typeof Deno.KvU64;
+  export type KvU64 = Deno.KvU64;
+  export const AtomicOperation: typeof Deno.AtomicOperation;
+  export type AtomicOperation = Deno.AtomicOperation;
+  export const KvListIterator: typeof Deno.KvListIterator;
+  export type KvListIterator<T> = Deno.KvListIterator<T>;
+  export type KvKey = Deno.KvKey;
+  export type KvEntry<T> = Deno.KvEntry<T>;
+}
