@@ -146,10 +146,9 @@ deno_bench_util = { version = "0.253.0", path = "./tests/bench_util" }
 deno_cache_dir = { version = "0.51.0", path = "./libs/cache_dir" }
 deno_cli_parser = { version = "0.9.0", path = "./libs/cli_parser" }
 deno_config = { version = "0.109.0", features = ["workspace"], path = "./libs/config" }
-# Workspace binaries select the JavaScript engine at their top level. Keep the
-# backend-independent runtime defaults enabled here without pulling deno_core's
-# public V8 default into a QuickJS feature graph.
-deno_core = { version = "0.412.0", path = "./libs/core", default-features = false, features = ["reactor-tokio", "v8_use_custom_libcxx"] }
+# V8 is the only supported JavaScript engine. Keep the runtime feature
+# selections explicit for consumers that disable deno_core's defaults.
+deno_core = { version = "0.412.0", path = "./libs/core", default-features = false, features = ["reactor-tokio", "v8_use_custom_libcxx", "v8"] }
 deno_core_testing = { path = "./libs/core_testing" }
 deno_crypto_provider = { version = "0.53.0", path = "./libs/crypto" }
 deno_dotenv = { version = "0.28.0", path = "./libs/dotenv" }
