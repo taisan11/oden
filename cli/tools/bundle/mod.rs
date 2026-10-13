@@ -1523,6 +1523,7 @@ impl DenoPluginHandler {
       || resolved.starts_with("data:")
       || resolved.starts_with("node:")
       || resolved.starts_with("bun:")
+      || resolved == "oden:sqlite"
       || resolved.starts_with("npm:")
     {
       return None;
@@ -1670,6 +1671,7 @@ impl esbuild_client::PluginHandler for DenoPluginHandler {
       // output file this import will end up in. We may have to use the metafile and rewrite at the end
       let is_external = r.starts_with("node:")
         || r.starts_with("bun:")
+        || r == "oden:sqlite"
         // Always externalize native addons regardless of `--external`.
         // esbuild has no loader for `.node` files, and the user-facing
         // `*.node` pre-resolve pattern doesn't catch paths that arrive

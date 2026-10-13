@@ -70,6 +70,8 @@ fn maybe_transpile_source_inner(
   // Always transpile `node:` built-in modules, since they might be TypeScript.
   let media_type = if name.starts_with("node:") {
     MediaType::TypeScript
+  } else if name.as_str() == "oden:sqlite" {
+    MediaType::JavaScript
   } else {
     MediaType::from_path(Path::new(&name))
   };

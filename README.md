@@ -14,6 +14,11 @@ The executable is **oden**. The `Deno` namespace, runtime APIs, environment
 variables, and Rust crate names retain their existing names for compatibility.
 Existing programs do not need to rename `Deno` to `oden`.
 
+[`oden:sqlite` and `node:sqlite`](ext/sqlite/README.md) share Turso's Rust
+engine. They provide Bun and Node API adapters with prepared statements,
+transactions, BigInt/BLOB bindings, and database serialization. SQLite C API
+features that are unavailable on this backend fail explicitly.
+
 ## Oden configuration
 
 Oden discovers `oden.json` and `oden.jsonc` automatically. Generated project

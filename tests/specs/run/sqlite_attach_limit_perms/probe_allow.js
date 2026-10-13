@@ -1,31 +1,21 @@
-// Runs with --allow-all. With full permissions for the database path the
-// attach cap is not in force, so both the `limits.attach` constructor option
-// and the `db.limits.attach` setter raise the limit and ATTACH DATABASE then
-// succeeds. This is the regression guard for the scoped-permission fix: it
-// fails if the cap is ever applied unconditionally.
+// ATTACH remains available with --allow-all. SQLite C limit controls are
+// explicitly unsupported and are not needed to enable attachment.
 import { DatabaseSync } from "node:sqlite";
 
-const allowedDb = "allowed/main.db";
-const deniedDb = "denied/secret.db";
-
-function readsSecret(db) {
-  db.exec(`ATTACH DATABASE '${deniedDb}' AS other`);
-  return db.prepare("SELECT v FROM other.secrets").get().v;
+try {
+  new DatabaseSync("allowed/main.db", { limits: { attach: 1 } });
+  throw new Error("Expected unsupported limits");
+} catch (error) {
+  if (error.code !== "ERR_SQLITE_UNSUPPORTED") throw error;
+  console.log("limits-unsupported");
 }
-
-// The `limits.attach` constructor option raises the limit and ATTACH works.
-{
-  const db = new DatabaseSync(allowedDb, { limits: { attach: 1 } });
-  console.log("ctor-attach-limit:" + db.limits.attach);
-  console.log("ctor-attach:" + readsSecret(db));
-  db.close();
-}
-
-// The `db.limits.attach` setter raises the limit and ATTACH works.
-{
-  const db = new DatabaseSync(allowedDb);
+using db = new DatabaseSync("allowed/main.db");
+try {
   db.limits.attach = 1;
-  console.log("setter-attach-limit:" + db.limits.attach);
-  console.log("setter-attach:" + readsSecret(db));
-  db.close();
+  throw new Error("Expected unsupported limits");
+} catch (error) {
+  if (error.code !== "ERR_SQLITE_UNSUPPORTED") throw error;
+  console.log("setter-unsupported");
 }
+db.exec("ATTACH DATABASE 'denied/secret.db' AS other");
+console.log("attach:" + db.prepare("SELECT v FROM other.secrets").get().v);

@@ -45,21 +45,20 @@ try {
   }
 }
 
-// The `limits.attach` constructor option must not raise the attach cap: the
-// constructor rejects raising it with ERR_ACCESS_DENIED.
+// Turso has no SQLite limit-control API. Constructor limits are rejected
+// and cannot enable ATTACH under scoped permissions.
 try {
   new DatabaseSync(allowedDb, { limits: { attach: 1 } });
   console.log("limits-attach-UNEXPECTED-OK");
 } catch (e) {
   console.log(
-    e?.code === "ERR_ACCESS_DENIED"
+    e?.code === "ERR_SQLITE_UNSUPPORTED"
       ? "limits-attach-blocked"
       : "limits-attach-OTHER:" + e.name,
   );
 }
 
-// The `db.limits.attach` setter must not raise the attach cap: the setter
-// rejects raising it with ERR_ACCESS_DENIED.
+// The unsupported db.limits API cannot enable ATTACH either.
 {
   const db = new DatabaseSync(allowedDb);
   try {
@@ -67,7 +66,7 @@ try {
     console.log("setter-attach-UNEXPECTED-OK");
   } catch (e) {
     console.log(
-      e?.code === "ERR_ACCESS_DENIED"
+      e?.code === "ERR_SQLITE_UNSUPPORTED"
         ? "setter-attach-blocked"
         : "setter-attach-OTHER:" + e.name,
     );

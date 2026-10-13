@@ -54,7 +54,6 @@ deno_napi.workspace = true
 deno_net.workspace = true
 deno_node.workspace = true
 deno_node_crypto.workspace = true
-deno_node_sqlite.workspace = true
 deno_os.workspace = true
 deno_path_util.workspace = true
 deno_permissions.workspace = true
@@ -80,6 +79,7 @@ libc.workspace = true
 log.workspace = true
 node_resolver = { workspace = true, features = ["sync"] }
 notify.workspace = true
+oden_sqlite.workspace = true
 once_cell.workspace = true
 qbsdiff.workspace = true
 raw-window-handle.workspace = true
