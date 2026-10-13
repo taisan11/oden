@@ -1,0 +1,65 @@
+name: Developer Docs (VitePress)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dev_docs/**'
+      - '.github/workflows/dev-docs.yml'
+  pull_request:
+    paths:
+      - 'dev_docs/**'
+      - '.github/workflows/dev-docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 'oden-dev-docs-${{ github.ref }}'
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build documentation
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout docs
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: |
+            dev_docs
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Install VitePress
+        run: npm install --prefix dev_docs --no-audit --no-fund
+      - name: Build site
+        run: npm run docs:build --prefix dev_docs
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dev_docs/.vitepress/dist
+
+  deploy:
+    name: Deploy documentation
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

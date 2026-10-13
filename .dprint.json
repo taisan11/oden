@@ -41,6 +41,7 @@
     "ext/websocket/autobahn/reports",
     "libs/eszip/testdata",
     "gh-pages",
+    "dev_docs",
     "libs/config/testdata",
     "target",
     "tests/bench/testdata/express-router.js",
