@@ -50,16 +50,15 @@ require more runner resources than a standard GitHub-hosted machine provides.
 
 ## Developer docs: `dev-docs.yml`
 
-The `dev_docs/` directory contains a standalone Japanese VitePress site.
-Pull requests changing the site or its workflow run a Node.js-only docs build.
-Pushes to `main` that modify those paths, and manual workflow dispatches,
-build and deploy the static files to GitHub Pages. Rust is not compiled.
+The `dev_docs/` directory contains a standalone Japanese VitePress site. Pull
+requests changing the site or its workflow run a Node.js-only docs build. Pushes
+to `main` that modify those paths, and manual workflow dispatches, build and
+deploy the static files to GitHub Pages. Rust is not compiled.
 
 The VitePress base is `/oden/` and the uploaded artifact is
-`dev_docs/.vitepress/dist`. One-time setup: in the repository's
-**Settings → Pages → Build and deployment**, select **GitHub Actions** as
-the source. Then the site can be published at
-`https://taisan11.github.io/oden/`.
+`dev_docs/.vitepress/dist`. One-time setup: in the repository's **Settings →
+Pages → Build and deployment**, select **GitHub Actions** as the source. Then
+the site can be published at `https://taisan11.github.io/oden/`.
 
 ## Local checks
 

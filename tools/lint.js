@@ -788,6 +788,7 @@ async function ensureNoNewTopLevelEntries() {
     "x",
     "cli",
     "doc",
+    "dev_docs",
     "ext",
     "libs",
     "runtime",
