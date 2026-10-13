@@ -60,12 +60,10 @@ JS の UI 上の可否判定だけをセキュリティ境界とみなさない�
 
 ## JS エンジンとイベントループ
 
-標準の CLI feature は **V8** です。
+Oden は JavaScript エンジンとして **V8 のみ**をサポートします。
 [`libs/deno_v8`](https://github.com/taisan11/oden/tree/main/libs/deno_v8)
-は `rusty_v8` と `v8x` バックエンドの facade を提供し、
-`v8` と `quickjs` の features を排他的に制御します。
-QuickJS 経路は実験的な構成で、V8 のすべての機能との同等性を
-保証するものではありません。
+は `rusty_v8` を再エクスポートする facade です。
+`quickjs` feature とエンジン選択用の CLI オプションはありません。
 
 Tokio は I/O タスクの実行を支え、
 `deno_core` が JS の pending tasks や非同期 ops を
