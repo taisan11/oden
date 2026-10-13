@@ -395,6 +395,68 @@ Deno.test(function odenSqliteOptionsAndUnsupportedApis() {
   assertThrows(() => Database.setCustomSQLite("anything"), Error, "Turso");
 });
 
+Deno.test(function odenSqliteDefaultAndConflictingOptions() {
+  for (
+    const options of [
+      {},
+      { readonly: false },
+      { readwrite: false, create: false },
+      { readonly: false, readwrite: false, create: false },
+      { strict: false, safeIntegers: false },
+    ]
+  ) {
+    using db = new Database(":memory:", options);
+    db.run("CREATE TABLE data(value INTEGER); INSERT INTO data VALUES (42)");
+    assertEquals(db.query("SELECT value FROM data").get(), { value: 42 });
+  }
+  for (
+    const options of [
+      { readonly: true, create: true },
+      { readonly: true, readwrite: true },
+    ]
+  ) {
+    assertThrows(
+      () => new Database(":memory:", options),
+      TypeError,
+      "conflicts",
+    );
+  }
+});
+
+Deno.test(
+  { permissions: { read: true, write: true } },
+  function odenSqliteFilenameWhitespaceAndDefaultCreation() {
+    const directory = Deno.makeTempDirSync();
+    try {
+      for (const name of [" leading.db", "trailing.db ", " "]) {
+        const filename = `${directory}/${name}`;
+        {
+          using db = new Database(filename, {});
+          assertEquals(db.filename, filename);
+          db.run("CREATE TABLE data(value TEXT)");
+          db.run("INSERT INTO data VALUES (?)", name);
+        }
+        assert(Deno.statSync(filename).isFile);
+        using restored = new Database(filename, { readonly: true });
+        assertEquals(restored.query("SELECT value FROM data").get(), {
+          value: name,
+        });
+        assertThrows(() => restored.run("INSERT INTO data VALUES ('write')"));
+      }
+      assertThrows(
+        () => Deno.statSync(`${directory}/leading.db`),
+        Deno.errors.NotFound,
+      );
+      assertThrows(
+        () => Deno.statSync(`${directory}/trailing.db`),
+        Deno.errors.NotFound,
+      );
+    } finally {
+      Deno.removeSync(directory, { recursive: true });
+    }
+  },
+);
+
 Deno.test(async function odenSqliteWorker() {
   const code = `import { Database } from "oden:sqlite";
     using db = new Database(":memory:", { safeIntegers: true });

@@ -40,6 +40,50 @@ Deno.test("[node/sqlite Turso] ESM and CommonJS share exports", () => {
   assertThrows(() => new StatementSync(), TypeError);
 });
 
+Deno.test(
+  { permissions: { run: true } },
+  async function sqliteAdaptersUseProtectedIntrinsics() {
+    const code = `import { DatabaseSync } from "node:sqlite";
+import { Database } from "oden:sqlite";
+const changes = [];
+const define = Object.defineProperty;
+function poison(prototype, key) {
+  changes.push([prototype, key, Object.getOwnPropertyDescriptor(prototype, key)]);
+  define(prototype, key, { configurable: true, value() { throw new Error("poisoned intrinsic"); } });
+}
+poison(Array.prototype, "map");
+poison(Array.prototype, "slice");
+poison(String.prototype, "includes");
+poison(String.prototype, "startsWith");
+poison(Map.prototype, "get");
+poison(Map.prototype, "set");
+poison(Map.prototype, "entries");
+poison(WeakMap.prototype, "get");
+poison(WeakMap.prototype, "set");
+poison(Array.prototype, Symbol.iterator);
+try {
+  using node = new DatabaseSync(":memory:");
+  using oden = new Database(":memory:", {});
+  const tag = node.createTagStore(1);
+  if (tag.get\`SELECT \${42} AS value\`.value !== 42) throw new Error("node binding failed");
+  tag.get\`SELECT \${1} AS other\`;
+  tag.clear();
+  if (oden.query("SELECT ? AS value").get(42).value !== 42) throw new Error("oden binding failed");
+  oden.clearQueryCache();
+} finally {
+  for (let i = changes.length - 1; i >= 0; i--) {
+    const change = changes[i];
+    define(change[0], change[1], change[2]);
+  }
+}`;
+    const { code: status, stderr } = await new Deno.Command(Deno.execPath(), {
+      args: ["eval", code],
+      stderr: "piped",
+    }).output();
+    assertEquals(status, 0, new TextDecoder().decode(stderr));
+  },
+);
+
 Deno.test("[node/sqlite Turso] connection lifecycle invalidates old statements", () => {
   const db = new DatabaseSync(":memory:", { open: false });
   assertEquals(db.isOpen, false);

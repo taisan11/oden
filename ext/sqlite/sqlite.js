@@ -1,10 +1,54 @@
 // Copyright 2026 the Oden authors. MIT license.
-import { core } from "ext:core/mod.js";
+import { core, primordials } from "ext:core/mod.js";
 import * as ops from "ext:core/ops";
 import { Buffer } from "node:buffer";
 
+const {
+  ArrayBufferIsView,
+  ArrayFrom,
+  ArrayIsArray,
+  ArrayPrototypeMap,
+  ArrayPrototypePush,
+  ArrayPrototypeSlice,
+  BigInt,
+  BigIntPrototypeToString,
+  DataViewPrototypeGetBuffer,
+  DataViewPrototypeGetByteLength,
+  DataViewPrototypeGetByteOffset,
+  Error,
+  Number,
+  NumberIsInteger,
+  NumberIsNaN,
+  ObjectCreate,
+  ObjectDefineProperty,
+  ObjectEntries,
+  ObjectFreeze,
+  ObjectHasOwn,
+  ObjectPrototype,
+  RangeError,
+  ReflectApply,
+  SafeArrayIterator,
+  SafeFinalizationRegistry,
+  SafeMap,
+  SafeMapIterator,
+  String,
+  StringPrototypeIncludes,
+  StringPrototypeSlice,
+  StringPrototypeStartsWith,
+  StringPrototypeTrim,
+  Symbol,
+  SymbolDispose,
+  SymbolFor,
+  SymbolIterator,
+  TypeError,
+  TypedArrayPrototypeGetBuffer,
+  TypedArrayPrototypeGetByteLength,
+  TypedArrayPrototypeGetByteOffset,
+  Uint8Array,
+} = primordials;
+
 const token = Symbol("oden:sqlite constructor");
-const resources = new FinalizationRegistry((rid) => core.tryClose(rid));
+const resources = new SafeFinalizationRegistry((rid) => core.tryClose(rid));
 
 export class SQLiteError extends Error {
   constructor(message, code = "SQLITE_ERROR", errno = 1) {
@@ -18,9 +62,12 @@ export class SQLiteError extends Error {
 
 function call(op, ...args) {
   try {
-    return op(...args);
+    return op(...new SafeArrayIterator(args));
   } catch (error) {
-    if (typeof error.code === "string" && error.code.startsWith("SQLITE_")) {
+    if (
+      typeof error.code === "string" &&
+      StringPrototypeStartsWith(error.code, "SQLITE_")
+    ) {
       throw new SQLiteError(error.message, error.code, error.errno);
     }
     throw error;
@@ -35,8 +82,10 @@ function unsupported(name) {
 
 function sqlString(sql) {
   if (typeof sql !== "string") throw new TypeError("SQL must be a string");
-  if (sql.trim().length === 0) throw new Error("SQL query cannot be empty");
-  if (sql.includes("\0")) {
+  if (StringPrototypeTrim(sql).length === 0) {
+    throw new Error("SQL query cannot be empty");
+  }
+  if (StringPrototypeIncludes(sql, "\0")) {
     throw new TypeError("SQL must not contain null bytes");
   }
   return sql;
@@ -55,17 +104,27 @@ function encode(value) {
       }
       return { type: "integer", value: String(value) };
     case "number":
-      if (Number.isNaN(value)) return { type: "null" };
-      return Number.isInteger(value) && value >= -9223372036854775808 &&
+      if (NumberIsNaN(value)) return { type: "null" };
+      return NumberIsInteger(value) && value >= -9223372036854775808 &&
           value < 9223372036854775808
-        ? { type: "integer", value: BigInt(value).toString() }
+        ? { type: "integer", value: BigIntPrototypeToString(BigInt(value)) }
         : { type: "real", value };
     case "object":
-      if (ArrayBuffer.isView(value)) {
+      if (ArrayBufferIsView(value)) {
         return {
           type: "blob",
-          value: Array.from(
-            new Uint8Array(value.buffer, value.byteOffset, value.byteLength),
+          value: ArrayFrom(
+            new Uint8Array(
+              core.isDataView(value)
+                ? DataViewPrototypeGetBuffer(value)
+                : TypedArrayPrototypeGetBuffer(value),
+              core.isDataView(value)
+                ? DataViewPrototypeGetByteOffset(value)
+                : TypedArrayPrototypeGetByteOffset(value),
+              core.isDataView(value)
+                ? DataViewPrototypeGetByteLength(value)
+                : TypedArrayPrototypeGetByteLength(value),
+            ),
           ),
         };
       }
@@ -95,7 +154,7 @@ function normalizeOptions(options) {
   let strict = false;
   let safeIntegers = false;
   if (typeof options === "number") {
-    if (!Number.isInteger(options)) {
+    if (!NumberIsInteger(options)) {
       throw new TypeError("SQLite open flags must be an integer");
     }
     // Turso has no SQLite C VFS or shared-cache modes.
@@ -110,27 +169,28 @@ function normalizeOptions(options) {
     if (!options || typeof options !== "object") {
       throw new TypeError("Database options must be an object or integer");
     }
-    if ("readOnly" in options) {
+    if (ObjectHasOwn(options, "readOnly")) {
       throw new TypeError('Misspelled option "readOnly" should be "readonly"');
     }
     for (
-      const name of [
+      const name of new SafeArrayIterator([
         "readonly",
         "readwrite",
         "create",
         "strict",
         "safeIntegers",
-      ]
+      ])
     ) {
       if (options[name] !== undefined && typeof options[name] !== "boolean") {
         throw new TypeError(`${name} must be a boolean`);
       }
     }
-    flags = options.readonly ? 1 : 0;
-    if (options.create) flags = 6;
-    if (options.readwrite) flags |= 2;
-    if (flags === 0 && ("strict" in options || "safeIntegers" in options)) {
-      flags = 6;
+    if (options.readonly && (options.readwrite || options.create)) {
+      throw new TypeError("readonly conflicts with readwrite or create");
+    }
+    if (options.readonly) flags = 1;
+    else if (options.readwrite || options.create) {
+      flags = 2 | (options.create ? 4 : 0);
     }
     strict = options.strict ?? false;
     safeIntegers = options.safeIntegers ?? false;
@@ -152,7 +212,7 @@ export class Statement {
   #rid;
   #info;
   #bindings;
-  #prototype = Object.prototype;
+  #prototype = ObjectPrototype;
   #active = false;
   #executed = false;
   #columnTypes = null;
@@ -166,7 +226,10 @@ export class Statement {
     this.#database = database;
     this.#info = info;
     this.#rid = info.rid;
-    this.#bindings = info.parameters.map(() => ({ type: "null" }));
+    this.#bindings = ArrayPrototypeMap(
+      info.parameters,
+      () => ({ type: "null" }),
+    );
     resources.register(this, info.rid, this);
   }
 
@@ -178,7 +241,7 @@ export class Statement {
   }
   get columnNames() {
     this.#check();
-    return this.#info.columnNames.slice();
+    return ArrayPrototypeSlice(this.#info.columnNames);
   }
   get paramsCount() {
     this.#check();
@@ -186,7 +249,9 @@ export class Statement {
   }
   get declaredTypes() {
     this.#check();
-    return this.#executed ? this.#info.declaredTypes.slice() : null;
+    return this.#executed
+      ? ArrayPrototypeSlice(this.#info.declaredTypes)
+      : null;
   }
   get columnTypes() {
     this.#check();
@@ -195,17 +260,21 @@ export class Statement {
     }
     if (this.#columnTypes === null) {
       // Probe without changing the user's bindings or active cursor.
-      const probe = this.#database.prepare(this.toString());
+      const probe = this.#database.prepare(
+        ReflectApply(this.toString, this, []),
+      );
       try {
         const row = probe.get();
         this.#columnTypes = row === null
-          ? this.#info.columnNames.map(() => "NULL")
+          ? ArrayPrototypeMap(this.#info.columnNames, () => "NULL")
           : probe.#columnTypes;
       } finally {
         probe.finalize();
       }
     }
-    return this.#columnTypes?.slice() ?? null;
+    return this.#columnTypes === null
+      ? null
+      : ArrayPrototypeSlice(this.#columnTypes);
   }
 
   #check() {
@@ -218,20 +287,20 @@ export class Statement {
     if (this.#bindings.length === 0) return this.#bindings;
     if (args.length === 0) return this.#bindings;
     let values = args;
-    if (args.length === 1 && Array.isArray(args[0])) values = args[0];
+    if (args.length === 1 && ArrayIsArray(args[0])) values = args[0];
     else if (
       args.length === 1 && args[0] !== null && typeof args[0] === "object" &&
-      !ArrayBuffer.isView(args[0])
+      !ArrayBufferIsView(args[0])
     ) {
       const object = args[0];
       const strict = this.#database.strict;
-      values = this.#info.parameters.map((name, i) => {
+      values = ArrayPrototypeMap(this.#info.parameters, (name, i) => {
         let key = name;
         if (
-          name !== null && !Object.hasOwn(object, name) && strict &&
-          Object.hasOwn(object, name.slice(1))
-        ) key = name.slice(1);
-        if (key === null || !Object.hasOwn(object, key)) {
+          name !== null && !ObjectHasOwn(object, name) && strict &&
+          ObjectHasOwn(object, StringPrototypeSlice(name, 1))
+        ) key = StringPrototypeSlice(name, 1);
+        if (key === null || !ObjectHasOwn(object, key)) {
           if (strict) {
             throw new Error(`Missing SQLite binding ${name ?? i + 1}`);
           }
@@ -245,7 +314,7 @@ export class Statement {
         `Expected ${this.#bindings.length} bindings, got ${values.length}`,
       );
     }
-    return values.map(encode);
+    return ArrayPrototypeMap(values, encode);
   }
 
   #start(args) {
@@ -263,17 +332,19 @@ export class Statement {
     const row = call(ops.op_oden_sqlite_next, this.#rid);
     if (row === null) return null;
     if (this.#columnTypes === null) {
-      this.#columnTypes = row.map((v) =>
+      this.#columnTypes = ArrayPrototypeMap(row, (v) =>
         ({
           integer: "INTEGER",
           real: "FLOAT",
           text: "TEXT",
           blob: "BLOB",
           null: "NULL",
-        })[v.type]
-      );
+        })[v.type]);
     }
-    return row.map((v) => decode(v, this.#database.safeIntegers, raw));
+    return ArrayPrototypeMap(
+      row,
+      (v) => decode(v, this.#database.safeIntegers, raw),
+    );
   }
 
   #reset() {
@@ -282,9 +353,10 @@ export class Statement {
   }
 
   #object(values) {
-    const row = Object.create(this.#prototype);
+    const row = ObjectCreate(this.#prototype);
     for (let i = 0; i < values.length; i++) {
-      Object.defineProperty(row, this.#info.columnNames[i], {
+      ObjectDefineProperty(row, this.#info.columnNames[i], {
+        __proto__: null,
         value: values[i],
         enumerable: true,
         configurable: true,
@@ -309,7 +381,7 @@ export class Statement {
   }
 
   all(...args) {
-    return Array.from(this.iterate(...args));
+    return ArrayFrom(this.iterate(...new SafeArrayIterator(args)));
   }
 
   values(...args) {
@@ -323,7 +395,7 @@ export class Statement {
     try {
       const rows = [];
       let row;
-      while ((row = this.#next(raw)) !== null) rows.push(row);
+      while ((row = this.#next(raw)) !== null) ArrayPrototypePush(rows, row);
       return rows;
     } finally {
       this.#reset();
@@ -350,7 +422,7 @@ export class Statement {
     }
   }
 
-  [Symbol.iterator]() {
+  [SymbolIterator]() {
     return this.iterate();
   }
   as(Class) {
@@ -369,7 +441,7 @@ export class Statement {
       this.#active = false;
     }
   }
-  [Symbol.dispose]() {
+  [SymbolDispose]() {
     this.finalize();
   }
   toString() {
@@ -378,7 +450,7 @@ export class Statement {
   }
   toJSON() {
     return {
-      sql: this.toString(),
+      sql: ReflectApply(this.toString, this, []),
       isFinalized: this.isFinalized,
       paramsCount: this.paramsCount,
       columnNames: this.columnNames,
@@ -395,21 +467,26 @@ export class Statement {
 export class Database {
   static MAX_QUERY_CACHE_SIZE = 20;
   #rid;
-  #cache = new Map();
+  #cache = new SafeMap();
   #options;
   #savepoint = 0;
 
   constructor(filename = ":memory:", options) {
     this.#options = normalizeOptions(options);
     if (
-      ArrayBuffer.isView(filename) || filename instanceof ArrayBuffer ||
-      filename instanceof SharedArrayBuffer
+      ArrayBufferIsView(filename) || core.isAnyArrayBuffer(filename)
     ) {
-      const bytes = ArrayBuffer.isView(filename)
+      const bytes = ArrayBufferIsView(filename)
         ? new Uint8Array(
-          filename.buffer,
-          filename.byteOffset,
-          filename.byteLength,
+          core.isDataView(filename)
+            ? DataViewPrototypeGetBuffer(filename)
+            : TypedArrayPrototypeGetBuffer(filename),
+          core.isDataView(filename)
+            ? DataViewPrototypeGetByteOffset(filename)
+            : TypedArrayPrototypeGetByteOffset(filename),
+          core.isDataView(filename)
+            ? DataViewPrototypeGetByteLength(filename)
+            : TypedArrayPrototypeGetByteLength(filename),
         )
         : new Uint8Array(filename);
       this.filename = ":memory:";
@@ -422,12 +499,13 @@ export class Database {
       resources.register(this, this.#rid, this);
       return;
     }
-    if (typeof filename !== "string" || filename.includes("\0")) {
+    if (
+      typeof filename !== "string" || StringPrototypeIncludes(filename, "\0")
+    ) {
       throw new TypeError(
         "Database filename must be a string without null bytes",
       );
     }
-    filename = filename.trim();
     this.filename = filename;
     const path = this.#options.memory || filename === ""
       ? ":memory:"
@@ -464,7 +542,7 @@ export class Database {
     this.#check();
     return call(ops.op_oden_sqlite_in_transaction, this.#rid);
   }
-  get [Symbol.for("Bun.Database.cache.count")]() {
+  get [SymbolFor("Bun.Database.cache.count")]() {
     return this.#cache.size;
   }
   #check() {
@@ -476,7 +554,7 @@ export class Database {
   }
   #prepare(sql, params, flags, owned) {
     this.#check();
-    if (!Number.isInteger(flags) || flags < 0 || flags & ~3) {
+    if (!NumberIsInteger(flags) || flags < 0 || flags & ~3) {
       unsupported("These SQLite prepare flags");
     }
     const statement = new Statement(
@@ -503,7 +581,10 @@ export class Database {
     }
     if (Database.MAX_QUERY_CACHE_SIZE > 0) {
       while (this.#cache.size >= Database.MAX_QUERY_CACHE_SIZE) {
-        this.#cache.delete(this.#cache.keys().next().value);
+        for (const { 0: key } of new SafeMapIterator(this.#cache)) {
+          this.#cache.delete(key);
+          break;
+        }
       }
       this.#cache.set(sql, statement);
     }
@@ -511,7 +592,9 @@ export class Database {
   }
 
   clearQueryCache() {
-    for (const statement of this.#cache.values()) statement.finalize();
+    for (const { 1: statement } of new SafeMapIterator(this.#cache)) {
+      statement.finalize();
+    }
     this.#cache.clear();
   }
 
@@ -532,19 +615,22 @@ export class Database {
       const first = bindings[0];
       if (
         bindings.length === 1 && first !== null && typeof first === "object" &&
-        !Array.isArray(first) && !ArrayBuffer.isView(first)
+        !ArrayIsArray(first) && !ArrayBufferIsView(first)
       ) {
         encoded = {
           type: "named",
-          value: Object.entries(first).map((
-            [name, value],
+          value: ArrayPrototypeMap(ObjectEntries(first), (
+            { 0: name, 1: value },
           ) => [name, encode(value)]),
         };
       } else {
-        const values = bindings.length === 1 && Array.isArray(first)
+        const values = bindings.length === 1 && ArrayIsArray(first)
           ? first
           : bindings;
-        encoded = { type: "positional", value: values.map(encode) };
+        encoded = {
+          type: "positional",
+          value: ArrayPrototypeMap(values, encode),
+        };
       }
     }
     call(ops.op_oden_sqlite_run, this.#rid, sql, encoded, this.strict);
@@ -561,7 +647,7 @@ export class Database {
         const savepoint = `oden_sqlite_${++database.#savepoint}`;
         database.run(nested ? `SAVEPOINT ${savepoint}` : `BEGIN ${mode}`);
         try {
-          const result = Reflect.apply(fn, this, args);
+          const result = ReflectApply(fn, this, args);
           if (result && typeof result.then === "function") {
             throw new TypeError(
               "SQLite transaction callbacks must be synchronous",
@@ -586,15 +672,20 @@ export class Database {
       database: this,
     };
     for (
-      const variant of [
+      const variant of new SafeArrayIterator([
         variants.default,
         variants.deferred,
         variants.immediate,
         variants.exclusive,
-      ]
+      ])
     ) {
-      for (const [name, value] of Object.entries(variants)) {
-        Object.defineProperty(variant, name, {
+      for (
+        const { 0: name, 1: value } of new SafeArrayIterator(
+          ObjectEntries(variants),
+        )
+      ) {
+        ObjectDefineProperty(variant, name, {
+          __proto__: null,
           value,
           enumerable: name === "database",
         });
@@ -613,7 +704,7 @@ export class Database {
     resources.unregister(this);
     this.#rid = undefined;
   }
-  [Symbol.dispose]() {
+  [SymbolDispose]() {
     this.close(true);
   }
   serialize(name = "main") {
@@ -644,7 +735,7 @@ export class Database {
 
 Database.prototype.exec = Database.prototype.run;
 
-export const constants = Object.freeze({
+export const constants = ObjectFreeze({
   SQLITE_OPEN_READONLY: 1,
   SQLITE_OPEN_READWRITE: 2,
   SQLITE_OPEN_CREATE: 4,
@@ -713,5 +804,5 @@ export const constants = Object.freeze({
   SQLITE_FCNTL_CKSM_FILE: 41,
   SQLITE_FCNTL_RESET_CACHE: 42,
 });
-export const native = Object.freeze({ backend: "turso", version: "0.8.3" });
+export const native = ObjectFreeze({ backend: "turso", version: "0.8.3" });
 export default Database;
