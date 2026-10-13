@@ -1,5 +1,8 @@
 /**
  * The `node:sqlite` module facilitates working with SQLite databases.
+ * In Oden this API is backed by Turso. SQLite C extensions, sessions/changesets,
+ * JavaScript SQL callbacks, authorizers and runtime-limit controls are unsupported
+ * and throw ERR_SQLITE_UNSUPPORTED. See ext/sqlite/README.md for backend limits.
  * To access it:
  *
  * ```js

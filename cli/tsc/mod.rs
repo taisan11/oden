@@ -58,7 +58,7 @@ pub use self::diagnostics::Position;
 pub use self::js::TscConstants;
 
 pub fn get_types_declaration_file_text() -> String {
-  concat_lib_texts(&[
+  with_oden_module_declarations(concat_lib_texts(&[
     "deno.ns",
     "deno.console",
     "deno.url",
@@ -76,7 +76,7 @@ pub fn get_types_declaration_file_text() -> String {
     "esnext.temporal",
     "deno.window",
     "deno.unstable",
-  ])
+  ]))
 }
 
 /// The `Deno` namespace only, without Deno's web-platform globals (`fetch`,
@@ -84,7 +84,14 @@ pub fn get_types_declaration_file_text() -> String {
 /// lib those globals come from `dom` instead, and including Deno's copies too
 /// collides. Mirrors the userland `"lib": ["deno.ns", "dom"]` pattern.
 pub fn get_deno_ns_declaration_file_text() -> String {
-  concat_lib_texts(&["deno.ns", "deno.net"])
+  with_oden_module_declarations(concat_lib_texts(&["deno.ns", "deno.net"]))
+}
+
+fn with_oden_module_declarations(mut declarations: String) -> String {
+  declarations.push_str("\ndeclare module \"oden:sqlite\" {\n");
+  declarations.push_str(include_str!("../../ext/sqlite/sqlite.d.ts"));
+  declarations.push_str("\n}\n");
+  declarations
 }
 
 fn concat_lib_texts(lib_names: &[&str]) -> String {
@@ -359,6 +366,13 @@ pub static LAZILY_LOADED_STATIC_ASSETS: Lazy<
   ])
   .into_iter()
   .chain(node_type_libs!())
+  .chain([(
+    "lib.oden.sqlite.d.ts",
+    StaticAsset {
+      is_lib: false,
+      source: StaticAssetSource::Uncompressed(include_str!("../../ext/sqlite/sqlite.d.ts")),
+    },
+  )])
   .collect()
 });
 
@@ -1003,6 +1017,12 @@ pub fn resolve_specifier_for_tsc(
   referrer_module: Option<&Module>,
   remapped_specifiers: &mut HashMap<String, ModuleSpecifier>,
 ) -> Result<(String, Option<&'static str>), ResolveError> {
+  if specifier == "oden:sqlite" {
+    return Ok((
+      "asset:///lib.oden.sqlite.d.ts".into(),
+      Some(MediaType::Dts.as_ts_extension()),
+    ));
+  }
   if specifier.starts_with("node:")
     && let Ok(specifier) = ModuleSpecifier::parse(&specifier)
   {

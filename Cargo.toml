@@ -25,9 +25,9 @@ members = [
   "ext/net",
   "ext/node",
   "ext/node_crypto",
-  "ext/node_sqlite",
   "ext/rt_helper",
   "ext/signals",
+  "ext/sqlite",
   "ext/telemetry",
   "ext/url",
   "ext/web",
@@ -81,9 +81,7 @@ members = [
   "tests/util/test_macro",
   "tools/bsdiff_helper",
 ]
-# tests/sqlite_extension is excluded because it requires rusqlite's "loadable_extension"
-# feature, which is incompatible with the "session" feature used by the rest of the workspace.
-exclude = ["tests/util/std/hash/_wasm", "tests/sqlite_extension"]
+exclude = ["tests/util/std/hash/_wasm"]
 
 [workspace.package]
 authors = ["the Deno authors"]
@@ -130,10 +128,10 @@ deno_napi = { version = "0.190.0", path = "./ext/napi" }
 deno_net = { version = "0.251.0", path = "./ext/net" }
 deno_node = { version = "0.197.0", path = "./ext/node" }
 deno_node_crypto = { version = "0.29.0", path = "./ext/node_crypto" }
-deno_node_sqlite = { version = "0.29.0", path = "./ext/node_sqlite" }
 deno_os = { version = "0.76.0", path = "./ext/os" }
 deno_process = { version = "0.74.0", path = "./ext/process" }
 deno_signals = { version = "0.50.0", path = "./ext/signals" }
+oden_sqlite = { path = "./ext/sqlite" }
 deno_telemetry = { version = "0.81.0", path = "./ext/telemetry" }
 deno_tls = { version = "0.246.0", path = "./ext/tls" }
 deno_web = { version = "0.290.0", path = "./ext/web" }
@@ -295,7 +293,7 @@ reqwest = { version = "=0.12.5", default-features = false, features = ["rustls-t
 # already depends on `zstd`, and modern RPM tooling reads zstd payloads.
 rpm = { version = "0.25.1", default-features = false, features = ["payload", "zstd-compression"] }
 rstest = "0"
-rusqlite = { version = "0.40.0", features = ["unlock_notify", "bundled", "session", "modern_sqlite", "limits", "backup", "fallible_uint"] } # "modern_sqlite": need sqlite >= 3.49.0 for some db configs; "fallible_uint": ToSql for u64/usize (needed when crates like deno_cache are published/built standalone, not just feature-unified via denokv_sqlite)
+rusqlite = { version = "0.40.0", features = ["unlock_notify", "bundled", "modern_sqlite", "fallible_uint"] } # Used by internal cache/KV storage; public sqlite modules use Turso. "fallible_uint": ToSql for u64/usize (needed when crates like deno_cache are published/built standalone, not just feature-unified via denokv_sqlite).
 rustls = { version = "=0.23.40", default-features = false, features = ["logging", "std", "tls12", "aws_lc_rs"] }
 rustls-pemfile = "2"
 rustls-tokio-stream = "=0.8.0"
@@ -394,7 +392,7 @@ zstd = "=0.13.2"
 
 # crypto
 aead-gcm-stream = "0.4"
-aes = "=0.8.3"
+aes = "=0.8.4"
 aes-gcm = "0.10"
 aes-kw = "0.2.1"
 blake2 = "0.10.6"

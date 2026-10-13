@@ -76,7 +76,7 @@ use tracked::TrackedFutures;
 use tracked::TrackedVec;
 
 fn is_internal_scheme(scheme: &str) -> bool {
-  matches!(scheme, "ext" | "node" | "checkin")
+  matches!(scheme, "ext" | "node" | "oden" | "checkin")
 }
 
 pub(crate) fn is_internal_module_specifier(specifier: &str) -> bool {

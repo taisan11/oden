@@ -1866,7 +1866,12 @@ impl DocumentModules {
         true => ResolutionMode::Require,
         false => ResolutionMode::Import,
       };
-      let result = if raw_specifier.starts_with("asset:") {
+      let result = if raw_specifier == "oden:sqlite" {
+        Some((
+          resolve_url("asset:///lib.oden.sqlite.d.ts").unwrap(),
+          MediaType::Dts,
+        ))
+      } else if raw_specifier.starts_with("asset:") {
         if let Ok(specifier) = resolve_url(raw_specifier) {
           let media_type = MediaType::from_specifier(&specifier);
           Some((specifier, media_type))
