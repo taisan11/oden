@@ -79,6 +79,8 @@ See [workflow documentation](.github/WORKFLOWS.md) for commands and limitations.
 ## Documentation and contributing
 
 - [Contributor guide](.github/CONTRIBUTING.md)
+- [Internal architecture website (VitePress)](https://taisan11.github.io/oden/)
+  ([source](dev_docs/README.md); available after GitHub Pages setup)
 - [Architecture and development documentation](doc/README.md)
 - [Upstream Deno documentation](https://docs.deno.com) for inherited APIs;
   experimental fork behavior may differ.
