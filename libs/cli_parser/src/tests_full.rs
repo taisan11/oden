@@ -5078,22 +5078,15 @@ fn compile() {
 }
 
 #[test]
-fn compile_and_desktop_engine() {
-  let flags =
+fn compile_and_desktop_reject_engine_flag() {
+  assert!(
     flags_from_vec(svec!["oden", "compile", "--engine", "quickjs", "main.ts"])
-      .unwrap();
-  let DenoSubcommand::Compile(compile) = flags.subcommand else {
-    panic!("expected compile subcommand");
-  };
-  assert_eq!(compile.engine, JavaScriptEngine::QuickJs);
-
-  let flags =
+      .is_err()
+  );
+  assert!(
     flags_from_vec(svec!["oden", "desktop", "--engine", "quickjs", "main.tsx"])
-      .unwrap();
-  let DenoSubcommand::Desktop(desktop) = flags.subcommand else {
-    panic!("expected desktop subcommand");
-  };
-  assert_eq!(desktop.engine, JavaScriptEngine::QuickJs);
+      .is_err()
+  );
 }
 
 #[test]
