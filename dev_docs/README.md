@@ -4,9 +4,9 @@ This directory is the source for the Japanese Oden internals website.
 
 - Site entry: `index.md`
 - VitePress config: `.vitepress/config.mts`
-- Architecture: `architecture/`
-- Oden-specific features: `features/`
-- Development: `development/`
+- Architecture: `architecture/` (CLI lifecycle, module loading, Ops and permissions)
+- Oden-specific features: `features/` (SQLite and Desktop internals)
+- Development: `development/` (implementation, debugging, testing)
 - GitHub Pages workflow: `../.github/workflows/dev-docs.yml`
 
 ## Run locally
@@ -36,3 +36,7 @@ This site documents current Oden internals. Keep code references accurate
 and update existing guidance when implementation changes. In particular,
 the inherited `doc/ci.md` describes older upstream CI and is not the
 source of truth for this fork's workflow configuration.
+
+## Keeping the site current
+
+New architecture pages should describe actual source-code entry points and provide links to the corresponding files. When adding a page, update the VitePress sidebar in `.vitepress/config.mts`, link it from an appropriate overview, and run `npm run docs:build` in this directory. Avoid asserting compatibility guarantees for experimental Oden features; document tests and limitations instead.
