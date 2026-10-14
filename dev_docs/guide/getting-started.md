@@ -15,6 +15,10 @@ CLI・モジュール解決・実行エンジン・Web API・OS アクセスが�
 - [モジュール解決](/architecture/modules)：`npm:`・`jsr:`・ロック・キャッシュ
 - [Oden 独自機能](/features/oden)：Deno と異なるコード
 
+## ソースを読むおすすめ順序
+
+最初は [全体アーキテクチャ](/architecture/overview) → [実行ライフサイクル](/architecture/execution) → [モジュール処理](/architecture/module-pipeline) の順番に読むと、CLI・Worker・JS 実行の境界をつかみやすくなります。API を追加したいときは [Ops・権限](/architecture/ops-and-permissions) と [新機能の実装手順](/development/adding-features) を併読してください。
+
 ## ソースの準備
 
 ルートの [README](https://github.com/taisan11/oden/blob/main/README.md) と
