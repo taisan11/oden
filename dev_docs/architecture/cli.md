@@ -20,7 +20,7 @@ process 起動
       └─ run / eval 等                    → CliFactory → Worker
 ```
 
-コマンドにより runtime を使う深さは異なります。
+コマンドにより runtime を使う深さは異なります。`run` の具体的な処理順・Worker への受け渡しは [実行ライフサイクル](/architecture/execution-flow) を参照してください。
 
 ## 引数パーサーは移行途中の二系統
 
@@ -54,6 +54,12 @@ npm resolver・ローダー・Worker ファクトリーなどを必要に応じ�
 | [`cli/lsp/`](https://github.com/taisan11/oden/tree/main/cli/lsp) | Language Server |
 | [`cli/tools/`](https://github.com/taisan11/oden/tree/main/cli/tools) | 各コマンドの実装 |
 
+## `run` 経路で押さえる関数
+
+[`cli/tools/run/mod.rs`](https://github.com/taisan11/oden/blob/main/cli/tools/run/mod.rs) の `run_script` は `CliFactory::from_flags` によって各 resolver・cache を準備し、`create_cli_main_worker_factory_with_roots` から `CliMainWorker` を作ります。CLI が `runtime/worker.rs::MainWorker` を直接作るのではなく、`cli/worker.rs` と `cli/lib/worker.rs` が中間のサービスやオプションを整理します。
+
+`--watch` 時は別の監視経路を使うため、通常の `run` と同じ実行回数・初期化タイミングとは限りません。
+
 ## サブコマンドを追加する際の順序
 
 1. 既存の `DenoSubcommand` と引数構造を確認する
@@ -63,4 +69,4 @@ npm resolver・ローダー・Worker ファクトリーなどを必要に応じ�
 5. `tests/specs/<command>/` に CLI の入出力テストを追加する
 
 新しいフラグやコマンドの動作は `./target/debug/oden --help` と
-spec テストでも確認してください。
+spec テストでも確認してください。具体的な追加手順は [新機能の実装](/development/adding-features) にまとめています。
