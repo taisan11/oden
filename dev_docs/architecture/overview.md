@@ -93,3 +93,10 @@ JS からファイル操作・ネットワークなどのネイティブ機能�
 - [CLI → Worker → V8 の実行ライフサイクル](/architecture/execution)：`run` の起動から event loop の終了まで
 - [Extensions・Ops・権限境界](/architecture/ops-and-permissions)：JS と Rust の接続および権限判定
 - [Native KV](/features/kv) / [Turso SQLite](/features/sqlite) / [Desktop](/features/desktop)：独自機能の処理フロー
+
+## 機能別の深掘り
+
+- [CLI から実行まで](/architecture/execution)：入口・Worker・bootstrap・event loop
+- [モジュール処理](/architecture/module-pipeline)：`CliFactory`、resolver、module graph、fetcher、loader を段階別に追う
+- [Extensions・Ops・権限境界](/architecture/ops-and-permissions)：JavaScript API と Rust の橋渡し
+- [新機能の実装手順](/development/adding-features)：変更が必要な層をチェックリストから探す

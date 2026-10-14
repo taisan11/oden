@@ -47,6 +47,36 @@ Laufey C ABI のバージョンはビルド時に検証され、backend と runt
 
 このため複数の binding が同時に実行されても、`call_id` で応答が区別されます。イベントの配送には容量制限があり、高頻度イベントは backpressure 時に間引かれます。**全イベントの配送を保証するキューではありません。**
 
+
+## ソースから見る Desktop の通信
+
+| 実装ファイル | 調査対象 |
+| --- | --- |
+| [`cli/rt_desktop/lib.rs`](https://github.com/taisan11/oden/blob/main/cli/rt_desktop/lib.rs) | Laufey C ABI、native event、binding の戻り値 |
+| [`runtime/ops/desktop.rs`](https://github.com/taisan11/oden/blob/main/runtime/ops/desktop.rs) | `DesktopEvent`、`register_bind_call`、oneshot |
+| [`cli/rt/desktop.rs`](https://github.com/taisan11/oden/blob/main/cli/rt/desktop.rs) | `DESKTOP_JS`、`Deno.BrowserWindow`、`Deno.desktop` |
+| [`cli/rt/hmr.rs`](https://github.com/taisan11/oden/blob/main/cli/rt/hmr.rs) | ソース監視と `Debugger.setScriptSource` |
+| [`cli/tools/desktop_devtools.rs`](https://github.com/taisan11/oden/blob/main/cli/tools/desktop_devtools.rs) | renderer と runtime の Inspector 接続 |
+
+## HMR を 3 つの結果に分けて考える
+
+[`cli/rt/hmr.rs`](https://github.com/taisan11/oden/blob/main/cli/rt/hmr.rs) はファイル変更を、V8 の Inspector による差し替え可否などから分類します。
+
+| 結果 | 処理 |
+| --- | --- |
+| `Replaced` | V8 が許可するスクリプト変更を動作中に反映 |
+| `SoftReload` | ウィンドウ内ページを再読み込み |
+| `Restart` | runtime ごと起動し直す必要がある変更 |
+
+特に import の変更など、動作中のモジュールグラフに差し替えを適用できない場合、ページ更新だけでは解決しません。Desktop supervisor が runtime の再起動を担当します。フレームワークの開発サーバーを利用する場合は、フレームワーク自身の HMR に委ねる経路もあります。
+
+### 問題の切り分け
+
+- **ウィンドウが起動しない**: native backend・共有ライブラリの配置・ABI の一致を確認。
+- **白画面になる**: loopback HTTP、初回 HTTP GET、navigation を確認。
+- **`window.bindings.*` が完了しない**: `call_id` の紐付け・`BindCall` event・resolve/reject op を確認。
+- **HMR しない**: framework dev mode か、`Restart` に分類されているか確認。
+
 ## HMR・Inspector と終了処理
 
 [`cli/rt/hmr.rs`](https://github.com/taisan11/oden/blob/main/cli/rt/hmr.rs) がソース監視・再読み込みに関与します。フレームワーク開発サーバーではブラウザー側の HMR を使う場合があり、通常の JS アプリとは処理が異なります。

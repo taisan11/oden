@@ -50,6 +50,28 @@ npm run docs:build --prefix dev_docs
 
 CI の常時チェックは形式・lint・Cargo metadata を主に扱い、フル Rust ビルド・全互換テストは行いません。[ビルド・テスト・CI](/development/testing) にチェック範囲をまとめています。
 
+
+## 起動処理の段階を調べる
+
+[`cli/tools/run/mod.rs`](https://github.com/taisan11/oden/blob/main/cli/tools/run/mod.rs) の `run_script` は、`CliFactory` 生成、workspace / Node resolver、main module の解決、Worker の構築を段階的に進めます。コード中の `boot_phase` は初期化段階の確認に役立ちます。
+
+[`runtime/worker.rs`](https://github.com/taisan11/oden/blob/main/runtime/worker.rs) には起動診断用の環境変数 `DENO_STARTUP_PHASES` を参照する処理があります。実行する build で出力を確認してください。
+
+```sh
+# Unix 系シェルでの起動診断例
+DENO_STARTUP_PHASES=1 ./target/debug/oden run ./main.ts
+```
+
+### 最初に誤った値を返した境界を探す
+
+- **specifier が違う**: `CliResolver`、workspace / Node resolver を追う。
+- **specifier は正しいが読み込めない**: file fetcher・キャッシュ・アクセス許可を追う。
+- **ソースは正しいが変換で失敗**: module loader・deno_ast・type checker を分けて追う。
+- **JS API が存在しない**: extension 登録・bootstrap・snapshot・WebWorker を比較する。
+- **同期 DB 操作が失敗**: JS adapter / Rust op / Turso を分けて確認する。
+
+[モジュール処理の詳細](/architecture/module-pipeline) と [新機能の実装手順](/development/adding-features) に、調査対象とテストの対応を整理しています。
+
 ## Docs を修正する際
 
 - このサイトの記述は **現行 `main` のコードを一次情報**にし、上流 Deno の仕様をそのまま断定しない

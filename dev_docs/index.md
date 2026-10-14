@@ -50,3 +50,16 @@ Oden は Deno 由来の実験的フォークで、独自の `oden` 実行ファ�
 > 記述はサイト作成時の `main` ブランチを基準にしています。
 > 詳細が必要なときは各ページにあるソースリンクと
 > [既存の開発ノート](https://github.com/taisan11/oden/tree/main/doc)を参照してください。
+
+## 実装をさらに深掘りする
+
+| テーマ | コードの調査入口 |
+| --- | --- |
+| `run` の実行と Worker 作成 | [実行ライフサイクル](/architecture/execution) |
+| `import` の解決・Graph・キャッシュ・変換 | [モジュール処理の詳細](/architecture/module-pipeline) |
+| JavaScript と Rust の境界 | [Extensions・Ops・権限](/architecture/ops-and-permissions) |
+| 独自バックエンド | [Turso SQLite](/features/sqlite) / [Desktop](/features/desktop) / [Native KV](/features/kv) |
+| 新しいフラグ・Web API を開発する | [新機能の実装手順](/development/adding-features) |
+| 不具合を再現して追跡する | [デバッグと検証](/development/debugging) |
+
+すべてのページでソースコードと現行の実装制約を優先し、上流 Deno の振る舞いを無条件に保証するものではありません。

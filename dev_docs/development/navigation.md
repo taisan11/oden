@@ -47,3 +47,10 @@
 - Bun/Node SQLite の API 差：[Turso SQLite](/features/sqlite)
 - Native window・WebView・binding：[Desktop](/features/desktop)
 - 再現・検証の進め方：[不具合調査と検証](/development/debugging)
+
+## より細かい調査に進む
+
+- **起動処理**: [実行ライフサイクル](/architecture/execution) で `run_script` と `MainWorker` の構築を追う。
+- **import・依存解決**: [モジュール処理の詳細](/architecture/module-pipeline) で resolver・fetcher・loader を分ける。
+- **API の追加**: [新機能の実装手順](/development/adding-features) から変更すべき型定義・テストを確認する。
+- **エラーの再現**: [デバッグ](/development/debugging) で症状から担当レイヤーを絞る。

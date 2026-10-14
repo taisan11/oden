@@ -71,6 +71,31 @@ CLI 固有の [`CliMainWorker::run`](https://github.com/taisan11/oden/blob/main/
 
 `new Worker(...)` の経路は [`runtime/web_worker.rs`](https://github.com/taisan11/oden/blob/main/runtime/web_worker.rs) にあり、専用の worker ID・メッセージチャネル・ライフサイクルを持ちます。MainWorker に追加した extension や state が WebWorker にも自動反映されると思い込まないことが重要です。
 
+## `run_script` の具体的な処理順
+
+[`cli/tools/run/mod.rs`](https://github.com/taisan11/oden/blob/main/cli/tools/run/mod.rs) の `run_script` では、`CliFactory` を生成してすぐ Worker を実行するわけではありません。
+
+1. `check_permission_before_script` で実行前の権限条件を確認し、`--watch` なら `run_with_watch` へ分岐します。
+2. `factory.cli_options()`、`factory.deno_dir()`、`factory.workspace_resolver()`、`factory.node_resolver()` で必要なサービスを準備します。
+3. `WorkspaceMainModuleResolver` を用いて main module と preload・require module を解決します。
+4. `maybe_npm_install` で必要な依存を準備し、npm バイナリを実行する特殊な経路に該当するか確認します。
+5. `create_cli_main_worker_factory_with_roots` と `create_main_worker_with_unconfigured_runtime` を経て `worker.run().await` を呼びます。
+
+```text
+run_script
+    ├─ workspace_resolver / node_resolver
+    ├─ resolve_main_module / preload_modules / require_modules
+    ├─ maybe_npm_install / npm bin の特別経路
+    ├─ CliMainWorkerFactory
+    │   └─ LibMainWorkerFactory
+    │       └─ MainWorker + JsRuntime
+    └─ CliMainWorker::run
+```
+
+**CLI Worker と Runtime Worker は別レイヤーです。** [`cli/worker.rs`](https://github.com/taisan11/oden/blob/main/cli/worker.rs) の `create_custom_worker` は npm package の解決や preloaded JS の組み込みを調整し、[`cli/lib/worker.rs`](https://github.com/taisan11/oden/blob/main/cli/lib/worker.rs) を通して runtime 側へ渡します。
+
+これによって、`npm:` エントリポイントを直接実行した際の挙動と、通常のファイルの `run` とで入口の処理が異なる理由を調べられます。詳しい import 処理は [モジュール解決とロードの実装経路](/architecture/module-pipeline) にあります。
+
 ## トレースの最短ルート
 
 **起動コマンド** → `cli/lib.rs` → `cli/tools/run` → `cli/factory.rs` → `cli/worker.rs` → `runtime/worker.rs` → `libs/core/runtime/jsruntime.rs`

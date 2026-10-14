@@ -40,3 +40,10 @@ source of truth for this fork's workflow configuration.
 Further deep-dive pages cover the CLI execution lifecycle, native ops and
 permissions, Native KV, Turso SQLite, Desktop, and debugging. When changing
 source code, update both the overview and the relevant deep-dive page.
+
+## Deep-dive guides
+
+- `architecture/module-pipeline.md` explains the import pipeline, caches and package resolution.
+- `development/adding-features.md` is a checklist for extending the CLI or JS/Rust APIs.
+
+When adding a page, register it in `.vitepress/config.mts` and verify source and internal links. Build the site with `npm run docs:build --prefix dev_docs` from the repository root.

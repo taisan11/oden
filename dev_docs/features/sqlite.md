@@ -79,6 +79,28 @@ oden run --allow-read --allow-write app.ts
 - SQL 文や PRAGMA・仮想テーブル等の対応範囲は Turso の実装に依存します。
 - `oden:sqlite` / `node:sqlite` の DB と **`Deno.openKv` の Deno KV ファイル**は API も用途も別です。
 
+
+## 接続と prepared statement のライフサイクル
+
+`oden:sqlite` の処理は **JS アダプター → Rust の op → Turso → resource** を繰り返す構造です。
+
+1. `new Database(...)` は `op_oden_sqlite_open` を介して接続を作ります。
+2. `query` / `prepare` で `op_oden_sqlite_prepare` に到達し、statement を用意します。
+3. `run` / `get` / `all` / `iterate` は、bind、実行・step、reset といった op を利用します。
+4. `close` または `Symbol.dispose` で関連する resource を解放します。古い statement は再利用できないように扱います。
+
+[`ext/sqlite/lib.rs`](https://github.com/taisan11/oden/blob/main/ext/sqlite/lib.rs) の `NodeResources` と `NODE_RESOURCE` は、Node アダプターの GC 管理オブジェクト向けに通常の resource table と分けて設けられています。**内部の `ResourceId` は SQLite C のポインタではありません。**
+
+ファイルの読み書きは Turso の I/O 経由で発生するため、`PermissionIo` を通るアクセス制御が不可欠です。権限変更では、正常な read/write だけでなく、アクセス拒否・WAL ファイル・シンボリックリンク・`:memory:` のケースも対象としてください。
+
+| 変更場所 | 検証すべきこと |
+| --- | --- |
+| JS の `Database` / `Statement` | 戻り値、bind 形式、close 済みエラー |
+| Rust の op | 許可判定、エラー変換、resource の後始末 |
+| `node:sqlite` adapter | BigInt / BLOB、Node の型・挙動との一致 |
+| `turso_core` 連携 | サポートされる SQL、WAL・serialize の範囲 |
+| Worker・型定義 | Main/WebWorker、LSP、`oden:sqlite` import の解決 |
+
 ## 型と Worker、テスト
 
 `oden:sqlite` は [`ext/sqlite/sqlite.d.ts`](https://github.com/taisan11/oden/blob/main/ext/sqlite/sqlite.d.ts) で型を提供し、CLI の型検査・LSP・bundler にも統合されています。extension は MainWorker・WebWorker・snapshot に登録されています。
