@@ -25,6 +25,8 @@ cargo build --locked -p deno --bin oden
 `./x` のオプションやサブコマンドは実装により変更されるため、
 まずヘルプを確認してください。
 
+変更するレイヤーによって必要なテストが異なります。[新機能の実装](/development/adding-features) と [デバッグ](/development/debugging) に、修正種別ごとの確認ポイントを用意しています。
+
 ## テストの種類
 
 | 種類 | 場所 | 目的 |
@@ -39,7 +41,7 @@ cargo build --locked -p deno --bin oden
 Spec は `__test__.jsonc` に手順を記述する方式です。
 テストハーネスが必要な JS unit テストは、
 `oden test` だけで代替できるとは限りません。
-詳しくは [`doc/testing.md`](https://github.com/taisan11/oden/blob/main/doc/testing.md)。
+詳しくは [`doc/testing.md`](https://github.com/taisan11/oden/blob/main/doc/testing.md)。SQLite のような独自 API には [SQLite 固有の検証コマンド](/features/sqlite#変更時の検証) もあります。
 
 ## 現在の GitHub Actions
 
@@ -56,6 +58,14 @@ CI が緑でも **Rust 全体のコンパイル・Runtime 互換性は確認さ�
 その検証は必要に応じて手動 build・対応するテストで実施してください。
 upstream 由来の [`doc/ci.md`](https://github.com/taisan11/oden/blob/main/doc/ci.md)
 には現在存在しない生成 workflow の説明があるため、実際の YAML を優先します。
+
+## テストを選ぶときの目安
+
+- CLI 引数・出力の変更: 対応する `tests/specs/` に最小再現を追加。
+- Web API・Rust op の変更: 影響する crate の unit と `tests/unit/`。許可・拒否の両ケースを確認。
+- Node API の変更: `tests/unit_node/` と必要な `tests/node_compat/`。
+- モジュール解決: npm・JSR・workspace の spec。resolver と loader の段階を区別して再現。
+- Desktop の変更: ABI・起動・画面側イベントをそれぞれ確認。軽量 CI だけでは保証されない。
 
 ## ドキュメントサイトの検証・公開
 
