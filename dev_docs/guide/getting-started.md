@@ -11,9 +11,17 @@ CLI・モジュール解決・実行エンジン・Web API・OS アクセスが�
 
 - [全体像](/architecture/overview)：各レイヤーの依存関係
 - [CLI](/architecture/cli)：引数解析からコマンド実行まで
+- [実行ライフサイクル](/architecture/execution-flow)：`run` が `MainWorker` を動かすまで
 - [Runtime](/architecture/runtime)：JS の実行とネイティブ API の橋渡し
+- [Extensions・Ops](/architecture/ops-permissions)：ネイティブ op・resource・権限の詳細
 - [モジュール解決](/architecture/modules)：`npm:`・`jsr:`・ロック・キャッシュ
+- [モジュール処理の実装](/architecture/module-pipeline)：resolver / fetcher / loader の違い
 - [Oden 独自機能](/features/oden)：Deno と異なるコード
+- [SQLite](/features/sqlite) と [Desktop](/features/desktop)：独自 backend のコード案内
+
+## 読み進める順番
+
+最初は [全体像](/architecture/overview) を読んでから、[実行ライフサイクル](/architecture/execution-flow) の `run_script` を起点に関数を辿ると、レイヤーの関係を把握しやすくなります。その後、目的に応じて [モジュール処理](/architecture/module-pipeline) か [Ops・権限](/architecture/ops-permissions) に進んでください。実際に修正する場合は [新機能の実装](/development/adding-features) と [デバッグ](/development/debugging) も参考にしてください。
 
 ## ソースの準備
 
