@@ -82,4 +82,4 @@ Oden は設定として `oden.json`・`oden.jsonc`、生成先に `.oden` を使
 5. 評価時の例外・イベントループの問題なら **runtime/worker.rs / libs/core** を調べる。
 6. 修正後は該当 import スキームの [`tests/specs/`](https://github.com/taisan11/oden/tree/main/tests/specs) を実行し、Node や JSR の回帰も確認する。
 
-関連: [既存のモジュール概説](/architecture/modules) · [実行ライフサイクル](/architecture/execution-flow)
+関連: [既存のモジュール概説](/architecture/modules) · [実行ライフサイクル](/architecture/execution)
