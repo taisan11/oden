@@ -69,7 +69,7 @@ Oden は JavaScript エンジンとして **V8 のみ**をサポートします�
 は `rusty_v8` を再エクスポートする facade です。
 `quickjs` feature とエンジン選択用の CLI オプションはありません。
 
-`ode:sqlite` ではなく、組込みスキーム `oden:sqlite` が現行名です。詳しくは [Turso SQLite の内部](/features/sqlite) を参照してください。
+組込みモジュール `oden:sqlite` の extension とバックエンドについては [Turso SQLite の内部](/features/sqlite) を参照してください。
 
 Tokio は I/O タスクの実行を支え、
 `deno_core` が JS の pending tasks や非同期 ops を
