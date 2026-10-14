@@ -45,7 +45,7 @@ API 仕様
 5. [`runtime/worker.rs`](https://github.com/taisan11/oden/blob/main/runtime/worker.rs)、[`runtime/web_worker.rs`](https://github.com/taisan11/oden/blob/main/runtime/web_worker.rs) の登録と、ビルド時の snapshot を確認する。
 6. 型宣言・tooling が必要なら [`cli/tsc/`](https://github.com/taisan11/oden/tree/main/cli/tsc) と [`cli/lsp/`](https://github.com/taisan11/oden/tree/main/cli/lsp) も更新する。
 
-具体例は [`oden:sqlite` の Rust extension](https://github.com/taisan11/oden/blob/main/ext/sqlite/lib.rs) と [Ops・権限](/architecture/ops-permissions) を参照してください。
+具体例は [`oden:sqlite` の Rust extension](https://github.com/taisan11/oden/blob/main/ext/sqlite/lib.rs) と [Ops・権限](/architecture/ops-and-permissions) を参照してください。
 
 ## 実例 C: 既存処理のバグ修正
 
