@@ -19,6 +19,11 @@
 | Desktop backend | `cli/tools/desktop.rs`、`cli/rt_desktop/`、`runtime/ops/desktop.rs` | Desktop 関連のテスト |
 | LSP | [`cli/lsp/`](https://github.com/taisan11/oden/tree/main/cli/lsp) | LSP 関連のテスト |
 | 設定移行 | [`cli/tools/from_deno.rs`](https://github.com/taisan11/oden/blob/main/cli/tools/from_deno.rs) | `tests/specs/from/deno/` |
+| Worker 起動・イベントループ | [実行ライフサイクル](/architecture/execution-flow)、`cli/worker.rs`、`runtime/worker.rs` | `tests/specs/`、runtime unit |
+| extension・op・resource | [Ops・権限](/architecture/ops-permissions)、`libs/ops` | `tests/unit/`、対応 crate |
+| ネイティブ連携 | [Desktop の内部](/features/desktop)、`cli/rt_desktop/` | Desktop 関連のテスト |
+
+変更作業のチェックリストは [新機能の実装手順](/development/adding-features)、実行時の症状別の切り分けは [デバッグ](/development/debugging) を参照してください。
 
 ## デバッグ用の基本ルート
 
