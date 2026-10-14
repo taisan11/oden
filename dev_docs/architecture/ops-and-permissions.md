@@ -63,6 +63,40 @@ MainWorker / WebWorker が依存を受け取る
 7. JS/TS の宣言、型検査・LSP・モジュール解決との接続を確認する
 8. 成功系だけでなく、権限拒否・不正入力・Worker 内利用のテストを追加する
 
+
+## `oden_sqlite` を例に op 登録を追う
+
+[`ext/sqlite/lib.rs`](https://github.com/taisan11/oden/blob/main/ext/sqlite/lib.rs) の登録は、概念的に次の形です。
+
+```rust
+deno_core::extension!(
+  oden_sqlite,
+  ops = [
+    op_oden_sqlite_open,
+    op_oden_sqlite_close,
+    op_oden_sqlite_prepare,
+    op_oden_sqlite_run,
+    // 他の op はソースを参照
+  ],
+  lazy_loaded_esm = ["oden:sqlite" = "sqlite.js"],
+  lazy_loaded_js = ["node_sqlite.js"],
+);
+```
+
+Rust の op 定義では `#[op2]` を使用し、文字列・バッファ・serde 対応値などを JS との境界で変換します。`oden:sqlite` と `node:sqlite` は JS adapter が異なっても同じ Turso backend の op を呼びます。
+
+また、同ファイルの `PermissionIo` は Turso が行うファイル操作に許可判定を適用します。`:memory:` とファイル DB を分けて考え、WAL 等の補助ファイルにも権限チェックが働くか確認します。
+
+### 新しい native resource を持つ API の注意点
+
+- **所有権**: JS オブジェクトを破棄したあとも ResourceTable に handle が残らないか。
+- **繰り返し利用**: すでに閉じた ID や別 Worker の ID を誤って受け付けないか。
+- **失敗時**: open や prepare の途中で失敗した場合、作成済みの resource を回収できるか。
+- **Async**: Promise の解決・拒否と Rust 側のキャンセルが対応しているか。
+- **型と公開範囲**: extension を登録しただけでは、TS の宣言・Node adapter・LSP が追従するとは限らない。
+
+本リポジトリの拡張手順を段階的に整理した [新機能の実装手順](/development/adding-features) も参照してください。
+
 ## 調査で混同しやすいこと
 
 | 誤解 | 実装上の区別 |
