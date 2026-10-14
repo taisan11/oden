@@ -9,6 +9,8 @@
 [`runtime/lib.rs`](https://github.com/taisan11/oden/blob/main/runtime/lib.rs)
 は runtime crate の公開モジュール群を示します。
 
+Worker の構築は CLI の [§cli/worker.rs§](https://github.com/taisan11/oden/blob/main/cli/worker.rs) と [§cli/lib/worker.rs§](https://github.com/taisan11/oden/blob/main/cli/lib/worker.rs) を経由します。実際の実行順を読む場合は [実行ライフサイクル](/architecture/execution-flow) から始めてください。
+
 主要な構成要素：
 
 - `libs/core/` の `JsRuntime`：JS 実行・モジュール管理・イベントループ
@@ -43,6 +45,8 @@ OS / ネットワーク / データベース / native library
 | Deno API | `ext/kv`、`ext/cron`、`ext/ffi`、`ext/napi` |
 | Oden SQLite | [`ext/sqlite`](https://github.com/taisan11/oden/tree/main/ext/sqlite) |
 
+Extension 登録・op 引数・ResourceTable・権限を詳しく追う場合は [Extensions・Ops・権限チェック](/architecture/ops-permissions) を参照してください。
+
 extension を新設する際は Rust/JS 実装、Cargo 依存関係、
 `runtime/worker.rs` 側の登録、snapshot・テストの影響を確認します。
 
@@ -64,6 +68,8 @@ Oden は JavaScript エンジンとして **V8 のみ**をサポートします�
 [`libs/deno_v8`](https://github.com/taisan11/oden/tree/main/libs/deno_v8)
 は `rusty_v8` を再エクスポートする facade です。
 `quickjs` feature とエンジン選択用の CLI オプションはありません。
+
+`ode:sqlite` ではなく、組込みスキーム `oden:sqlite` が現行名です。詳しくは [Turso SQLite の内部](/features/sqlite) を参照してください。
 
 Tokio は I/O タスクの実行を支え、
 `deno_core` が JS の pending tasks や非同期 ops を
