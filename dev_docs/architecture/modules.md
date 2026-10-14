@@ -72,3 +72,7 @@ Oden は `oden.json` / `oden.jsonc` を自動検出し、
 - CommonJS では、ESM hook と CJS loader の hook を二重適用しないための条件分岐があります。
 
 モジュールが見つからない問題と、**解決はできるが実行時ロードで失敗する問題**を区別して追跡してください。全体の前後関係は [実行ライフサイクル](/architecture/execution) にあります。
+
+## 解決・取得・変換の段階を詳しく読む
+
+このページは担当コンポーネントの概説です。具体的な `ModuleLoadPreparer`・`ModuleGraphCreator`・`CliModuleLoader` の役割や、`npm:` / `jsr:` / `node:` ごとのトラブルシューティングは [モジュール解決とロードの実装経路](/architecture/module-pipeline) を参照してください。
