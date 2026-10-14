@@ -30,7 +30,7 @@ Oden は多数の Rust crate から成る Cargo workspace で、
        └───────────────────┬──────────────────┘
                            │
                      V8 + Tokio
-              (実験的 QuickJS 経路も存在)
+                (現行エンジンは V8 のみ)
 ```
 
 この図は役割の概略です。実際には `cli/` と `runtime/` の両方が
@@ -68,7 +68,7 @@ JS からファイル操作・ネットワークなどのネイティブ機能�
 到達します。`libs/ops` の `#[op2]` マクロが橋渡しを生成し、
 `libs/core` がイベントループや `JsRuntime` を管理します。
 
-詳細は [Runtime・Ops・権限](/architecture/runtime) を参照。
+詳細は [Runtime・Ops・権限](/architecture/runtime) と [Extensions・Ops の詳細](/architecture/ops-permissions) を参照。
 
 ## ビルド時と実行時の区別
 
@@ -77,6 +77,13 @@ JS からファイル操作・ネットワークなどのネイティブ機能�
 実行時のロード・権限チェック・イベントループは別経路です。
 コードを読む際は「ビルド時に実行されるか、利用者のプロセスで
 実行されるか」を最初に区別してください。
+
+## どこから深掘りするか
+
+- **実行開始と終了**: [`oden run` の実行ライフサイクル](/architecture/execution-flow) は `cli/main.rs` → `run_script` → Worker を順番に追います。
+- **モジュール系**: [モジュール解決とロード](/architecture/module-pipeline) は workspace・resolver・HTTP cache・transpile を分けて説明します。
+- **JS/Rust 境界**: [Extensions・Ops・権限](/architecture/ops-permissions) は op 登録と resource の寿命を扱います。
+- **Oden の追加実装**: [SQLite](/features/sqlite) と [Desktop](/features/desktop) は別々のアーキテクチャを持ちます。
 
 ## 既存の詳細資料
 
