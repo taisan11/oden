@@ -87,3 +87,13 @@ GitHub で最初に一度、
 - **KV**：Native と Deno 互換 backend の両方を検証し、永続化と再起動後の読み込みを確認
 
 具体的な切り分けは [不具合調査と検証](/development/debugging) を参照してください。
+
+## 変更内容からテストを選ぶ
+
+- CLI の引数・動作: 対応する `tests/specs/` を起点に、help と実行の両方を検証する。
+- Worker・Extension: `tests/unit/` と Rust crate のテストに加えて、必要なら WebWorker を検証する。
+- Node API: `tests/unit_node/` と `tests/node_compat/` を区別する。
+- Package resolution: npm / JSR / workspace 関連の spec を選ぶ。
+- SQLite: [SQLite ページ](/features/sqlite) と [ext/sqlite/README](https://github.com/taisan11/oden/blob/main/ext/sqlite/README.md) に検証例がある。
+
+新しい機能で変更対象を特定する流れは [新機能の実装手順](/development/adding-features)、失敗時の調査方法は [デバッグ](/development/debugging) を参照してください。
