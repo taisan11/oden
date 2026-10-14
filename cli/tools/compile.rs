@@ -1413,7 +1413,6 @@ mod test {
         app_name: None,
         minify: false,
         exclude_unused_npm: false,
-        engine: Default::default(),
       },
       &initial_cwd,
     );
@@ -1444,7 +1443,6 @@ mod test {
         app_name: None,
         minify: false,
         exclude_unused_npm: false,
-        engine: Default::default(),
       },
       &resolve_cwd(None).unwrap(),
       false,
@@ -1482,7 +1480,6 @@ mod test {
         app_name: None,
         minify: false,
         exclude_unused_npm: false,
-        engine: Default::default(),
       },
       &resolve_cwd(None).unwrap(),
       false,

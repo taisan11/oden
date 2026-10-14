@@ -76,16 +76,15 @@ Desktop 機能はネイティブウィンドウと Oden runtime を組み合わ�
 [`doc/desktop-architecture.md`](https://github.com/taisan11/oden/blob/main/doc/desktop-architecture.md)
 を参照してください。この機能は現時点で実験的です。
 
-## V8 / QuickJS バックエンド
+## V8 バックエンド
 
+Oden がサポートする JavaScript エンジンは V8 のみです。
 [`cli/Cargo.toml`](https://github.com/taisan11/oden/blob/main/cli/Cargo.toml)
-の標準 feature は `v8` です。
+の標準 feature は `v8` で、
 [`libs/deno_v8/Cargo.toml`](https://github.com/taisan11/oden/blob/main/libs/deno_v8/Cargo.toml)
-で `v8` / `quickjs` feature を切り替える facade が定義されています。
-両方同時、または両方無効はコンパイルエラーになる設計です。
-
-QuickJS は実験的な経路です。標準の V8 build と
-同じ動作・互換性・速度を提供するという意味ではありません。
+は `rusty_v8` を再エクスポートする facade です。
+`oden compile` と `oden desktop` はどちらも V8 を使用し、
+エンジンを切り替える `--engine` オプションはありません。
 
 ## 他の注目箇所
 

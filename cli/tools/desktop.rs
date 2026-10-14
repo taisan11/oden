@@ -523,7 +523,6 @@ async fn compile_desktop(
     bundle: false,
     minify: false,
     exclude_unused_npm: desktop_flags.exclude_unused_npm,
-    engine: desktop_flags.engine,
   };
 
   let mut temp_flags = flags.clone();
@@ -7384,7 +7383,6 @@ def456  other.zip
       exclude: vec![],
       hmr: false,
       backend: None,
-      engine: Default::default(),
       all_targets: false,
       identifier: None,
       deep_links: Vec::new(),

@@ -2135,10 +2135,6 @@ fn compile_parse(
     app_name: result.get_one("app-name").map(|s| s.to_string()),
     minify: result.get_bool("minify"),
     exclude_unused_npm: result.get_bool("exclude-unused-npm"),
-    engine: result
-      .get_one("engine")
-      .map(|value| value.parse().expect("engine is validated by the parser"))
-      .unwrap_or_default(),
   });
   Ok(())
 }
@@ -2722,10 +2718,6 @@ fn desktop_parse(
     inspect_renderer,
     compress,
     exclude_unused_npm: result.get_bool("exclude-unused-npm"),
-    engine: result
-      .get_one("engine")
-      .map(|value| value.parse().expect("engine is validated by the parser"))
-      .unwrap_or_default(),
   });
   Ok(())
 }
