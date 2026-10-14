@@ -28,19 +28,28 @@ export default defineConfig({
         items: [
           { text: "全体像", link: "/architecture/overview" },
           { text: "CLI とサブコマンド", link: "/architecture/cli" },
+          { text: "実行ライフサイクル", link: "/architecture/execution-flow" },
           { text: "Runtime・Ops・権限", link: "/architecture/runtime" },
+          { text: "Extensions・Ops の詳細", link: "/architecture/ops-permissions" },
           { text: "モジュールとパッケージ", link: "/architecture/modules" },
+          { text: "解決・取得・ロードの流れ", link: "/architecture/module-pipeline" },
         ],
       },
       {
         text: "Oden 独自機能",
-        items: [{ text: "Deno からの変更点", link: "/features/oden" }],
+        items: [
+          { text: "Deno からの変更点", link: "/features/oden" },
+          { text: "Turso SQLite の内部", link: "/features/sqlite" },
+          { text: "Desktop の内部", link: "/features/desktop" },
+        ],
       },
       {
         text: "コントリビューション",
         items: [
           { text: "変更箇所を探す", link: "/development/navigation" },
           { text: "ビルド・テスト・CI", link: "/development/testing" },
+          { text: "新機能の実装", link: "/development/adding-features" },
+          { text: "デバッグ", link: "/development/debugging" },
         ],
       },
     ],
