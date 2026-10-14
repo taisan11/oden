@@ -61,3 +61,14 @@ Oden は `oden.json` / `oden.jsonc` を自動検出し、
 名称はそのまま残されています。
 
 設定の移行手順は [Oden 独自機能](/features/oden) にあります。
+
+## 実行時の `ModuleLoader`
+
+[`cli/module_loader.rs`](https://github.com/taisan11/oden/blob/main/cli/module_loader.rs) の `CliModuleLoader` は `deno_core::ModuleLoader` を実装し、`resolve` と `load` を別々に扱います。
+
+- `resolve`：import 元の specifier と参照元を使って URL / module specifier を決めます。
+- `load`：解決済み module の実体を返します。eszip がある場合は通常のファイル取得とは違う経路です。
+- ESM loader hook が有効なら JS の hook registry を介した非同期応答が使われます。処理中に event loop を回さないと deadlock しうるため、`pump_event_loop_during_load` があります。
+- CommonJS では、ESM hook と CJS loader の hook を二重適用しないための条件分岐があります。
+
+モジュールが見つからない問題と、**解決はできるが実行時ロードで失敗する問題**を区別して追跡してください。全体の前後関係は [実行ライフサイクル](/architecture/execution) にあります。

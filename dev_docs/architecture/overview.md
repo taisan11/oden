@@ -30,7 +30,7 @@ Oden は多数の Rust crate から成る Cargo workspace で、
        └───────────────────┬──────────────────┘
                            │
                      V8 + Tokio
-              (実験的 QuickJS 経路も存在)
+              (JavaScript エンジンは V8 のみ)
 ```
 
 この図は役割の概略です。実際には `cli/` と `runtime/` の両方が
@@ -68,7 +68,8 @@ JS からファイル操作・ネットワークなどのネイティブ機能�
 到達します。`libs/ops` の `#[op2]` マクロが橋渡しを生成し、
 `libs/core` がイベントループや `JsRuntime` を管理します。
 
-詳細は [Runtime・Ops・権限](/architecture/runtime) を参照。
+詳細は [Runtime・Ops・権限](/architecture/runtime) および
+[Extensions・Ops・権限境界](/architecture/ops-and-permissions) を参照。
 
 ## ビルド時と実行時の区別
 
@@ -86,3 +87,9 @@ JS からファイル操作・ネットワークなどのネイティブ機能�
 
 既存資料には upstream 時代のパスや CI の説明が一部残るため、
 このサイトでは現行ツリーと実際の workflow を優先しています。
+
+## より深く調べる
+
+- [CLI → Worker → V8 の実行ライフサイクル](/architecture/execution)：`run` の起動から event loop の終了まで
+- [Extensions・Ops・権限境界](/architecture/ops-and-permissions)：JS と Rust の接続および権限判定
+- [Native KV](/features/kv) / [Turso SQLite](/features/sqlite) / [Desktop](/features/desktop)：独自機能の処理フロー

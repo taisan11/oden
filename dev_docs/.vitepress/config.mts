@@ -16,6 +16,7 @@ export default defineConfig({
       { text: "はじめに", link: "/guide/getting-started" },
       { text: "アーキテクチャ", link: "/architecture/overview" },
       { text: "独自機能", link: "/features/oden" },
+      { text: "KV / SQLite", link: "/features/kv" },
       { text: "開発", link: "/development/testing" },
     ],
     sidebar: [
@@ -30,17 +31,25 @@ export default defineConfig({
           { text: "CLI とサブコマンド", link: "/architecture/cli" },
           { text: "Runtime・Ops・権限", link: "/architecture/runtime" },
           { text: "モジュールとパッケージ", link: "/architecture/modules" },
+          { text: "実行ライフサイクル", link: "/architecture/execution" },
+          { text: "Extensions・Ops・権限境界", link: "/architecture/ops-and-permissions" },
         ],
       },
       {
         text: "Oden 独自機能",
-        items: [{ text: "Deno からの変更点", link: "/features/oden" }],
+        items: [
+          { text: "Deno からの変更点", link: "/features/oden" },
+          { text: "Native KV / Deno KV", link: "/features/kv" },
+          { text: "Turso SQLite", link: "/features/sqlite" },
+          { text: "Desktop の内部構造", link: "/features/desktop" },
+        ],
       },
       {
         text: "コントリビューション",
         items: [
           { text: "変更箇所を探す", link: "/development/navigation" },
           { text: "ビルド・テスト・CI", link: "/development/testing" },
+          { text: "不具合調査と検証", link: "/development/debugging" },
         ],
       },
     ],

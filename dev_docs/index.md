@@ -24,8 +24,12 @@ features:
     link: /development/navigation
   - icon: ⚡
     title: Oden 独自機能
-    details: Turso SQLite・Desktop・V8 / QuickJS・設定移行
+    details: Native KV・Turso SQLite・Desktop・V8・設定移行
     link: /features/oden
+  - icon: 🔍
+    title: 実行の流れを追う
+    details: 起動から ModuleLoader・Worker・Event loop・Ops への呼び出しを追跡
+    link: /architecture/execution
   - icon: 🧪
     title: 検証と自動化
     details: ローカルビルド、各種テスト、軽量 GitHub Actions の役割

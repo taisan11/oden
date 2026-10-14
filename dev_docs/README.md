@@ -36,3 +36,7 @@ This site documents current Oden internals. Keep code references accurate
 and update existing guidance when implementation changes. In particular,
 the inherited `doc/ci.md` describes older upstream CI and is not the
 source of truth for this fork's workflow configuration.
+
+Further deep-dive pages cover the CLI execution lifecycle, native ops and
+permissions, Native KV, Turso SQLite, Desktop, and debugging. When changing
+source code, update both the overview and the relevant deep-dive page.

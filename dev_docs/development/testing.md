@@ -77,3 +77,13 @@ GitHub で最初に一度、
 （初回デプロイが成功するまでは利用できません）。
 
 詳細は [`.github/WORKFLOWS.md`](https://github.com/taisan11/oden/blob/main/.github/WORKFLOWS.md)。
+
+## 変更種類に応じた最小検証
+
+- **ドキュメントのみ**：`npm run docs:build --prefix dev_docs` と相対リンク・ナビゲーションの確認
+- **CLI 解析・フラグ**：parser の Rust unit / `--help` / 対象 `tests/specs`
+- **Runtime / Ops**：対象 crate の Rust テストと `tests/unit`、必要なら worker テスト
+- **SQLite**：`cargo check -p oden_sqlite --features deno_core/v8`、[SQLite のテスト例](/features/sqlite#型と-worker-テスト)
+- **KV**：Native と Deno 互換 backend の両方を検証し、永続化と再起動後の読み込みを確認
+
+具体的な切り分けは [不具合調査と検証](/development/debugging) を参照してください。

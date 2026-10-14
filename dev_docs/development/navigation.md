@@ -38,3 +38,12 @@
 
 既存ドキュメントのパス・実装説明が現行コードと食い違う場合は、
 該当ブランチのソースを優先してください。
+
+## 具体的な調査手順
+
+- 起動順序、Worker の bootstrap、event loop：[実行ライフサイクル](/architecture/execution)
+- JS/Rust の op や resource と権限：[Extensions・Ops・権限境界](/architecture/ops-and-permissions)
+- KV のデータ形式・journal：[Native KV](/features/kv)
+- Bun/Node SQLite の API 差：[Turso SQLite](/features/sqlite)
+- Native window・WebView・binding：[Desktop](/features/desktop)
+- 再現・検証の進め方：[不具合調査と検証](/development/debugging)

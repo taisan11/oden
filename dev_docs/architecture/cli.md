@@ -64,3 +64,9 @@ npm resolver・ローダー・Worker ファクトリーなどを必要に応じ�
 
 新しいフラグやコマンドの動作は `./target/debug/oden --help` と
 spec テストでも確認してください。
+
+## `run` 系の詳細なコールフロー
+
+`CliFactory` は `module_graph_builder()`、`resolver()`、`create_module_loader_factory()`、`create_cli_main_worker_factory()` などを通して依存を遅延生成します。作成後は `CliMainWorker` と runtime 側の `MainWorker` が bootstrap・ES module 評価・event loop を担当します。
+
+分岐ごとの参照順とデバッグ時の入口は [実行ライフサイクル](/architecture/execution) にまとめています。
