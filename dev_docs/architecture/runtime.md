@@ -9,7 +9,7 @@
 [`runtime/lib.rs`](https://github.com/taisan11/oden/blob/main/runtime/lib.rs)
 は runtime crate の公開モジュール群を示します。
 
-Worker の構築は CLI の [§cli/worker.rs§](https://github.com/taisan11/oden/blob/main/cli/worker.rs) と [§cli/lib/worker.rs§](https://github.com/taisan11/oden/blob/main/cli/lib/worker.rs) を経由します。実際の実行順を読む場合は [実行ライフサイクル](/architecture/execution-flow) から始めてください。
+Worker の構築は CLI の [`cli/worker.rs`](https://github.com/taisan11/oden/blob/main/cli/worker.rs) と [`cli/lib/worker.rs`](https://github.com/taisan11/oden/blob/main/cli/lib/worker.rs) を経由します。実際の実行順を読む場合は [実行ライフサイクル](/architecture/execution-flow) から始めてください。
 
 主要な構成要素：
 
