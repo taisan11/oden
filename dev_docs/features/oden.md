@@ -51,7 +51,7 @@ db.query("INSERT INTO notes VALUES (?)").run("hello");
 console.log(db.query("SELECT * FROM notes").all());
 ```
 
-Rust 側の op、権限チェック、prepared statement は共通です。
+Rust 側の op、権限チェック、prepared statement は共通です。内部の構成図・handle の寿命・Node との差異・テスト方法は [Turso SQLite の内部](/features/sqlite) に整理しています。
 **SQLite C API の完全互換ではありません。**
 拡張ロードや一部の open flags などの制限は
 [`ext/sqlite/README.md`](https://github.com/taisan11/oden/blob/main/ext/sqlite/README.md)
@@ -74,7 +74,7 @@ Desktop 機能はネイティブウィンドウと Oden runtime を組み合わ�
 
 設計の詳細は
 [`doc/desktop-architecture.md`](https://github.com/taisan11/oden/blob/main/doc/desktop-architecture.md)
-を参照してください。この機能は現時点で実験的です。
+を参照してください。WebView とネイティブイベントの二系統や ABI、HMR の挙動は [Desktop の内部](/features/desktop) にまとめています。この機能は現時点で実験的です。
 
 ## V8 バックエンド
 
