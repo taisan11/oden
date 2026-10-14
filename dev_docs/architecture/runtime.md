@@ -73,3 +73,9 @@ Tokio は I/O タスクの実行を支え、
 [`libs/core/README.md`](https://github.com/taisan11/oden/blob/main/libs/core/README.md)
 および [`libs/ops/`](https://github.com/taisan11/oden/tree/main/libs/ops)
 を参照してください。
+
+## 実際の処理順を追う
+
+`MainWorker` の構築後、`bootstrap(BootstrapOptions)` → `preload_main_module` → `evaluate_module` に進み、非同期操作は `JsRuntime` の event loop で処理されます。`WebWorker` は独立した初期化経路を持ちます。
+
+この呼び出し順は [CLI から JavaScript 実行まで](/architecture/execution)、権限と resource 管理は [Extensions・Ops・権限境界](/architecture/ops-and-permissions) を参照してください。

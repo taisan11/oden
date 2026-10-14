@@ -71,3 +71,14 @@ Deno upstream の大規模 CI を前提とした記述も残っています。
 **現在有効な CI は `.github/workflows/*.yml` が一次情報**です。
 また、Oden 独自機能は upstream Deno の公開 API と
 互換性・安定性が同じとは限りません。
+
+## 読む目的から選ぶ
+
+| 目的 | 推奨する順序 |
+| --- | --- |
+| `oden run` の実行を追う | [CLI](/architecture/cli) → [ライフサイクル](/architecture/execution) → [Runtime](/architecture/runtime) |
+| 独自 Web API を追加する | [Extensions・Ops・権限](/architecture/ops-and-permissions) → [変更箇所](/development/navigation) |
+| 保存系を改修する | [Native KV](/features/kv) または [Turso SQLite](/features/sqlite) |
+| Desktop の表示・IPC を調査する | [Desktop](/features/desktop) → [不具合調査](/development/debugging) |
+
+最初からすべて読む必要はありません。問題が起きているレイヤーと、その境界だけを先に把握するのが近道です。

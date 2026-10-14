@@ -97,3 +97,9 @@ Oden がサポートする JavaScript エンジンは V8 のみです。
 
 新機能の改修時には upstream との差分だけでなく、
 既存 Deno 互換テストへの影響も確認してください。
+
+## 個別実装の解説
+
+- [Native KV と Deno KV](/features/kv)：backend・journal・永続化・運用制限
+- [Turso SQLite](/features/sqlite)：共通 Rust backend と Bun / Node アダプターの差
+- [Desktop](/features/desktop)：Laufey、`libdenort`、loopback HTTP と bindings の通信
