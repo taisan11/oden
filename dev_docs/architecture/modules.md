@@ -1,5 +1,7 @@
 # モジュール解決・キャッシュ・パッケージ管理
 
+このページは各層の役割の概説です。`CliModuleLoader` や `ModuleGraphCreator` など、処理順に沿ってより詳しく読む場合は [モジュール解決とロードの実装経路](/architecture/module-pipeline) を参照してください。
+
 ## 主要な担当範囲
 
 モジュールの解決・取得・実行は単一の関数ではなく、複数の crate と
@@ -60,4 +62,4 @@ Oden は `oden.json` / `oden.jsonc` を自動検出し、
 一方で互換性のため `Deno` 名前空間や内部 crate の `deno_*`
 名称はそのまま残されています。
 
-設定の移行手順は [Oden 独自機能](/features/oden) にあります。
+設定の移行手順は [Oden 独自機能](/features/oden) にあります。組込みモジュール `oden:sqlite` の loader 登録は [SQLite の内部](/features/sqlite) にまとめています。
