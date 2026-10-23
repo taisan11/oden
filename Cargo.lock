@@ -2518,7 +2518,7 @@ dependencies = [
 
 [[package]]
 name = "deno_dotenv"
-version = "0.30.0"
+version = "0.29.0"
 dependencies = [
  "deno_path_util",
  "sys_traits",
