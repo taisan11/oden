@@ -23,26 +23,34 @@ workflows are plain YAML.
 
 Use **Actions → Build Oden → Run workflow** and select `debug` or `release`.
 
-The workflow builds Linux x86_64 `oden` from source, smoke-tests the resulting
-executable, and uploads it as an expiring workflow artifact. It initializes only
-`tests/util/std`, not the WPT or Node.js compatibility suites.
+The workflow builds Linux x86_64 `oden` and Windows x86_64 `oden.exe` from
+source, smoke-tests both executables, and uploads them as separate expiring
+workflow artifacts. Windows builds use the MSVC target and a Windows runner.
+Both jobs initialize only `tests/util/std`, not the WPT or Node.js
+compatibility suites.
 
-The build can use significant disk space and memory. GitHub-hosted runners may
-run out of resources; if so, use a suitable self-hosted runner or build locally.
-Windows, macOS, ARM64, full WPT, and full Node compatibility testing are not
-part of this minimal automation. Run platform-specific tests locally before
-publishing binaries for those platforms.
+The build can use significant disk space and memory. Windows jobs disable
+Cargo incremental builds, and the manual Windows debug build omits debug symbols
+to conserve space. GitHub-hosted runners may still run out of resources; if so,
+use a suitable self-hosted runner or build locally.
+macOS, ARM64, full WPT, and full Node compatibility testing are not part of
+this minimal automation. Windows has basic executable smoke tests, not a full
+platform compatibility suite. Run platform-specific tests locally before
+publishing binaries.
 
 ## Release: `release.yml`
 
-The release workflow is **manual-only** and **Linux x86_64-only**:
+The release workflow is **manual-only** and builds **Linux and Windows x86_64**:
 
 1. Create and push an appropriately versioned Git tag, e.g. `v0.1.0`.
 2. Use **Actions → Draft Oden Release → Run workflow**.
 3. Supply the existing tag and run the workflow.
-4. The workflow checks out that tag, builds and smoke-tests `oden`, generates a
-   tarball and SHA-256 checksum, and creates a **draft** GitHub Release.
-5. Review the draft assets and notes before publishing it manually.
+4. The workflow checks out that tag on Linux and Windows, builds and
+   smoke-tests both binaries, then packages a Linux `.tar.gz` and Windows
+   `.zip` (containing `oden.exe`) with SHA-256 checksums.
+5. Once both builds succeed, one job assembles all assets into a **draft**
+   GitHub Release. Review the draft assets and notes before publishing it
+   manually.
 
 The workflow does not publish packages, create version tags, sign binaries,
 update an upgrade CDN, or automatically distribute builds. The Rust build may
@@ -66,7 +74,8 @@ the site can be published at `https://taisan11.github.io/oden/`.
 - `./x lint-js`: JavaScript/TypeScript lint
 - `cargo metadata --locked --no-deps --format-version 1`: workspace validation
 - `cargo build --locked -p deno --bin oden`: build debug Oden
-- `./target/debug/oden eval 'console.log(1+2)'`: smoke test
+- `./target/debug/oden eval 'console.log(1+2)'`: Linux smoke test
+- `.\target\debug\oden.exe eval "console.log(1+2)"`: Windows PowerShell smoke test
 
 ## Repository settings after merging
 

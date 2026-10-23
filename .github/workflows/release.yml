@@ -13,11 +13,9 @@ permissions:
 
 jobs:
   linux-x64:
-    name: Build Linux release and create draft
+    name: Build Linux release
     runs-on: ubuntu-24.04
     timeout-minutes: 360
-    permissions:
-      contents: write
     env:
       RELEASE_TAG: ${{ inputs.tag }}
       CARGO_TERM_COLOR: always
@@ -48,6 +46,91 @@ jobs:
         run: |
           tar -czf oden-x86_64-unknown-linux-gnu.tar.gz -C target/release oden
           sha256sum oden-x86_64-unknown-linux-gnu.tar.gz > oden-x86_64-unknown-linux-gnu.tar.gz.sha256
+      - name: Upload Linux release assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-linux-x86_64
+          path: |
+            oden-x86_64-unknown-linux-gnu.tar.gz
+            oden-x86_64-unknown-linux-gnu.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 7
+
+  windows-x64:
+    name: Build Windows x86_64 release
+    runs-on: windows-2025
+    timeout-minutes: 360
+    env:
+      RELEASE_TAG: ${{ inputs.tag }}
+      CARGO_TERM_COLOR: always
+      CARGO_BUILD_JOBS: 2
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - name: Enable Windows Git checkout support
+        shell: pwsh
+        run: |
+          git config --global core.longpaths true
+          git config --global core.symlinks true
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Check tag and select tagged source
+        shell: bash
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Expected a version tag such as v0.1.0" >&2
+            exit 1
+          fi
+          git fetch --depth=1 origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+          git checkout --detach "$RELEASE_TAG"
+      - name: Fetch only the standard library submodule
+        run: git submodule update --init --depth=1 tests/util/std
+      - name: Install pinned Rust toolchain
+        uses: dsherret/rust-toolchain-file@v1
+      - name: Build release executable
+        shell: pwsh
+        run: |
+          cargo build --release --locked -p deno --bin oden
+          if ($LASTEXITCODE -ne 0) { throw "Cargo build failed" }
+      - name: Smoke test the built Oden binary
+        shell: pwsh
+        run: |
+          & ./target/release/oden.exe --version
+          if ($LASTEXITCODE -ne 0) { throw "Version smoke test failed" }
+          $output = & ./target/release/oden.exe eval 'console.log(1 + 2)'
+          if ($LASTEXITCODE -ne 0 -or ($output -join [Environment]::NewLine).Trim() -ne "3") {
+            throw "Eval smoke test failed: $output"
+          }
+      - name: Package Windows binary and checksum
+        shell: pwsh
+        run: |
+          $archive = "oden-x86_64-pc-windows-msvc.zip"
+          Compress-Archive -Path target/release/oden.exe -DestinationPath $archive
+          $hash = (Get-FileHash -Path $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $archive" | Set-Content -Encoding ascii "$archive.sha256"
+      - name: Upload Windows release assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-windows-x86_64
+          path: |
+            oden-x86_64-pc-windows-msvc.zip
+            oden-x86_64-pc-windows-msvc.zip.sha256
+          if-no-files-found: error
+          retention-days: 7
+
+  draft-release:
+    name: Create draft GitHub release
+    runs-on: ubuntu-24.04
+    needs: [linux-x64, windows-x64]
+    permissions:
+      contents: write
+    steps:
+      - name: Download both release packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
       - name: Create draft GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -55,6 +138,4 @@ jobs:
           draft: true
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: |
-            oden-x86_64-unknown-linux-gnu.tar.gz
-            oden-x86_64-unknown-linux-gnu.tar.gz.sha256
+          files: dist/*

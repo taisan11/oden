@@ -49,3 +49,54 @@ jobs:
           path: target/${{ inputs.profile }}/oden
           if-no-files-found: error
           retention-days: 7
+
+  windows-x64:
+    name: Windows x86_64 (${{ inputs.profile }})
+    runs-on: windows-2025
+    timeout-minutes: 360
+    env:
+      BUILD_PROFILE: ${{ inputs.profile }}
+      CARGO_TERM_COLOR: always
+      CARGO_BUILD_JOBS: 2
+      CARGO_INCREMENTAL: '0'
+      # Debug symbols consume substantial runner disk space.
+      CARGO_PROFILE_DEV_DEBUG: '0'
+    steps:
+      - name: Enable Windows Git checkout support
+        shell: pwsh
+        run: |
+          git config --global core.longpaths true
+          git config --global core.symlinks true
+      - uses: actions/checkout@v6
+      - name: Fetch only the standard library submodule
+        run: git submodule update --init --depth=1 tests/util/std
+      - name: Install pinned Rust toolchain
+        uses: dsherret/rust-toolchain-file@v1
+      - name: Build executable
+        shell: pwsh
+        run: |
+          if ($env:BUILD_PROFILE -eq "release") {
+            cargo build --locked --release -p deno --bin oden
+          } elseif ($env:BUILD_PROFILE -eq "debug") {
+            cargo build --locked -p deno --bin oden
+          } else {
+            throw "Unsupported profile: $env:BUILD_PROFILE"
+          }
+          if ($LASTEXITCODE -ne 0) { throw "Cargo build failed" }
+      - name: Smoke test the built Oden binary
+        shell: pwsh
+        run: |
+          $binary = "target/$env:BUILD_PROFILE/oden.exe"
+          & $binary --version
+          if ($LASTEXITCODE -ne 0) { throw "Version smoke test failed" }
+          $output = & $binary eval 'console.log(1 + 2)'
+          if ($LASTEXITCODE -ne 0 -or ($output -join [Environment]::NewLine).Trim() -ne "3") {
+            throw "Eval smoke test failed: $output"
+          }
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: oden-windows-x86_64-${{ inputs.profile }}
+          path: target/${{ inputs.profile }}/oden.exe
+          if-no-files-found: error
+          retention-days: 7
