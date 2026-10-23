@@ -75,7 +75,7 @@ the site can be published at `https://taisan11.github.io/oden/`.
 - `cargo metadata --locked --no-deps --format-version 1`: workspace validation
 - `cargo build --locked -p deno --bin oden`: build debug Oden
 - `./target/debug/oden eval 'console.log(1+2)'`: Linux smoke test
-- `.\\target\\debug\\oden.exe eval "console.log(1+2)"`: Windows PowerShell smoke test
+- `.\target\debug\oden.exe eval "console.log(1+2)"`: Windows PowerShell smoke test
 
 ## Repository settings after merging
 
