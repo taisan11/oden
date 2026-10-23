@@ -29,8 +29,10 @@ workflow artifacts. Windows builds use the MSVC target and a Windows runner.
 Both jobs initialize only `tests/util/std`, not the WPT or Node.js
 compatibility suites.
 
-The build can use significant disk space and memory. GitHub-hosted runners may
-run out of resources; if so, use a suitable self-hosted runner or build locally.
+The build can use significant disk space and memory. Windows jobs disable
+Cargo incremental builds, and the manual Windows debug build omits debug symbols
+to conserve space. GitHub-hosted runners may still run out of resources; if so,
+use a suitable self-hosted runner or build locally.
 macOS, ARM64, full WPT, and full Node compatibility testing are not part of
 this minimal automation. Windows has basic executable smoke tests, not a full
 platform compatibility suite. Run platform-specific tests locally before
