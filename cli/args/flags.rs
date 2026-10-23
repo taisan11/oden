@@ -46,6 +46,7 @@ pub static UPGRADE_USAGE: &str = cstr!(
 
 <g>Channel</>
   <bold>oden upgrade</> <p(245)>stable</>
+  <bold>deno upgrade</> <p(245)>lts</>
   <bold>oden upgrade</> <p(245)>alpha</>
   <bold>oden upgrade</> <p(245)>beta</>
   <bold>oden upgrade</> <p(245)>rc</>
