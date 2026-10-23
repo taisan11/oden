@@ -13,6 +13,7 @@ Specific version
 
 Channel
   oden upgrade stable
+  deno upgrade lts
   oden upgrade alpha
   oden upgrade beta
   oden upgrade rc
